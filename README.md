@@ -8,4 +8,9 @@ npm run dev # runs webpack dev server on port 8080
 ```
 
 ### Production
-not pushed to production yet.
+App is live: https://dcts-todo-app.firebaseapp.com/ (hosted by firebase hosting)
+```
+firebase deploy # only hosting initialized
+```
+
+
