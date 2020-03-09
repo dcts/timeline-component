@@ -88,6 +88,8 @@ class TodoView extends LitElement {
         completed: false
       }];
       this.resetInput();
+    } else {
+      alert("empty task cannot be added!")
     }
   }
 
