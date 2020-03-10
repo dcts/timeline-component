@@ -26,7 +26,7 @@ class TodoView extends LitElement {
   static get styles() {
     return [style];
   }
-
+  //
   render() {
     return html`
       <input id="inputTask" @keyup="${this.submitByPressingEnter}" type="text" placeholder="new task"/>
@@ -38,7 +38,12 @@ class TodoView extends LitElement {
 
       <div className="todos-list">
         ${this.todos.slice().reverse().map((todo, indx) => {
-          return html`<todo-task task="${todo.task}" .completed="${todo.completed}"><todo-task>`;
+          return html`
+            <todo-task
+              task="${todo.task}"
+              .completed="${todo.completed}"
+              .deleteTask=${this.deleteTask.bind(this, (this.todos.length-1)-indx)}
+            ><todo-task>`;
         })}
       </div>
     `;
@@ -69,6 +74,10 @@ class TodoView extends LitElement {
 
   resetInput() {
     this.shadowRoot.getElementById("inputTask").value = "";
+  }
+
+  deleteTask(indexToDelete) {
+    this.todos = this.todos.filter((_, indx) => indx !== indexToDelete);
   }
 
   // toggleTask() {
