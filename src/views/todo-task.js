@@ -24,9 +24,10 @@ class TodoTask extends LitElement {
 
   render() {
     return html`
-      <div class="task" @click="${this.toggleState}">
-        <span class="dot ${this.completed ? 'active' : ''}"></span>
-        <span class="task-description">${this.task}</span>
+      <div class="task">
+        <span @click="${this.toggleState}" class="dot ${this.completed ? 'active' : ''}"></span>
+        <span @click="${this.toggleState}" class="task-description">${this.task}</span>
+        <span @click="${this.deleteTask}" class="task-delete">🗑️</span>
       </div>
     `;
   }
