@@ -1,5 +1,6 @@
-import { LitElement, html, css} from 'lit-element';
+import { LitElement, html } from 'lit-element';
 import { TodoTask } from './todo-task.js';
+import { style } from './todo-view-styles.js';
 
 const VisibilityFilters = {
   SHOW_ALL:      "All",
@@ -23,34 +24,7 @@ class TodoView extends LitElement {
   }
 
   static get styles() {
-    return css`
-      input,
-      button {
-        padding: 10px 20px;
-        border-radius: 7px;
-        font-size: 16px;
-        border: none;
-      }
-      input:focus,
-      button:focus {
-        outline: none;
-      }
-      input {
-        background: rgba(0,0,0,0.1);
-      }
-      button {
-        background-color: white;
-        background-color: #1f68f4;
-        color: white;
-        font-weight: bold;
-        cursor: pointer;
-      }
-      p#taskCounter {
-        margin-top: 5px;
-        font-size: 12px;
-        font-style: italic;
-      }
-    `;
+    return [style];
   }
 
   render() {
@@ -66,9 +40,7 @@ class TodoView extends LitElement {
 
       <div className="todos-list">
         ${todosReversed.map((todo, indx) => {
-          return todo.completed ?
-            html`<todo-task task="${todo.task}" completed><todo-task>` :
-            html`<todo-task task="${todo.task}"><todo-task>`;
+          return html`<todo-task task="${todo.task}" .completed="${todo.completed}"><todo-task>`;
         })}
       </div>
     `;
@@ -100,6 +72,10 @@ class TodoView extends LitElement {
   resetInput() {
     this.shadowRoot.getElementById("inputTask").value = "";
   }
+
+  // toggleTask() {
+  //   alert("TASK TOGGLED");
+  // }
 
 }
 

@@ -1,4 +1,5 @@
-import { LitElement, html, css} from 'lit-element';
+import { LitElement, html } from 'lit-element';
+import { style } from './todo-task-styles.js';
 
 class TodoTask extends LitElement {
 
@@ -16,27 +17,7 @@ class TodoTask extends LitElement {
   }
 
   static get styles() {
-    return css`
-      .dot {
-        height: 25px;
-        width: 25px;
-        background-color: #eee;
-        border-radius: 50%;
-        display: inline-block;
-        margin-right: 12px;
-      }
-      .dot.active {
-        background-color: rgba(31,104,244,0.6) !important;
-      }
-      div.task {
-        margin-bottom: 7px;
-        display: flex;
-        cursor: pointer;
-      }
-      div.task:hover .dot {
-        background-color: #ddd;
-      }
-    `;
+    return [style];
   }
 
   render() {
