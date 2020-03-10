@@ -10,5 +10,10 @@ npm run dev # runs webpack dev server on port 8080
 ### Production
 App is live: https://dcts-todo-app.firebaseapp.com/ (hosted by firebase hosting)
 ```bash
-firebase deploy # only hosting initialized
+# deploy in 2 steps
+npm run prod    # bundle and build production files with webpack
+firebase deploy # deploys content of /dist folder to firebase
+
+# script (runs both steps)
+npm run deploy
 ```
