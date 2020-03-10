@@ -6,13 +6,15 @@ class TodoTask extends LitElement {
   static get properties() {
     return {
       task: { type: String },
-      completed: { type: Boolean }
+      completed: { type: Boolean },
+      deleteTask: {type: Function}
     }
   }
 
+  // no need for constructor?
   constructor() {
     super();
-    this.task = "asd";
+    this.task = "default task";
     this.completed = false;
   }
 
@@ -32,6 +34,12 @@ class TodoTask extends LitElement {
   toggleState() {
     this.completed = !this.completed;
   }
+
+  // delete function already passed as attribute
+  // deleteTask() {
+  //   this.deleteTask();
+  // }
+
 }
 
 customElements.define('todo-task', TodoTask);
