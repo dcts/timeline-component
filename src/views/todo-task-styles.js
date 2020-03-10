@@ -20,4 +20,7 @@ export const style = css`
   div.task:hover .dot {
     background-color: #ddd;
   }
+  .task-delete {
+    margin-left: 20px;
+  }
 `;
