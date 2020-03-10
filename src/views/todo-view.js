@@ -28,18 +28,16 @@ class TodoView extends LitElement {
   }
 
   render() {
-    const todosReversed = this.todos.slice().reverse();
-    const numberOfTasks = this.todos.length;
     return html`
       <input id="inputTask" @keyup="${this.submitByPressingEnter}" type="text" placeholder="new task"/>
       <button
         @click="${this.addTodo}"
         >ADD TASK
       </button>
-      <p id="taskCounter">${numberOfTasks} ${numberOfTasks === 1 ? "task" : "tasks"} added</p>
+      <p id="taskCounter">${this.todos.length} ${this.todos.length === 1 ? "task" : "tasks"} added</p>
 
       <div className="todos-list">
-        ${todosReversed.map((todo, indx) => {
+        ${this.todos.slice().reverse().map((todo, indx) => {
           return html`<todo-task task="${todo.task}" .completed="${todo.completed}"><todo-task>`;
         })}
       </div>
