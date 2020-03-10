@@ -7,6 +7,7 @@
     "webpack": "webpack",
     "webpack-dev-server": "webpack-dev-server --history-api-fallback",
     "prod": "npm run webpack -- --env.mode production --env.presets serviceworker",
+    "deploy": "npm run prod && firebase deploy",
     "dev": "npm run webpack-dev-server -- --env.mode development",
     "dev:sw": "npm run webpack-dev-server -- --env.mode development  --env.presets serviceworker"
   },
