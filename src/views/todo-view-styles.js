@@ -14,6 +14,7 @@ export const style = css`
   }
   input {
     background: rgba(0,0,0,0.1);
+    flex-grow: 3;
   }
   button {
     background-color: white;
@@ -21,10 +22,15 @@ export const style = css`
     color: white;
     font-weight: bold;
     cursor: pointer;
+    flex-grow: 1;
+    margin-left: 18px;
   }
   p#taskCounter {
     margin-top: 5px;
     font-size: 12px;
     font-style: italic;
+  }
+  div.form-container {
+    display: flex;
   }
 `;

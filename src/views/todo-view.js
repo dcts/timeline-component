@@ -29,11 +29,13 @@ class TodoView extends LitElement {
   //
   render() {
     return html`
-      <input id="inputTask" @keyup="${this.submitByPressingEnter}" type="text" placeholder="new task"/>
-      <button
-        @click="${this.addTodo}"
-        >ADD TASK
-      </button>
+      <div class="form-container">
+        <input id="inputTask" @keyup="${this.submitByPressingEnter}" type="text" placeholder="new task"/>
+        <button
+          @click="${this.addTodo}"
+          >ADD TASK
+        </button>
+      </div>
       <p id="taskCounter">${this.todos.length} ${this.todos.length === 1 ? "task" : "tasks"} added</p>
 
       <div className="todos-list">
