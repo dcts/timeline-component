@@ -7,7 +7,8 @@ class TodoTask extends LitElement {
     return {
       task: { type: String },
       completed: { type: Boolean },
-      deleteTask: {type: Function}
+      deleteTask: {type: Function},
+      toggleTask: {type: Function}
     }
   }
 
@@ -25,8 +26,8 @@ class TodoTask extends LitElement {
   render() {
     return html`
       <div class="task">
-        <span @click="${this.toggleState}" class="dot ${this.completed ? 'active' : ''}"></span>
-        <span @click="${this.toggleState}" class="task-description">${this.task}</span>
+        <span @click="${this.toggleTask}" class="dot ${this.completed ? 'active' : ''}"></span>
+        <span @click="${this.toggleTask}" class="task-description">${this.task}</span>
         <span @click="${this.deleteTask}" class="task-delete">🗑️</span>
       </div>
     `;
@@ -35,11 +36,6 @@ class TodoTask extends LitElement {
   toggleState() {
     this.completed = !this.completed;
   }
-
-  // delete function already passed as attribute
-  // deleteTask() {
-  //   this.deleteTask();
-  // }
 
 }
 

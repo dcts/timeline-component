@@ -28,6 +28,7 @@ class TodoView extends LitElement {
   }
   //
   render() {
+    // @TOASK1: the todo-task gets rendered twice!
     return html`
       <div class="form-container">
         <input id="inputTask" @keyup="${this.submitByPressingEnter}" type="text" placeholder="new task"/>
@@ -37,14 +38,18 @@ class TodoView extends LitElement {
         </button>
       </div>
       <p id="taskCounter">${this.todos.length} ${this.todos.length === 1 ? "task" : "tasks"} added</p>
-
+      <!-- @TOASK4: best practice to bind functions to this and give the index as argument? Other (better solutions)? -->
       <div className="todos-list">
-        ${this.todos.slice().reverse().map((todo, indx) => {
+        ${this.todos.map((todo, indx) => {
+          console.log("todo" + indx);
+          console.log(todo);
           return html`
             <todo-task
+              data-indx="${indx}"
               task="${todo.task}"
               .completed="${todo.completed}"
-              .deleteTask=${this.deleteTask.bind(this, (this.todos.length-1)-indx)}
+              .deleteTask=${this.deleteTask.bind(this, indx)}
+              .toggleTask=${this.toggleTask.bind(this, indx)}
             ><todo-task>`;
         })}
       </div>
@@ -60,10 +65,10 @@ class TodoView extends LitElement {
   addTodo() {
     const input = this.getInput();
     if (input) { // empty string returns false
-      this.todos = [... this.todos, {
+      this.todos = [ {
         task: input,
         completed: false
-      }];
+      }, ... this.todos]; // add new todo in the beginning
       this.resetInput();
     } else {
       alert("empty task cannot be added!");
@@ -79,12 +84,19 @@ class TodoView extends LitElement {
   }
 
   deleteTask(indexToDelete) {
+    console.log(`deleting task with index ${indexToDelete}`);
     this.todos = this.todos.filter((_, indx) => indx !== indexToDelete);
   }
 
-  // toggleTask() {
-  //   alert("TASK TOGGLED");
-  // }
+  toggleTask(indexToToggle) {
+    // @TOASK5: we are responsible to keep stuff in sync, right?
+    // change child element (toggle state)
+    const todoTasks = Array.prototype.slice.call(this.shadowRoot.querySelectorAll("todo-task"));
+    todoTasks.find(task => Number(task.dataset.indx) === indexToToggle).toggleState();
+    // adapt this.todos
+    this.todos[indexToToggle].completed = !this.todos[indexToToggle].completed;
+    this.requestUpdate(); // @TOASK3: WHY DO I NEED THIS
+  }
 
 }
 

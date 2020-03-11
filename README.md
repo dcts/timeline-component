@@ -35,3 +35,10 @@ npm run deploy
 - [ ] eventhandling
 - [ ] dot-syntax confusion for booleans + functions?
 - [ ] synchronize/bind states between components
+
+# ToAsk (marked with @TOASK in the code)
+- (1) bug: todo-task is displayed twice somehow...
+- (2) Debugging tricks? Anything mentionable? how do you debug when not knowing where the rendered element comes from?
+- (3) why do i need to request rerendering of the todo-view when I change the list
+- (4) Eventhandling by binding function to another scope of `this`, is that best practice?
+- (5) we need to update the child element and parent element by ourselves? We are responsible for doing that in our code, right?
