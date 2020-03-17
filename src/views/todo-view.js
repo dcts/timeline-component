@@ -26,9 +26,8 @@ class TodoView extends LitElement {
   static get styles() {
     return [style];
   }
-  //
+
   render() {
-    // @TOASK1: the todo-task gets rendered twice!
     return html`
       <div class="form-container">
         <input id="inputTask" @keyup="${this.submitByPressingEnter}" type="text" placeholder="new task"/>
@@ -41,8 +40,6 @@ class TodoView extends LitElement {
       <!-- @TOASK4: best practice to bind functions to this and give the index as argument? Other (better solutions)? -->
       <div className="todos-list">
         ${this.todos.map((todo, indx) => {
-          console.log("todo" + indx);
-          console.log(todo);
           return html`
             <todo-task
               data-indx="${indx}"
@@ -50,7 +47,7 @@ class TodoView extends LitElement {
               .completed="${todo.completed}"
               .deleteTask=${this.deleteTask.bind(this, indx)}
               .toggleTask=${this.toggleTask.bind(this, indx)}
-            ><todo-task>`;
+            ></todo-task>`;
         })}
       </div>
     `;
