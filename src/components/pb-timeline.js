@@ -1,5 +1,7 @@
 import { LitElement, html } from 'lit-element'
 import { style } from './pb-timeline-styles.js'
+import * as d3 from "d3";
+
 
 /**
 * A timeline component to display aggregated data. For example:
@@ -18,9 +20,9 @@ export class PbTimeline extends LitElement {
       /**
       * reference to actual CodeMirror object
       */
-      timelineData: {
-        type: Object
-      },
+      // timelineData: {
+      //   type: Object
+      // },
     };
   }
 
@@ -32,12 +34,36 @@ export class PbTimeline extends LitElement {
 
   render() {
     return html`
-      <p>${JSON.stringify(this.timelineData)}</p>
+      <div class="wrapper">
+        <div id="mainchart"></div>
+        <div id="minichart"></div>
+      </div>
     `;
   }
 
-  loadData(inputData) {
-    this.timelineData = inputData;
+  // connectedCallback() {
+  //   super.connectedCallback();
+  //   // this.loadData([30, 86, 168, 281, 303, 365]);
+  // }
+
+  transformData(inputData){
+
+  }
+
+
+
+  loadData(data) {
+    console.log("loading data:");
+    console.log(data);
+    window.d3 = d3;
+    console.log(d3);
+    d3.select(this.shadowRoot.querySelector("#mainchart"))
+      .selectAll("div")
+      .data(data)
+        .enter()
+        .append("div")
+        .style("width", function(d) { return d + "px"; })
+        .text(function(d) { return d; });
   }
 }
 
