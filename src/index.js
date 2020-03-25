@@ -1,2 +1,5 @@
 import './styles.css';
-import './views/todo-view.js';
+import './components/todo-view.js';
+import './components/pb-timeline.js';
+
+import './data/pb-timeline-load-mock-data.js';
