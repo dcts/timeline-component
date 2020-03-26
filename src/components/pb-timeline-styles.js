@@ -1,6 +1,14 @@
 import { css } from 'lit-element/lit-element.js';
 
 export const style = css`
+  .charts-container {
+    margin: 0 auto;
+  }
+
+  div {
+    margin: 0 auto;
+  }
+
   #mainchart div {
     font: 14px sans-serif;
     background-color: steelblue;
@@ -14,6 +22,15 @@ export const style = css`
   }
   .wrapper {
     border: 1px solid red;
+  }
+
+  #mainchart2 div {
+    font: 10px sans-serif;
+    background-color: steelblue;
+    text-align: right;
+    padding: 3px;
+    margin: 1px;
+    color: white;
   }
 `;
 
