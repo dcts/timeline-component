@@ -53,8 +53,12 @@ header {
   color: var(--base-color);
 }
 
+.text-center {
+  text-align: center;
+}
+
 .page-wrapper {
-  max-width: 600px;
+  max-width: 1000px;
   margin: 0 auto;
   padding-left: 20px;
   padding-right: 20px;
