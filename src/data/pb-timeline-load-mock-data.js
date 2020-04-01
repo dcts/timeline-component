@@ -1,12 +1,3 @@
-// console.log("Hi from pb-timeline-load-mock-data.js");
-
-document.addEventListener("DOMContentLoaded", () => {
-  const timeline = document.querySelector("pb-timeline");
-  console.log(timeline);
-  timeline.loadData();
-  // timeline.loadData(getMockData());
-});
-
 function getMockData() {
   return {
     "0000-00-00": 2,

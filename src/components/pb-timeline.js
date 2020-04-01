@@ -1,6 +1,8 @@
 import { LitElement, html } from 'lit-element'
 import { style } from './pb-timeline-styles.js'
-// import * as d3 from "d3";
+import { PbLineChart } from './pb-line-chart.js'
+import * as d3 from "d3";
+import { DataLoader } from "./data-loader.js";
 
 
 /**
@@ -30,15 +32,29 @@ export class PbTimeline extends LitElement {
     super();
     this.startDate = "1900-01-01";
     this.timelineData = {};
+    document.addEventListener("DOMContentLoaded", () => {
+
+      // console.log("DATA LAODE TEST");
+      // console.log(DataLoader);
+      // const movie = new DataLoader('Beerfest');
+      // console.log(movie.getName());
+      // data = Object.keys(data).map(key => {
+      //   return {
+      //     date: d3.timeParse("%Y-%m-%d")(key),
+      //     value: `${d[key]}`
+      //   }
+      // });
+      // this.shadowRoot.querySelector("pb-linechart").loadData(data);
+
+    })
   }
 
   render() {
     return html`
-      <div class="charts-container">
+      <div>
         <div id="mainchart1"></div>
         <div id="mainchart2"></div>
         <div id="mainchart3"></div>
-        <div id="mainchart4"></div>
       </div>
     `;
   }
@@ -48,14 +64,8 @@ export class PbTimeline extends LitElement {
   }
 
   loadData() {
-    this.loadLineChartFromCsv("mainchart1", "%Y-%m-%d", "src/data/btc-data.csv");
-    this.loadLineChartFromJsonBrushing("mainchart3", "%Y-%m-%d", "src/data/mock-data.json");
-    this.loadLineChartFromCsv("mainchart2", "%Y", "src/data/kba-data-year.csv");
-    this.loadLineChartFromCsv("mainchart4", "%Y-%m-%d", "src/data/kba-data.csv");
-
-
     // this.loadLineChartFromCsv("mainchart1", "%Y", "src/data/kba-data-year.csv");
-    // this.loadLineChartFromJsonBrushing("mainchart1", "%Y-%m-%d", "src/data/mock-data.json");
+    this.loadLineChartFromJsonBrushing("mainchart1", "%Y-%m-%d", "src/data/mock-data.json");
   }
 
   loadLineChartFromJson() {
@@ -64,34 +74,12 @@ export class PbTimeline extends LitElement {
   }
 
   loadLineChartFromJsonBrushing(elementId, dateFormat, path) {
-    // Read the data
-    // d3.json("src/data/mock-data.json",
-    //   function(d){
-    //     // convert data to needed format
-    //     d = Object.keys(d).map(key => {
-    //       return {
-    //         date: key,
-    //         value: d[key]
-    //       }
-    //     });
-    //     d = d.filter(obj => !obj.date.startsWith("0000"));
-    //     console.log(d);
-    //     d = Object.keys(d).map(key => {
-
-    //     }
-    //     // d.map(obj => {
-    //     //   date:
-    //     // })
-    //     return d;
-    //   },
-    // set the dimensions and margins of the graph
     let margin = {top: 10, right: 30, bottom: 30, left: 60};
     let width = 960 - margin.left - margin.right;
     let height = 100 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     const targetEl = this.shadowRoot.querySelector(`#${elementId}`);
-    console.log(targetEl);
     // console.log(this.shadowRoot);
     let svg = d3.select(targetEl)
       .append("svg")
@@ -102,8 +90,7 @@ export class PbTimeline extends LitElement {
               "translate(" + margin.left + "," + margin.top + ")");
     // d3.csv("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/3_TwoNumOrdered_comma.csv",
     // d3.csv("src/data/btc-data.csv", d => { // When reading the csv, I must format variables:
-    d3.json("src/data/mock-data.json", d => {
-      console.log(d);
+    d3.json("src/data/mock-data.json").then(d => {
         // convert data to needed format
         let data = Object.keys(d).map(key => {
           return {
@@ -111,8 +98,6 @@ export class PbTimeline extends LitElement {
             value: `${d[key]}`
           }
         });
-        console.log("data");
-        console.log(data);
         // newData = newData.filter(obj => !obj.date.startsWith("0000"));
         // console.log(d);
         // d = Object.keys(d).map(key => {
@@ -124,8 +109,6 @@ export class PbTimeline extends LitElement {
 
         // return { date : d3.timeParse("%Y-%m-%d")(d.date), value : d.value }
       // }, data => { // Now I can use this dataset:
-        console.log("TARGET DATASET");
-        console.log(data);
         // Add X axis --> it is a date format
         let x = d3.scaleTime()
           .domain(d3.extent(data, d => d.date))
@@ -215,6 +198,9 @@ export class PbTimeline extends LitElement {
               .y(d => y(d.value))
           );
         });
+    }).catch(e => {
+      console.log("CATCHING ERROR:");
+      console.log(e);
     })
   }
 
