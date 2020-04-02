@@ -3,7 +3,6 @@ import './components/todo-view.js';
 import './components/pb-timeline.js';
 import './components/pb-line-chart.js';
 import './components/pb-bar-chart.js';
-
 import '@vaadin/vaadin-date-picker';
 
 import { DataLoader } from "./components/data-loader.js";
@@ -27,9 +26,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // const lineChartEl = document.querySelector("pb-line-chart");
     // lineChartEl.loadData(loader.getJson());
 
-    const barChartEl = document.querySelector("pb-bar-chart");
-    console.log(barChartEl);
-    barChartEl.loadData(loader.getJson());
+    // const barChartEl = document.querySelector("pb-bar-chart");
+    // console.log(barChartEl);
+    // barChartEl.loadData(loader.getJson());
   });
 
 
