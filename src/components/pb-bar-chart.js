@@ -82,6 +82,10 @@ export class PbBarChart extends LitElement {
           // or
           // width: 100 // this makes bar width 100px
       },
+      size: {
+        height: 200,
+        // width: 480
+      },
       axis: {
         x: {
           type: 'category',
@@ -89,7 +93,7 @@ export class PbBarChart extends LitElement {
         }
       },
       legend: {
-        position: 'inset'
+        show: false,
       },
       zoom: {
         enabled: true,

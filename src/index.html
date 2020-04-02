@@ -35,7 +35,16 @@
     </header>
     <main>
       <div class="page-wrapper">
+        <style>
+          :host([theme~="custom-input-field-style"]) [part="input-field"] {
+            border: 1px solid black;
+            background-color: white;
+          }
+        </style>
         <p id="data-loading-status" class="text-center">not loaded</p>
+          <vaadin-date-picker id="datepicker-from" clear-button-visible label="From Date" placeholder="MM/DD/YYYY" theme="custom-input-field-style" ></vaadin-date-picker>
+          <vaadin-date-picker id="datepicker-to" clear-button-visible label="To Date" placeholder="MM/DD/YYYY"></vaadin-date-picker>
+          <vaadin-button theme="primary">Reset Daterange</vaadin-button>
         <!-- <div style="display: flex; justify-content:center;">
           <pb-line-chart></pb-line-chart>
         </div> -->

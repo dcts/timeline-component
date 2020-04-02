@@ -63,3 +63,16 @@ header {
   padding-left: 20px;
   padding-right: 20px;
 }
+
+.flex {
+  display: flex;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+
+.date-picker-group > vaadin-date-picker {
+  margin: 10px;
+}
