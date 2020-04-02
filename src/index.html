@@ -42,14 +42,23 @@
           }
         </style>
         <p id="data-loading-status" class="text-center">not loaded</p>
-          <vaadin-date-picker id="datepicker-from" clear-button-visible label="From Date" placeholder="MM/DD/YYYY" theme="custom-input-field-style" ></vaadin-date-picker>
-          <vaadin-date-picker id="datepicker-to" clear-button-visible label="To Date" placeholder="MM/DD/YYYY"></vaadin-date-picker>
-          <vaadin-button theme="primary">Reset Daterange</vaadin-button>
+        <div class="flex justify-center ">
+          <vaadin-form-layout class="date-picker-group ">
+            <vaadin-date-picker id="datepicker-from" clear-button-visible label="From Date" placeholder="MM/DD/YYYY" theme="custom-input-field-style" ></vaadin-date-picker>
+            <vaadin-date-picker id="datepicker-to" clear-button-visible label="To Date" placeholder="MM/DD/YYYY"></vaadin-date-picker>
+            <vaadin-button theme="primary">Reset Range</vaadin-button>
+          </vaadin-form-layout>
+        </div>
         <!-- <div style="display: flex; justify-content:center;">
           <pb-line-chart></pb-line-chart>
         </div> -->
         <pb-bar-chart></pb-bar-chart>
       </div>
+
+        <!-- <vaadin-text-field label="First Name" value="Jane"></vaadin-text-field>
+        <vaadin-text-field label="Last Name" value="Doe"></vaadin-text-field>
+        <vaadin-text-field label="Email" value="jane.doe@example.com"></vaadin-text-field>
+        <vaadin-date-picker label="Birthday" value="1993-06-23"></vaadin-date-picker> -->
     </main>
 
     <!-- <div id="mainchart"></div> -->

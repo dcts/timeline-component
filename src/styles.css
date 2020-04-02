@@ -73,6 +73,6 @@ header {
 }
 
 
-.date-picker-group > vaadin-date-picker {
+.date-picker-group > * {
   margin: 10px;
 }
