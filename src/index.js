@@ -1,5 +1,4 @@
 import './styles.css';
-import './components/todo-view.js';
 import './components/pb-timeline.js';
 import './components/pb-daterange-picker.js';
 import './components/pb-line-chart.js';
