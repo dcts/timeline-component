@@ -38,6 +38,10 @@ export class PbBarChart extends LitElement {
       this.c3chart = this.initChart();
       this.data = {};
     })
+    document.addEventListener("pb-timeline-data-loaded", (event) => {
+      console.log("data loaded!!")
+      console.log(event.detail.data);
+    })
   }
 
   render() {

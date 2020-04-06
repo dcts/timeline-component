@@ -71,8 +71,3 @@ header {
 .justify-center {
   justify-content: center;
 }
-
-
-.date-picker-group > * {
-  margin: 10px;
-}

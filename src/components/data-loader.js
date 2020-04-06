@@ -22,6 +22,25 @@ export class DataLoader {
     return this.data;
   }
 
+  getDataArrayFormat() {
+    const arrayFormat = {
+      title: "Anzahl",
+      categories: this.getCategories(),
+      values: this.getValues()
+    }
+    console.log("ARRAY FORMAT");
+    console.log(arrayFormat);
+    return arrayFormat;
+  }
+
+  getCategories() {
+    return this.data.map(it => it.date);
+  }
+
+  getValues() {
+    return this.data.map(it => it.value);
+  }
+
   display() {
     console.log(this.data);
   }
@@ -35,19 +54,20 @@ export class DataLoader {
         const cells = row.split(",");
         return {
           date: cells[0],
-          value: cells[1],
+          value: Number(cells[1]),
         };
       })
-      this.dispatchLoadedEvent(url);
+      this.dispatchLoadedEvent(this.getDataArrayFormat(), url);
     })
   }
 
-  dispatchLoadedEvent(url) {
-    document.dispatchEvent(new CustomEvent('data-loaded', {
+  dispatchLoadedEvent(data, url) {
+    document.dispatchEvent(new CustomEvent('pb-timeline-data-loaded', {
       bubbles: true,
       detail: {
+        data: data,
         filepath: url,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
     }));
   }
@@ -56,7 +76,7 @@ export class DataLoader {
     console.log("fetchJson");
     fetch(url).then(response => response.json()).then(data => {
       this.data = data;
-      this.dispatchLoadedEvent(url);
+      this.dispatchLoadedEvent(data, url);
     });
   }
 }
