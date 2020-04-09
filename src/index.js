@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 window.load = function(query) {
-  let filepath = `http://localhost:8080/src/data/kba-${query}.json`;
-  // let filepath = "http://localhost:8080/src/data/kba-predigten.json";
+  // let filepath = `https://dcts-todo-app.web.app/data/kba-${query}.json`; // for production on firebase deploy
+  let filepath = "http://localhost:8080/src/data/kba-predigten.json";
   let loadDataService = new LoadDataService(filepath); // dispatches 'pb-timeline-data-loaded' event
 }
