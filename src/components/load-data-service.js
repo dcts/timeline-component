@@ -4,12 +4,12 @@ export class LoadDataService {
    * - currently hard coded 2 queries ("Briefe" or "Predigten")
    * - fetches JSON data from server, expects a single JSON object with the format:
    *   { "2012-01-01": 123, "2012-02-01": 15, ... }
-   * - triggers pb-timeline-loaded customEvent
-   * - validates data (remove data that is not bind to a valid date)
-   * - applies filtering (start / end date)
-   * - stores SearchResult instances
+   * - triggers pb-timeline-loaded customEvent on finish
+   * - does not validate data, this is done by the SearchResult class.
+   * - does not apply filtering, this is done by the SearchResult class (start / end date)
    */
 
+  // CONSTRUCTOR BROADER -> use after cors policy issue fixed
   // constructor(query) { // hardcoded queries: "Predigt" or "Briefe"
   //   if (query !== "Predigten" && query !== "Briefe" ) {
   //     throw new Error(`Invalid query. Allowed queries 'Predigten' or 'Briefe'. Got: ${query}`);
