@@ -39,13 +39,15 @@ export class PbTimeline extends LitElement {
       this.barchartEl = this.shadowRoot.querySelector("pb-bar-chart");
     })
 
-    let filepath = "http://localhost:8080/src/data/kba-predigten.json";
-    let loadDataService = new LoadDataService(filepath); // dispatches 'pb-timeline-data-loaded' event
-
     document.addEventListener("pb-timeline-data-loaded", (e) => {
-      console.log("HI FROM IMELINE COMPONENT, i received the event!");
       this.searchResult = new SearchResult(e.detail.data);
-      this.barchartEl.loadData(this.searchResult.export());
+      this.barchartEl.updateData(this.searchResult.export());
+      this.daterangeEl.initializeRange(this.searchResult.getMinDateStr(), this.searchResult.getMaxDateStr());
+    });
+
+    document.addEventListener("pb-timeline-daterange-changed", (e) => {
+      console.log("FOUND EVENT")
+      this.barchartEl.updateData(this.searchResult.export(e.detail.startDateStr, e.detail.endDateStr));
     });
   }
 

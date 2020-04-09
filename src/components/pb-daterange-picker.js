@@ -23,25 +23,73 @@ class PbDaterangePicker extends LitElement {
     `;
   }
 
-  /**
-   * Implement `render` to define a template for your element.
-   *
-   * You must provide an implementation of `render` for any element
-   * that uses LitElement as a base class.
-   */
+  constructor() {
+    super();
+    document.addEventListener("DOMContentLoaded", () => {
+      this.dateFromEl = this.shadowRoot.querySelector("vaadin-date-picker#datepicker-from");
+      this.dateToEl = this.shadowRoot.querySelector("vaadin-date-picker#datepicker-to");
+      this.resetRangeButton = this.shadowRoot.querySelector("vaadin-button#reset-range");
+
+      const hardcodedThis = this; // @TOASK: how to acces "this" from within forEach/addEventListener block?
+      [this.dateFromEl, this.dateToEl].forEach(datePicker => {
+        datePicker.addEventListener('change', function(event) {
+          console.log(this);
+          hardcodedThis.changeRange();
+        });
+      });
+
+      this.resetRangeButton.addEventListener("click", (e) => {
+        this.resetRange();
+      });
+    })
+  }
+
+  initializeRange(startDateStr, endDateStr) {
+    this.initialRange = {
+      startDateStr: startDateStr,
+      endDateStr: endDateStr,
+    }
+    this.dateFromEl.value = startDateStr;
+    this.dateToEl.value = endDateStr;
+  }
+
+  changeRange() {
+    // if valid range
+    let startDateStr = this.dateFromEl.value;
+    let endDateStr = this.dateToEl.value;
+    if (startDateStr < endDateStr) {
+      // trigger daterange change event
+      console.log("valid range change");
+      this.dispatchDaterandChangedEvent(startDateStr, endDateStr)
+    } else {
+      console.log("invalid range change");
+    }
+  }
+
+  resetRange() {
+    this.dateFromEl.value = this.initialRange.startDateStr;
+    this.dateToEl.value = this.initialRange.endDateStr;
+    this.dispatchDaterandChangedEvent(this.initialRange.startDateStr, this.initialRange.endDateStr);
+  }
+
+  dispatchDaterandChangedEvent(startDateStr, endDateStr) {
+    document.dispatchEvent(new CustomEvent('pb-timeline-daterange-changed', {
+      bubbles: true,
+      detail: {
+        startDateStr: startDateStr,
+        endDateStr: endDateStr,
+      }
+    }));
+  }
+
   render(){
-    /**
-     * `render` must return a lit-html `TemplateResult`.
-     *
-     * To create a `TemplateResult`, tag a JavaScript template literal
-     * with the `html` helper function:
-     */
+    // @TOASK: why is onclick event or the buttton 'onclick="this.resetRange();"' not working?
     return html`
       <div class="flex justify-center ">
         <vaadin-form-layout class="date-picker-group ">
           <vaadin-date-picker id="datepicker-from" clear-button-visible label="From Date" placeholder="MM/DD/YYYY" theme="custom-input-field-style" ></vaadin-date-picker>
           <vaadin-date-picker id="datepicker-to" clear-button-visible label="To Date" placeholder="MM/DD/YYYY"></vaadin-date-picker>
-          <vaadin-button theme="primary">Reset Range</vaadin-button>
+          <vaadin-button id="reset-range" theme="primary">Reset Range</vaadin-button>
         </vaadin-form-layout>
       </div>
     `;
