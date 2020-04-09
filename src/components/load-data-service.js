@@ -47,8 +47,6 @@ export class LoadDataService {
   }
 
   dispatchLoadedEvent(data, url) {
-    console.log("DISPATCHING EVENT WITH DATA:");
-    console.log(data);
     document.dispatchEvent(new CustomEvent('pb-timeline-data-loaded', {
       bubbles: true,
       detail: {

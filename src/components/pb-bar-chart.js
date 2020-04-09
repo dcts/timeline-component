@@ -33,6 +33,7 @@ export class PbBarChart extends LitElement {
     super();
     this.height = 100;
     this.width = 960;
+    this.maxInterval = 300;
     document.addEventListener("DOMContentLoaded", () => {
       this.chartEl = this.shadowRoot.getElementById("chart");
       this.c3chart = this.initChart();
@@ -56,6 +57,9 @@ export class PbBarChart extends LitElement {
   }
 
   updateData(data) {
+    if (data.categories.length > this.maxInterval) {
+      throw new Error(`Interval size too big. Cannot display more than ${this.maxInterval} datapoint. Got: ${data.categories.length} datapoints`);
+    }
     this.data = data;
     this.c3chart.load({
       columns: [
@@ -66,6 +70,9 @@ export class PbBarChart extends LitElement {
   }
 
   loadData(data) {
+    if (data.categories.length > this.maxInterval) {
+      throw new Error(`Interval size too big. Cannot display more than ${this.maxInterval} datapoint. Got: ${data.categories.length} datapoints`);
+    }
     this.data = data;
     this.reset();
     this.updateData(data);

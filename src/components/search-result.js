@@ -7,7 +7,8 @@ export class SearchResult {
    * - Type defines the 3 possible scopes "D" (days) / "M" (months) / "Y" (years)
    */
 
-  constructor(jsonData, maxInterval = 200) {
+  constructor(jsonData, title = "count", maxInterval = 300) {
+    this.title = title;
     this.data = { days: {}, invalid: {} };
     this.maxInterval = maxInterval;
     this.validateJsonData(jsonData);
@@ -93,6 +94,7 @@ export class SearchResult {
     return {
       categories: categories,
       values: values,
+      title: this.title,
     };
   }
 
@@ -106,6 +108,7 @@ export class SearchResult {
     return {
       categories: categories,
       values: values,
+      title: this.title,
     };
   }
 
@@ -119,6 +122,7 @@ export class SearchResult {
     return {
       categories: categories,
       values: values,
+      title: this.title,
     };
   }
 
