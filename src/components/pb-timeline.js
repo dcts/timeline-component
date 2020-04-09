@@ -2,7 +2,7 @@ import { LitElement, html } from 'lit-element'
 import { style } from './pb-timeline-styles.js'
 import { PbLineChart } from './pb-line-chart.js'
 import * as d3 from "d3";
-import { DataLoader } from "./data-loader.js";
+// import { DataLoader } from "./data-loader.js";
 
 
 /**
