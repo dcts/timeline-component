@@ -34,13 +34,24 @@
       </div>
     </header>
     <main>
+
       <div class="page-wrapper">
-        <p id="data-loading-status" class="text-center">not loaded</p>
+        <div class="flex justify-center">
+          <vaadin-select id="select-data-dropdown" label="Select KBA Data">
+            <template>
+              <vaadin-list-box>
+                <vaadin-item>predigten</vaadin-item>
+                <vaadin-item>briefe</vaadin-item>
+              </vaadin-list-box>
+            </template>
+          </vaadin-select>
+        </div>
+        <p id="data-loading-status" class="text-center">STATUS: not loaded</p>
         <pb-timeline></pb-timeline>
-        <h2 style="margin-top: 150px;">Testing</h2>
+        <!-- <h2 style="margin-top: 150px;">Testing</h2>
         <button onclick="changeView('D')">DAYS</button>
         <button onclick="changeView('M')">MONTHS</button>
-        <button onclick="changeView('Y')">YEARS</button>
+        <button onclick="changeView('Y')">YEARS</button> -->
       </div>
     </main>
 

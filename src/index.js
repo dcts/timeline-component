@@ -1,20 +1,26 @@
 import './styles.css';
 import './components/pb-timeline.js';
+import '@vaadin/vaadin-select';
 
 import { LoadDataService } from "./components/load-data-service.js";
 
 
 let dataLoadingStatusEl;
+let selectDataEl;
 
 document.addEventListener("DOMContentLoaded", () => {
   dataLoadingStatusEl = document.getElementById("data-loading-status");
+  selectDataEl = document.getElementById("select-data-dropdown");
+
+  selectDataEl.addEventListener('change', function(event) {
+    load(event.target.value);
+  });
+
   document.addEventListener("pb-timeline-data-loaded", (e) => {
     dataLoadingStatusEl.innerText = `file ${e.detail.filepath} succesfullly loaded. timestamp: ${e.detail.timestamp}`;
   });
-
-
-
 });
+
 
 window.load = function(query) {
   let filepath = `http://localhost:8080/src/data/kba-${query}.json`;
