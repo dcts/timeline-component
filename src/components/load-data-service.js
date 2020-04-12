@@ -14,9 +14,12 @@ export class LoadDataService {
   //   if (query !== "Predigten" && query !== "Briefe" ) {
   //     throw new Error(`Invalid query. Allowed queries 'Predigten' or 'Briefe'. Got: ${query}`);
   //   }
-  //   const proxy = "https://cors-anywhere.herokuapp.com/"; // bypass CORS policy
+  //   // const proxy = "https://cors-anywhere.herokuapp.com/"; // bypass CORS policy
   //   const baseUrl = "https://kba.anton.ch/api/timeline";
-  //   const paramsObj = { "object_type": query };
+  //   const paramsObj = {
+  //     "object_type": query,
+  //     "api_token": "g73eNpprfHz9nMSEbo072HWmO8tbMEJPCu4KEhGi7on42dJzXD12veztQbM7"
+  //   };
   //   this.url = proxy + baseUrl + "?" + this.getParamsStr(paramsObj);
   //   console.log(this.url);
   //   this.fetchJson(this.url);
@@ -57,7 +60,6 @@ export class LoadDataService {
     }));
   }
 }
-
 
 /*
  * FETCH CSV FILE (depricated, lets make JSON standard)

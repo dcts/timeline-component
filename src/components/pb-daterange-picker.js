@@ -23,6 +23,8 @@ class PbDaterangePicker extends LitElement {
     `;
   }
 
+  // @TODO: first updated callback nutzen um shadow dom elemente zu bekommen
+  // constructor / connectedCallback / firstUpdated /
   constructor() {
     super();
     document.addEventListener("DOMContentLoaded", () => {
@@ -30,11 +32,9 @@ class PbDaterangePicker extends LitElement {
       this.dateToEl = this.shadowRoot.querySelector("vaadin-date-picker#datepicker-to");
       this.resetRangeButton = this.shadowRoot.querySelector("vaadin-button#reset-range");
 
-      const hardcodedThis = this; // @TOASK: how to acces "this" from within forEach/addEventListener block?
       [this.dateFromEl, this.dateToEl].forEach(datePicker => {
-        datePicker.addEventListener('change', function(event) {
-          console.log(this);
-          hardcodedThis.changeRange();
+        datePicker.addEventListener('change', (event) => {
+          this.changeRange();
         });
       });
 
@@ -59,7 +59,6 @@ class PbDaterangePicker extends LitElement {
     let endDateStr = this.dateToEl.value;
     if (startDateStr < endDateStr) {
       // trigger daterange change event
-      console.log("valid range change");
       this.dispatchDaterandChangedEvent(startDateStr, endDateStr)
     } else {
       console.log("invalid range change");
