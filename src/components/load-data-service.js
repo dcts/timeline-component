@@ -1,3 +1,5 @@
+import { SearchResult } from './search-result.js'
+
 export class LoadDataService {
   /*
    * LOAD DATA SERVICE
@@ -45,15 +47,16 @@ export class LoadDataService {
    */
   fetchJson(url) {
     fetch(url).then(response => response.json()).then(jsonData => {
-      this.dispatchLoadedEvent(jsonData, url);
+      const searchResult = new SearchResult(jsonData);
+      this.dispatchLoadedEvent(searchResult, url);
     });
   }
 
-  dispatchLoadedEvent(data, url) {
+  dispatchLoadedEvent(searchResult, url) {
     document.dispatchEvent(new CustomEvent('pb-timeline-data-loaded', {
       bubbles: true,
       detail: {
-        data: data,
+        searchResult: searchResult,
         filepath: url,
         timestamp: Date.now(),
       }

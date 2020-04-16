@@ -29,6 +29,9 @@ firebase deploy # deploys content of /dist folder to firebase
 npm run deploy
 ```
 
+# To Dos
+- [ ] Move eventlisteners to connectedCallback as described here: https://github.com/Polymer/lit-element/issues/139#issuecomment-411284566
+
 # To Learn List
 - [x] lit-element basic syntax + HTML templates
 - [x] pass props through attributes
