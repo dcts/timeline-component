@@ -9,12 +9,6 @@ import * as c3 from "c3";
 */
 export class PbBarChart extends LitElement {
 
-  static get styles() {
-    return css`
-      // CSS goes here
-    `;
-  }
-
   static get properties() {
     return {
       width: {
@@ -34,22 +28,26 @@ export class PbBarChart extends LitElement {
     this.height = 100;
     this.width = 960;
     this.maxInterval = 300;
-    document.addEventListener("DOMContentLoaded", () => {
-      this.chartEl = this.shadowRoot.getElementById("chart");
-      this.c3chart = this.initChart();
-      this.data = {};
-    })
-    document.addEventListener("pb-timeline-data-loaded", (event) => {
-      console.log("data loaded!!")
-      console.log(event.detail.data);
-    })
+
+    window.hardcodedThis = this;
   }
 
-  render() {
-    return html`
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.15/c3.min.css">
-      <div id="chart"></div>
-    `;
+  firstUpdated() {
+    this.chartEl = this.shadowRoot.getElementById("chart");
+    this.c3chart = this.initChart();
+
+    // EXERNAL EVENTS
+    document.addEventListener("pb-timeline-data-loaded", (event) => {
+      console.log("THIS.SEARCHRESUT initialized");
+      this.searchResult = event.detail.searchResult; // save SearchResult instance
+      this.updateData(this.searchResult.export());
+    });
+    // this event is triggered by the componeent itself but can be also triggered by another component
+    document.addEventListener("pb-timeline-daterange-changed", (event) => {
+      const startDateStr = event.detail.startDateStr;
+      const endDateStr = event.detail.endDateStr;
+      this.updateData(this.searchResult.export(startDateStr, endDateStr));
+    });
   }
 
   connectedCallback() {
@@ -83,6 +81,17 @@ export class PbBarChart extends LitElement {
     this.c3chart.unload();
   }
 
+  getData() {
+    return {
+      categories: this.c3chart.categories(),
+      values: this.c3chart.data()[0].values.map(it => it.value)
+    }
+  }
+
+  // currentDiplaySize() {
+  //   return this.getData().categories.length;
+  // }
+
   initChart() {
     return c3.generate({
       bindto: this.chartEl,
@@ -110,12 +119,59 @@ export class PbBarChart extends LitElement {
       },
       zoom: {
         enabled: true,
-        rescale: true
+        rescale: true,
+        onzoomend: this.onzoom
       },
       // subchart: {
       //   show: true
       // }
     });
+  }
+
+  onzoom(currenPixelRange) {
+    const nbrOfPins = window.hardcodedThis.getData().categories.length;
+    console.log(currenPixelRange);
+    const percRange = {
+      min: Math.max(0, Math.min(Number(currenPixelRange[0]) / nbrOfPins, 1)),
+      max: Math.max(0, Math.min(Number(currenPixelRange[1]) / nbrOfPins, 1))
+    }
+    console.log(percRange);
+    const minDate = window.hardcodedThis.searchResult.getMinDate();
+    const maxDate = window.hardcodedThis.searchResult.getMaxDate();
+    const computedMinDate = new Date(minDate.getTime() + ((maxDate - minDate) * percRange.min));
+    const computedMaxDate = new Date(minDate.getTime() + ((maxDate - minDate) * percRange.max));
+    window.minDate = minDate;
+    window.maxDate = maxDate;
+    window.min = computedMinDate;
+    window.max = computedMaxDate;
+    window.percRange = percRange;
+    const computedStartDateStr = computedMinDate.toISOString().split("T")[0];
+    const computedEndDateStr = computedMaxDate.toISOString().split("T")[0];
+    console.log(`${computedStartDateStr} to ${computedEndDateStr}`);
+    window.hardcodedThis.dispatchUpdateDaterangePickerEvent(computedStartDateStr, computedEndDateStr);
+  }
+
+  dispatchUpdateDaterangePickerEvent(startDateStr, endDateStr) {
+    document.dispatchEvent(new CustomEvent('pb-update-daterange-picker', {
+      bubbles: true,
+      detail: {
+        startDateStr: startDateStr,
+        endDateStr: endDateStr,
+      }
+    }));
+  }
+
+  render() {
+    return html`
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.15/c3.min.css">
+      <div id="chart"></div>
+    `;
+  }
+
+  static get styles() {
+    return css`
+      // CSS goes here
+    `;
   }
 }
 

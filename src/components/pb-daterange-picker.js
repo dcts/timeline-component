@@ -53,7 +53,13 @@ class PbDaterangePicker extends LitElement {
       this.initializeRange(this.searchResult.getMinDateStr(), this.searchResult.getMaxDateStr());
     });
     // this event is triggered by the componeent itself but can be also triggered by another component
-    document.addEventListener("pb-timeline-daterange-changed", (event) => {
+    // document.addEventListener("pb-timeline-daterange-changed", (event) => {
+    //   const startDateStr = event.detail.startDateStr;
+    //   const endDateStr = event.detail.endDateStr;
+    //   this.setRange(startDateStr, endDateStr);
+    // });
+    //
+    document.addEventListener("pb-update-daterange-picker", (event) => {
       const startDateStr = event.detail.startDateStr;
       const endDateStr = event.detail.endDateStr;
       this.setRange(startDateStr, endDateStr);
