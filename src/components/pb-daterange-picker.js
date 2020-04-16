@@ -27,21 +27,22 @@ class PbDaterangePicker extends LitElement {
   // constructor / connectedCallback / firstUpdated /
   constructor() {
     super();
-    document.addEventListener("DOMContentLoaded", () => {
-      this.dateFromEl = this.shadowRoot.querySelector("vaadin-date-picker#datepicker-from");
-      this.dateToEl = this.shadowRoot.querySelector("vaadin-date-picker#datepicker-to");
-      this.resetRangeButton = this.shadowRoot.querySelector("vaadin-button#reset-range");
+  }
 
-      [this.dateFromEl, this.dateToEl].forEach(datePicker => {
-        datePicker.addEventListener('change', (event) => {
-          this.changeRange();
-        });
-      });
+  firstUpdated() {
+    this.dateFromEl = this.shadowRoot.querySelector("vaadin-date-picker#datepicker-from");
+    this.dateToEl = this.shadowRoot.querySelector("vaadin-date-picker#datepicker-to");
+    this.resetRangeButton = this.shadowRoot.querySelector("vaadin-button#reset-range");
 
-      this.resetRangeButton.addEventListener("click", (e) => {
-        this.resetRange();
+    [this.dateFromEl, this.dateToEl].forEach(datePicker => {
+      datePicker.addEventListener('change', () => {
+        this.changeRange();
       });
-    })
+    });
+
+    this.resetRangeButton.addEventListener("click", () => {
+      this.resetRange();
+    });
   }
 
   initializeRange(startDateStr, endDateStr) {
