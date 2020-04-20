@@ -1,29 +1,30 @@
+import { SearchResult } from './search-result.js'
+
 export class LoadDataService {
   /*
    * LOAD DATA SERVICE
-   * - currently hard coded 2 queries ("Briefe" or "Predigten")
-   * - fetches JSON data from server, expects a single JSON object with the format:
+   * - currently 2 queries possible ("Brief" or "Predigt")
+   * - fetches JSON data from Anton KBA API, expects a single JSON object with the format:
    *   { "2012-01-01": 123, "2012-02-01": 15, ... }
-   * - triggers pb-timeline-loaded customEvent on finish
+   * - triggers pb-timeline-data-loaded customEvent on finish
    * - does not validate data, this is done by the SearchResult class.
    * - does not apply filtering, this is done by the SearchResult class (start / end date)
    */
 
   // CONSTRUCTOR BROADER -> use after cors policy issue fixed
-  // constructor(query) { // hardcoded queries: "Predigt" or "Briefe"
-  //   if (query !== "Predigten" && query !== "Briefe" ) {
-  //     throw new Error(`Invalid query. Allowed queries 'Predigten' or 'Briefe'. Got: ${query}`);
-  //   }
-  //   const proxy = "https://cors-anywhere.herokuapp.com/"; // bypass CORS policy
-  //   const baseUrl = "https://kba.anton.ch/api/timeline";
-  //   const paramsObj = { "object_type": query };
-  //   this.url = proxy + baseUrl + "?" + this.getParamsStr(paramsObj);
-  //   console.log(this.url);
-  //   this.fetchJson(this.url);
-  // }
-
-  constructor(url) { // alternative method until CORS blocking is resolved
-    this.fetchJson(url);
+  constructor(query) { // hardcoded queries: "Predigt" or "Briefe"
+    if (query !== "Predigt" && query !== "Brief" ) {
+      throw new Error(`Invalid query. Allowed queries 'Predigt' or 'Brief'. Got: ${query}`);
+    }
+    const proxy = "https://cors-anywhere.herokuapp.com/"; // bypass CORS policy
+    const baseUrl = "https://kba.anton.ch/api/timeline";
+    const paramsObj = {
+      "object_type": query,
+      "api_token": "g73eNpprfHz9nMSEbo072HWmO8tbMEJPCu4KEhGi7on42dJzXD12veztQbM7"
+    };
+    this.url = proxy + baseUrl + "?" + this.getParamsStr(paramsObj);
+    console.log(this.url);
+    this.fetchJson(this.url);
   }
 
   getParamsStr(paramsObj) {
@@ -42,22 +43,22 @@ export class LoadDataService {
    */
   fetchJson(url) {
     fetch(url).then(response => response.json()).then(jsonData => {
-      this.dispatchLoadedEvent(jsonData, url);
+      const searchResult = new SearchResult(jsonData);
+      this.dispatchLoadedEvent(searchResult, url);
     });
   }
 
-  dispatchLoadedEvent(data, url) {
+  dispatchLoadedEvent(searchResult, url) {
     document.dispatchEvent(new CustomEvent('pb-timeline-data-loaded', {
       bubbles: true,
       detail: {
-        data: data,
+        searchResult: searchResult,
         filepath: url,
         timestamp: Date.now(),
       }
     }));
   }
 }
-
 
 /*
  * FETCH CSV FILE (depricated, lets make JSON standard)

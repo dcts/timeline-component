@@ -23,25 +23,47 @@ class PbDaterangePicker extends LitElement {
     `;
   }
 
+  // @TODO: first updated callback nutzen um shadow dom elemente zu bekommen
+  // constructor / connectedCallback / firstUpdated /
   constructor() {
     super();
-    document.addEventListener("DOMContentLoaded", () => {
-      this.dateFromEl = this.shadowRoot.querySelector("vaadin-date-picker#datepicker-from");
-      this.dateToEl = this.shadowRoot.querySelector("vaadin-date-picker#datepicker-to");
-      this.resetRangeButton = this.shadowRoot.querySelector("vaadin-button#reset-range");
+  }
 
-      const hardcodedThis = this; // @TOASK: how to acces "this" from within forEach/addEventListener block?
-      [this.dateFromEl, this.dateToEl].forEach(datePicker => {
-        datePicker.addEventListener('change', function(event) {
-          console.log(this);
-          hardcodedThis.changeRange();
-        });
-      });
+  firstUpdated() {
+    this.dateFromEl = this.shadowRoot.querySelector("vaadin-date-picker#datepicker-from");
+    this.dateToEl = this.shadowRoot.querySelector("vaadin-date-picker#datepicker-to");
+    this.resetRangeButton = this.shadowRoot.querySelector("vaadin-button#reset-range");
 
-      this.resetRangeButton.addEventListener("click", (e) => {
-        this.resetRange();
+    [this.dateFromEl, this.dateToEl].forEach(datePicker => {
+      datePicker.addEventListener('change', () => {
+        let startDateStr = this.dateFromEl.value;
+        let endDateStr = this.dateToEl.value;
+        if (this.rangeIsValid(startDateStr, endDateStr)) {
+          this.dispatchDaterangeChangedEvent(startDateStr, endDateStr);
+        }
       });
-    })
+    });
+    this.resetRangeButton.addEventListener("click", () => {
+      this.resetRange();
+    });
+
+    // EXERNAL EVENTS
+    document.addEventListener("pb-timeline-data-loaded", (event) => {
+      this.searchResult = event.detail.searchResult; // save SearchResult instance
+      this.initializeRange(this.searchResult.getMinDateStr(), this.searchResult.getMaxDateStr());
+    });
+    // this event is triggered by the componeent itself but can be also triggered by another component
+    // document.addEventListener("pb-timeline-daterange-changed", (event) => {
+    //   const startDateStr = event.detail.startDateStr;
+    //   const endDateStr = event.detail.endDateStr;
+    //   this.setRange(startDateStr, endDateStr);
+    // });
+    //
+    document.addEventListener("pb-update-daterange-picker", (event) => {
+      const startDateStr = event.detail.startDateStr;
+      const endDateStr = event.detail.endDateStr;
+      this.setRange(startDateStr, endDateStr);
+    });
   }
 
   initializeRange(startDateStr, endDateStr) {
@@ -53,26 +75,22 @@ class PbDaterangePicker extends LitElement {
     this.dateToEl.value = endDateStr;
   }
 
-  changeRange() {
-    // if valid range
-    let startDateStr = this.dateFromEl.value;
-    let endDateStr = this.dateToEl.value;
-    if (startDateStr < endDateStr) {
-      // trigger daterange change event
-      console.log("valid range change");
-      this.dispatchDaterandChangedEvent(startDateStr, endDateStr)
-    } else {
-      console.log("invalid range change");
-    }
+  rangeIsValid(startDateStr, endDateStr) {
+    return startDateStr < endDateStr;
   }
 
   resetRange() {
     this.dateFromEl.value = this.initialRange.startDateStr;
     this.dateToEl.value = this.initialRange.endDateStr;
-    this.dispatchDaterandChangedEvent(this.initialRange.startDateStr, this.initialRange.endDateStr);
+    this.dispatchDaterangeChangedEvent(this.initialRange.startDateStr, this.initialRange.endDateStr);
   }
 
-  dispatchDaterandChangedEvent(startDateStr, endDateStr) {
+  setRange(startDateStr, endDateStr) {
+    this.dateFromEl.value = startDateStr;
+    this.dateToEl.value = endDateStr;
+  }
+
+  dispatchDaterangeChangedEvent(startDateStr, endDateStr) {
     document.dispatchEvent(new CustomEvent('pb-timeline-daterange-changed', {
       bubbles: true,
       detail: {

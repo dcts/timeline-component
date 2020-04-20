@@ -34,21 +34,22 @@ export class PbTimeline extends LitElement {
 
   constructor() {
     super();
-    document.addEventListener("DOMContentLoaded", () => {
-      this.daterangeEl = this.shadowRoot.querySelector("pb-daterange-picker");
-      this.barchartEl = this.shadowRoot.querySelector("pb-bar-chart");
-    })
 
-    document.addEventListener("pb-timeline-data-loaded", (e) => {
-      this.searchResult = new SearchResult(e.detail.data);
-      this.barchartEl.updateData(this.searchResult.export());
-      this.daterangeEl.initializeRange(this.searchResult.getMinDateStr(), this.searchResult.getMaxDateStr());
-    });
+    // document.addEventListener("pb-timeline-data-loaded", (e) => {
+    //   this.searchResult = new SearchResult(e.detail.data);
+    //   this.barchartEl.updateData(this.searchResult.export());
+    //   this.daterangeEl.initializeRange(this.searchResult.getMinDateStr(), this.searchResult.getMaxDateStr());
+    // });
 
-    document.addEventListener("pb-timeline-daterange-changed", (e) => {
-      console.log("FOUND EVENT")
-      this.barchartEl.updateData(this.searchResult.export(e.detail.startDateStr, e.detail.endDateStr));
-    });
+    // document.addEventListener("pb-timeline-daterange-changed", (e) => {
+    //   console.log("FOUND EVENT")
+    //   this.barchartEl.updateData(this.searchResult.export(e.detail.startDateStr, e.detail.endDateStr));
+    // });
+  }
+
+  firstUpdated() {
+    this.daterangeEl = this.shadowRoot.querySelector("pb-daterange-picker");
+    this.barchartEl = this.shadowRoot.querySelector("pb-bar-chart");
   }
 
   render() {

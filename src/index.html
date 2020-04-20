@@ -40,18 +40,20 @@
           <vaadin-select id="select-data-dropdown" label="Select KBA Data">
             <template>
               <vaadin-list-box>
-                <vaadin-item>predigten</vaadin-item>
-                <vaadin-item>briefe</vaadin-item>
+                <vaadin-item>Predigt</vaadin-item>
+                <vaadin-item>Brief</vaadin-item>
               </vaadin-list-box>
             </template>
           </vaadin-select>
         </div>
         <p id="data-loading-status" class="text-center">STATUS: not loaded</p>
-        <pb-timeline></pb-timeline>
-        <!-- <h2 style="margin-top: 150px;">Testing</h2>
-        <button onclick="changeView('D')">DAYS</button>
-        <button onclick="changeView('M')">MONTHS</button>
-        <button onclick="changeView('Y')">YEARS</button> -->
+
+        <div class="component-wrapper">
+          <pb-daterange-picker></pb-daterange-picker>
+        </div>
+        <div class="component-wrapper">
+          <pb-bar-chart width="960" height="150"></pb-bar-chart>
+        </div>
       </div>
     </main>
 
