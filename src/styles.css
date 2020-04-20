@@ -71,3 +71,7 @@ header {
 .justify-center {
   justify-content: center;
 }
+
+.component-wrapper {
+  border: 0.5px dashed rgba(0,0,0,0.1);
+}
