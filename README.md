@@ -45,3 +45,21 @@ npm run deploy
 - [ ] 3) why do i need to request rerendering of the todo-view when I change the list
 - [ ] 4) Eventhandling by binding function to another scope of `this`, is that best practice?
 - [ ] 5) we need to update the child element and parent element by ourselves? We are responsible for doing that in our code, right?
+
+# KBA API
+
+CORS problem:
+
+```javascript
+// Open the console on any page and run this (does not work):
+fetch("https://kba.anton.ch/api/timeline?object_type=Brief")
+  .then(response => response.json())
+  .then(jsonData => { console.log(jsonData) });
+
+// this works (with proxy)
+fetch("https://cors-anywhere.herokuapp.com/https://kba.anton.ch/api/timeline?object_type=Brief")
+  .then(response => response.json())
+  .then(jsonData => { console.log(jsonData) });
+```
+
+- solution? (https://stackoverflow.com/a/55652989/6272061)
