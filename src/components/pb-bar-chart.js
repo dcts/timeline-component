@@ -38,7 +38,6 @@ export class PbBarChart extends LitElement {
 
     // EXERNAL EVENTS
     document.addEventListener("pb-timeline-data-loaded", (event) => {
-      console.log("THIS.SEARCHRESUT initialized");
       this.searchResult = event.detail.searchResult; // save SearchResult instance
       this.updateData(this.searchResult.export());
     });
@@ -88,10 +87,6 @@ export class PbBarChart extends LitElement {
     }
   }
 
-  // currentDiplaySize() {
-  //   return this.getData().categories.length;
-  // }
-
   initChart() {
     return c3.generate({
       bindto: this.chartEl,
@@ -121,33 +116,22 @@ export class PbBarChart extends LitElement {
         enabled: true,
         rescale: true,
         onzoomend: this.onzoom
-      },
-      // subchart: {
-      //   show: true
-      // }
+      }
     });
   }
 
   onzoom(currenPixelRange) {
     const nbrOfPins = window.hardcodedThis.getData().categories.length;
-    console.log(currenPixelRange);
     const percRange = {
       min: Math.max(0, Math.min(Number(currenPixelRange[0]) / nbrOfPins, 1)),
       max: Math.max(0, Math.min(Number(currenPixelRange[1]) / nbrOfPins, 1))
     }
-    console.log(percRange);
     const minDate = window.hardcodedThis.searchResult.getMinDate();
     const maxDate = window.hardcodedThis.searchResult.getMaxDate();
     const computedMinDate = new Date(minDate.getTime() + ((maxDate - minDate) * percRange.min));
     const computedMaxDate = new Date(minDate.getTime() + ((maxDate - minDate) * percRange.max));
-    window.minDate = minDate;
-    window.maxDate = maxDate;
-    window.min = computedMinDate;
-    window.max = computedMaxDate;
-    window.percRange = percRange;
     const computedStartDateStr = computedMinDate.toISOString().split("T")[0];
     const computedEndDateStr = computedMaxDate.toISOString().split("T")[0];
-    console.log(`${computedStartDateStr} to ${computedEndDateStr}`);
     window.hardcodedThis.dispatchUpdateDaterangePickerEvent(computedStartDateStr, computedEndDateStr);
   }
 

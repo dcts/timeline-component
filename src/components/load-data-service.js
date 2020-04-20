@@ -23,7 +23,6 @@ export class LoadDataService {
       "api_token": "g73eNpprfHz9nMSEbo072HWmO8tbMEJPCu4KEhGi7on42dJzXD12veztQbM7"
     };
     this.url = proxy + baseUrl + "?" + this.getParamsStr(paramsObj);
-    console.log(this.url);
     this.fetchJson(this.url);
   }
 
