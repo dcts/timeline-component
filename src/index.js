@@ -1,8 +1,9 @@
 import './styles.css';
-import './components/pb-timeline.js';
+import './components/pb-daterange-picker.js';
+import './components/pb-bar-chart.js';
 import '@vaadin/vaadin-select';
 
-import { LoadDataService } from "./components/load-data-service.js";
+import { LoadDataService } from "./services/load-data-service.js";
 
 
 let dataLoadingStatusEl;

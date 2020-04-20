@@ -1,7 +1,7 @@
 // import { style } from './pb-timeline-styles.js'
 import { LitElement, html, css } from 'lit-element';
-import { SearchResult } from './components/search-result.js';
-import { LoadDataService } from "./components/load-data-service.js";
+import { SearchResultService } from '../services/search-result.js';
+import { LoadDataService } from "../services/load-data-service.js";
 
 import './components/pb-daterange-picker.js';
 import './components/pb-bar-chart.js';
@@ -43,9 +43,8 @@ export class PbTimeline extends LitElement {
     let filepath = "http://localhost:8080/src/data/kba-predigten.json";
     let loadDataService = new LoadDataService(filepath);
 
-
     document.addEventListener("pb-timeline-data-loaded", (e) => {
-      this.searchResult = new SearchResult(e.detail.data);
+      this.searchResult = new SearchResultService(e.detail.data);
       if (dataLoadingStatusEl) {
         dataLoadingStatusEl.innerText = `file ${e.detail.filepath} succesfullly loaded. timestamp: ${e.detail.timestamp}`;
       }

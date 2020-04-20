@@ -1,4 +1,4 @@
-import { SearchResult } from './search-result.js'
+import { SearchResultService } from './search-result-service.js'
 
 export class LoadDataService {
   /*
@@ -7,8 +7,8 @@ export class LoadDataService {
    * - fetches JSON data from Anton KBA API, expects a single JSON object with the format:
    *   { "2012-01-01": 123, "2012-02-01": 15, ... }
    * - triggers pb-timeline-data-loaded customEvent on finish
-   * - does not validate data, this is done by the SearchResult class.
-   * - does not apply filtering, this is done by the SearchResult class (start / end date)
+   * - does not validate data, this is done by the SearchResultService class.
+   * - does not apply filtering, this is done by the SearchResultService class (start / end date)
    */
 
   // CONSTRUCTOR BROADER -> use after cors policy issue fixed
@@ -42,7 +42,7 @@ export class LoadDataService {
    */
   fetchJson(url) {
     fetch(url).then(response => response.json()).then(jsonData => {
-      const searchResult = new SearchResult(jsonData);
+      const searchResult = new SearchResultService(jsonData);
       this.dispatchLoadedEvent(searchResult, url);
     });
   }

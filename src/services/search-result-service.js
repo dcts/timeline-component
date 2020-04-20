@@ -1,4 +1,4 @@
-export class SearchResult {
+export class SearchResultService {
   /*
    * SEARCH RESULT OBJECT
    * - initializes with JSON response of server
@@ -17,8 +17,6 @@ export class SearchResult {
   }
 
   validateJsonData(jsonData) {
-    const days = {};
-    const invalid = {};
     Object.keys(jsonData).sort().forEach(key => {
       if (this.isValidDatestr(key)) {
         this.data.days[key] = Number(jsonData[key]);
@@ -220,27 +218,3 @@ Date.prototype.addYears = function(years) {
   date.setFullYear(date.getFullYear() + years);
   return date;
 }
-
-
-
-// /*
-//  * TEST SCRIPT
-//  *
-//  *
-//  */
-// let jsonData = {
-//   "2020-01-12": 3,
-//   "2020-01-13": 41,
-//   "2020-03-17": 3,
-//   // "2019-01-18": 12,
-//   // "2019-01-17": 1,
-//   // "2009-01-17": 1,
-//   "0000-12-00": 1,
-//   "0000-12-00": 1,
-//   "123": 1,
-// };
-
-// let s = new SearchResult(jsonData);
-// // s.aggregateYearlyData();
-// window.s = s;
-// console.log(s.export());

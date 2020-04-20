@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit-element';
-import { LoadDataService } from "./load-data-service.js";
-import { SearchResult } from './search-result.js';
+import { LoadDataService } from "../services/load-data-service.js";
+import { SearchResultService } from '../services/search-result-service.js';
 
 import './pb-daterange-picker.js';
 import './pb-bar-chart.js';
@@ -36,7 +36,7 @@ export class PbTimeline extends LitElement {
     super();
 
     // document.addEventListener("pb-timeline-data-loaded", (e) => {
-    //   this.searchResult = new SearchResult(e.detail.data);
+    //   this.searchResult = new SearchResultService(e.detail.data);
     //   this.barchartEl.updateData(this.searchResult.export());
     //   this.daterangeEl.initializeRange(this.searchResult.getMinDateStr(), this.searchResult.getMaxDateStr());
     // });

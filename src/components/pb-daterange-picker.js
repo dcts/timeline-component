@@ -1,6 +1,7 @@
 // Import the LitElement base class and html helper function
 import { LitElement, html, css } from 'lit-element';
 import '@vaadin/vaadin-date-picker';
+import '@polymer/paper-input/paper-input.js';
 
 // Extend the LitElement base class
 class PbDaterangePicker extends LitElement {
@@ -104,6 +105,9 @@ class PbDaterangePicker extends LitElement {
     // @TOASK: why is onclick event or the buttton 'onclick="this.resetRange();"' not working?
     return html`
       <div class="flex justify-center ">
+        <paper-input label="selected date: ????-??-??" always-float-label placeholder="From Date"></paper-input>
+        <paper-input label="selected date: ????-??-??" always-float-label placeholder="To Date"></paper-input>
+
         <vaadin-form-layout class="date-picker-group ">
           <vaadin-date-picker id="datepicker-from" clear-button-visible label="From Date" placeholder="MM/DD/YYYY" theme="custom-input-field-style" ></vaadin-date-picker>
           <vaadin-date-picker id="datepicker-to" clear-button-visible label="To Date" placeholder="MM/DD/YYYY"></vaadin-date-picker>
