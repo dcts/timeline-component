@@ -1,4 +1,4 @@
-export class ParseDateService {
+class ParseDateService {
   /*
    * PARSE DATE SERVICE
    * whenever the user inputs a date it should be automatically detected
@@ -11,12 +11,12 @@ export class ParseDateService {
    */
 
   // single purpose object, each initialization runs the parsing
-  constructor(input) {
-    this.input = input;
-    return this.run(input);
+  constructor() {
   }
 
   run (input) {
     return input + "_RUN";
   }
 }
+
+module.exports = ParseDateService;
