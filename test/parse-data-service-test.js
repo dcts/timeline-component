@@ -136,3 +136,34 @@ test('should detect ISO String format seperated by whitespace  (skipped leading 
   t.is("1945-12-01", new ParseDateService().run("1945 12 1"));
   t.is("1930-01-02", new ParseDateService().run("1930 1 2"));
 });
+
+test('should detect format dd.mm.yyyy', t => {
+  t.is("1991-07-23", new ParseDateService().run("23.07.1991"));
+  t.is("1763-02-03", new ParseDateService().run("03.02.1763"));
+});
+
+test('should detect format d(d).m(m).yyyy (without leading zeros)', t => {
+  t.is("1991-07-23", new ParseDateService().run("23.7.1991"));
+  t.is("1763-02-03", new ParseDateService().run("3.2.1763"));
+});
+
+test('should detect format dd/mm/yyyy', t => {
+  t.is("1991-07-23", new ParseDateService().run("23/07/1991"));
+  t.is("1763-02-03", new ParseDateService().run("03/02/1763"));
+});
+
+test('should detect format d(d)/m(m)/yyyy (without leading zeros)', t => {
+  t.is("1991-07-23", new ParseDateService().run("23/07/1991"));
+  t.is("1763-02-03", new ParseDateService().run("03/02/1763"));
+});
+
+test('should detect format dd mm yyyy', t => {
+  t.is("1991-07-23", new ParseDateService().run("23 07 1991"));
+  t.is("1763-02-03", new ParseDateService().run("03 02 1763"));
+});
+
+test('should detect format d(d) m(m) yyyy (without leading zeros)', t => {
+  t.is("1991-07-23", new ParseDateService().run("23 7 1991"));
+  t.is("1763-02-03", new ParseDateService().run("3 2 1763"));
+  t.is("1950-01-31", new ParseDateService().run("31 1 1950"));
+});
