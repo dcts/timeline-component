@@ -15,7 +15,21 @@ class ParseDateService {
   }
 
   run (input) {
-    return input + "_RUN";
+    this.input = input;
+    this.day = "??";
+    this.month = "??";
+    this.year = "????";
+    this.findYear();
+    return this.buildResult();
+  }
+
+  buildResult() {
+    return `${this.year}-${this.month}-${this.day}`;
+  }
+
+  findYear() {
+    let regex = /[1-9]{1}[0-9]{3}/;
+    this.input
   }
 }
 

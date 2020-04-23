@@ -3,8 +3,8 @@ const ParseDateService = require('../src/services/parse-date-service.js');
 // import { ParseDateService } from '../src/services/parse-date-service.js';
 // console.log(ParseDateService);
 
-test('should return undefined for nonsense input', t => {
-  t.is(undefined, new ParseDateService().run("asdkjhawd1 e12d18f3f8"));
+test('should return default value for nonsense input', t => {
+  t.is("????-??-??", new ParseDateService().run("asdkjhawd1 e12d18f3f8"));
 });
 
 test('should detect year', t => {
@@ -29,9 +29,9 @@ test('should detect day', t => {
   t.is("????-??-01", new ParseDateService().run("1"));
 });
 
-test('should detect incorrect days', t => {
-  t.is(undefined, new ParseDateService().run("32. "));
-  t.is(undefined, new ParseDateService().run("52."));
+test('should ignore incorrect days', t => {
+  t.is("????-??-??", new ParseDateService().run("32. "));
+  t.is("????-??-??", new ParseDateService().run("52."));
 });
 
 test('should detect day with noise', t => {
