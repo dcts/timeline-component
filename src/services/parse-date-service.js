@@ -1,4 +1,4 @@
-export class ParseDateService {
+class ParseDateService {
   /*
    * PARSE DATE SERVICE
    * whenever the user inputs a date it should be automatically detected
@@ -165,3 +165,5 @@ export class ParseDateService {
     }
   }
 }
+
+module.exports = ParseDateService;
