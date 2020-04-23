@@ -1,6 +1,6 @@
 const test = require('ava');
-const ParseDateService = require('../src/services/parse-date-service.js');
-// import { ParseDateService } from '../src/services/parse-date-service.js';
+// const ParseDateService = require('../src/services/parse-date-service.js');
+import { ParseDateService } from '../src/services/parse-date-service.js';
 
 // import { ParseDateService } from '../src/services/parse-date-service.js';
 // console.log(ParseDateService);
