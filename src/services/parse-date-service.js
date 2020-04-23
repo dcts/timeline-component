@@ -20,10 +20,17 @@ class ParseDateService {
     this.month = "??";
     this.year = "????";
 
-    this.findYear();
-    this.findMonth();
-    this.findDay();
-
+    const resultIsoMatch = this.input.match(this.isoMatchRegex())
+    if (resultIsoMatch) {
+      const split = resultIsoMatch[0].split(/-|\/|\s/);
+      this.year  = split[0];
+      this.month = this.setWithLeadingZero(split[1]);
+      this.day   = this.setWithLeadingZero(split[2]);
+    } else {
+      this.findYear();
+      this.findMonth();
+      this.findDay();
+    }
     return this.buildResult();
   }
 
@@ -37,19 +44,35 @@ class ParseDateService {
     return `${this.year}-${this.month}-${this.day}`;
   }
 
+  // allowed 2012-01-31 /  2012-1-31 / 2012/01/31 / 2012/1/31 / 2012 1 31 / 2012 01 31
+  isoMatchRegex() {
+    return /(?<=\s|^)\d{4}(-|\s|\/)([0][1-9]|[1-9]|10|11|12)(-|\s|\/)([0][1-9]|[1-2][0-9]|3[01]|[1-9])(?=\s|$|\.)/;
+    //      |        | year      | 01-09 | 1-9 | 10-12   |      |01-09  |10-29     |30,31| 1-9  |
+    //      |             | dash or slash                | dash or slash                        |
+    //      |preceding with space or start of string                                            | end with space endofstr or dot
+  }
+
   findYear() {
     let regex = /[1-9]{1}[0-9]{3}/;
     const result = this.input.match(regex)
     if (result) {
       this.year = result[0];
-      this.removeMatchFromInput();
+      this.removeMatchFromInput(result);
     }
   }
 
   findMonth() {
-    // let regex = /[1-9]{1}[0-9]{3}/;
-
-
+    const months = this.monthDictionaryValues();
+    months.forEach(month => {
+      let re = new RegExp(`(?<=\\s|^)(${month})(?=\\s|$|\\.)`, "i")
+      const result = this.input.match(re);
+      if (result) { // yes => get dict and value + return
+        this.month = this.monthDictionary()[result[0].toLowerCase()];
+        this.removeMatchFromInput(result);
+        return this.month;
+      }
+    })
+    return undefined;
   }
 
   findDay() {
@@ -61,10 +84,15 @@ class ParseDateService {
     //           | https://stackoverflow.com/a/6713378/6272061
     const result = this.input.match(regex)
     if (result) {
-      this.day = result[0];
-      if (this.day.length == 1) {
-        this.day = "0" + this.day;
-      }
+      this.day = this.setWithLeadingZero(result[0]);
+    }
+  }
+
+  setWithLeadingZero(str) {
+    if (str.length == 1) {
+      return "0" + str;
+    } else {
+      return str;
     }
   }
 
@@ -72,12 +100,15 @@ class ParseDateService {
     if (matchObj && matchObj[0] && matchObj.index) {
       let len = matchObj[0].length;
       let charArr = this.input.split('');
-      charArr.splice(matchObj.index, lens);
+      charArr.splice(matchObj.index, len);
       this.input = charArr.join("");
     }
   }
 
-  monthDictonary() {
+  monthDictionaryValues() {
+    return Object.keys(this.monthDictionary());
+  }
+  monthDictionary() {
     return {
       // german
       "jan": "01", "januar":    "01",
