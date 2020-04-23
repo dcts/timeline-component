@@ -4,6 +4,8 @@ import './components/pb-bar-chart.js';
 import '@vaadin/vaadin-select';
 
 import { LoadDataService } from "./services/load-data-service.js";
+// import { ParseDateService } from "./services/parse-date-service.js";
+// import { SearchResultService } from "./services/search-result-service.js";
 
 
 let dataLoadingStatusEl;
@@ -28,3 +30,7 @@ window.load = function(query) {
   // let filepath = `https://dcts-todo-app.web.app/data/kba-${query}.json`; // for production on firebase deploy
   // let filepath = `http://localhost:8080/src/data/kba-${query}.json`;
 }
+
+
+// console.log(ParseDateService)
+// console.log(new ParseDateService().run("2012"));

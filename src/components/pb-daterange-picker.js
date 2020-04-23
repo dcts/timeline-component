@@ -2,7 +2,9 @@
 import { LitElement, html, css } from 'lit-element';
 import '@vaadin/vaadin-date-picker';
 import '@polymer/paper-input/paper-input.js';
-const ParseDateService = require('../services/parse-date-service.js');
+
+// const ParseDateService = require('../services/parse-date-service.js');
+import { ParseDateService } from "../services/parse-date-service.js";
 
 
 // Extend the LitElement base class
@@ -68,10 +70,16 @@ class PbDaterangePicker extends LitElement {
       this.setRange(startDateStr, endDateStr);
     });
 
-    this.shadowRoot.querySelector("paper-input").addEventListener("keyup", (e) => {
-      const input = e.target.value;
-      console.log(ParseDateService.new().run(input));
-    })
+    this.shadowRoot.querySelectorAll("paper-input").forEach(paperInput => {
+      paperInput.addEventListener("keyup", (e) => {
+        const input = e.target.value;
+        if (input === "") {
+          e.target.label = e.target.dataset.labeltext;
+        } else {
+          e.target.label = `${e.target.dataset.labeltext}: ${new ParseDateService().run(input)}`;
+        }
+      });
+    });
   }
 
   initializeRange(startDateStr, endDateStr) {
@@ -112,8 +120,8 @@ class PbDaterangePicker extends LitElement {
     // @TOASK: why is onclick event or the buttton 'onclick="this.resetRange();"' not working?
     return html`
       <div class="flex justify-center ">
-        <paper-input label="selected date: ????-??-??" always-float-label placeholder="From Date"></paper-input>
-        <paper-input label="selected date: ????-??-??" always-float-label placeholder="To Date"></paper-input>
+        <paper-input data-labeltext="From Date" label="From Date"></paper-input>
+        <paper-input data-labeltext="To Date" label="To Date"></paper-input>
 
         <vaadin-form-layout class="date-picker-group ">
           <vaadin-date-picker id="datepicker-from" clear-button-visible label="From Date" placeholder="MM/DD/YYYY" theme="custom-input-field-style" ></vaadin-date-picker>
