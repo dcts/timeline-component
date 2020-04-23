@@ -29,6 +29,10 @@ firebase deploy # deploys content of /dist folder to firebase
 npm run deploy
 ```
 
+### Testing with AVA
+- to test the `ParseDateService` I used [AVA testing framework](https://github.com/avajs/ava). To enable modern module imports in AVA I installed npm package `esm` as described on [StackOverflow](https://stackoverflow.com/a/55803624/6272061).
+
+
 # To Dos
 - [ ] Move eventlisteners to connectedCallback as described here: https://github.com/Polymer/lit-element/issues/139#issuecomment-411284566
 
