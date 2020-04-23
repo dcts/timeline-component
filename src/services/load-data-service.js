@@ -59,6 +59,8 @@ export class LoadDataService {
   }
 }
 
+// module.exports = LoadDataService;
+
 /*
  * FETCH CSV FILE (depricated, lets make JSON standard)
  *
