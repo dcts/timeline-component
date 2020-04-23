@@ -106,55 +106,33 @@ class ParseDateService {
       "nov": "11", "november":  "11",
       "dec": "12", "december":  "12",
       // french
-      "jan": "01", "januar": "01",
-      "feb": "02", "februar": "02",
-      "mär": "03", "märz": "03",
-      "apr": "04", "april": "04",
-      "mai": "05", "mai": "05",
-      "jun": "06", "juni": "06",
-      "jul": "07", "juli": "07",
-      "aug": "08", "august": "08",
-      "sep": "09", "september": "09",
-      "okt": "10", "oktober": "10",
-      "nov": "11", "november": "11",
-      "dez": "12", "dezember": "12",
+      "janv":"01", "janvier":   "01",
+      "févr":"02", "février'":  "02",
+      "mars":"03", "mars":      "03",
+      "avr": "04", "avril":     "04",
+      "mai": "05", "mai":       "05",
+      "juin":"06", "juin":      "06",
+      "juil":"07", "juillet":   "07",
+      "août":"08", "août":      "08",
+      "sept":"09", "septembre": "09",
+      "oct": "10", "octobre":   "10",
+      "nov": "11", "novembre":  "11",
+      "déc": "12", "décembre":  "12",
       //italian
-      "jan": "01", "januar": "01",
-      "feb": "02", "februar": "02",
-      "mär": "03", "märz": "03",
-      "apr": "04", "april": "04",
-      "mai": "05", "mai": "05",
-      "jun": "06", "juni": "06",
-      "jul": "07", "juli": "07",
-      "aug": "08", "august": "08",
-      "sep": "09", "september": "09",
-      "okt": "10", "oktober": "10",
-      "nov": "11", "november": "11",
-      "dez": "12", "dezember": "12",
+      "gen": "01", "gennaio":   "01",
+      "feb": "02", "febbraio":  "02",
+      "mar": "03", "marzo":     "03",
+      "apr": "04", "aprile":    "04",
+      "mag": "05", "maggio":    "05",
+      "giu": "06", "giugno":    "06",
+      "lug": "07", "luglio":    "07",
+      "ago": "08", "agosto":    "08",
+      "set": "09", "settembre": "09",
+      "ott": "10", "ottobre":   "10",
+      "nov": "11", "novembre":  "11",
+      "dic": "12", "dicembre":  "12",
     }
+  }
 }
 
 module.exports = ParseDateService;
-
-
-
-// public static function parseDateString(string $value): string {
-//   $value = trim($value);
-//   if (preg_match('/\d+\.\d+\.\d{4}/', $value)) {
-//     $value = date('Y-m-d', strtotime($value));
-//   }
-
-//   if (preg_match('/(\d+)\.\s?([A-Za-zä]+)\.?\s+(\d{4})/', $value, $matches)) {
-//     $day = trim($matches[1]);
-//     $months = \Lang:: get('months');
-//     $month = 0;
-//     foreach($months as $k => $v) {
-//       if (Str:: startsWith($v, $matches[2])) {
-//         $month = $k;
-//       }
-//     }
-//     $year = $matches[3];
-//     $value = date('Y-m-d', strtotime("$day-$month-$year"));
-//   }
-//   return $value;
-// }
