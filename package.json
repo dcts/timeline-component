@@ -43,6 +43,7 @@
     "workbox-webpack-plugin": "^3.3.1"
   },
   "dependencies": {
+    "@polymer/paper-button": "^3.0.1",
     "@polymer/paper-input": "^3.2.1",
     "@vaadin/vaadin-date-picker": "^4.0.8",
     "@vaadin/vaadin-form-layout": "^2.1.7",

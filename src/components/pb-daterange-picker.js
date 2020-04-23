@@ -2,6 +2,7 @@
 import { LitElement, html, css } from 'lit-element';
 import '@vaadin/vaadin-date-picker';
 import '@polymer/paper-input/paper-input.js';
+import '@polymer/paper-button/paper-button.js';
 
 // const ParseDateService = require('../services/parse-date-service.js');
 import { ParseDateService } from "../services/parse-date-service.js";
@@ -12,18 +13,33 @@ class PbDaterangePicker extends LitElement {
 
   static get styles() {
     return css`
-     :host([theme~="custom-input-field-style"]) [part="input-field"] {
-        border: 1px solid black;
-        background-color: white;
-      }
       .date-picker-group > * {
         margin: 10px;
       }
-      .flex {
+      .paper-elements-group {
         display: flex;
-      }
-      .justify-center {
         justify-content: center;
+        align-items: center;
+      }
+      paper-button#apply-range {
+        max-height: 48px;
+        font-size: 14px;
+        padding: 8px 16px !important;
+        /* background-color: #6096c9; */
+      }
+      #datepicker-from, #datepicker-to {
+        margin-right: 20px;
+      }
+      paper-button.custom:hover {
+        background-color: var(--paper-indigo-500);
+      }
+      paper-button.indigo {
+        background-color: var(--paper-indigo-500);
+        color: white;
+        --paper-button-raised-keyboard-focus: {
+          background-color: var(--paper-pink-a200) !important;
+          color: white !important;
+        };
       }
     `;
   }
@@ -38,34 +54,37 @@ class PbDaterangePicker extends LitElement {
     this.dateFromEl = this.shadowRoot.querySelector("paper-input#datepicker-from");
     this.dateToEl = this.shadowRoot.querySelector("paper-input#datepicker-to");
 
-    // this.resetRangeButton = this.shadowRoot.querySelector("vaadin-button#reset-range");
+    this.resetRangeButton = this.shadowRoot.querySelector("paper-button#apply-range");
 
     [this.dateFromEl, this.dateToEl].forEach(datePicker => {
       datePicker.addEventListener('change', () => {
-        let startDateStr = this.dateFromEl.value;
-        let endDateStr = this.dateToEl.value;
+        console.log("date changed");
+        let startDateStr = this.dateFromEl.value.split(": ")[1];
+        let endDateStr = this.dateToEl.value.split(": ")[1];
         if (this.rangeIsValid(startDateStr, endDateStr)) {
           this.dispatchDaterangeChangedEvent(startDateStr, endDateStr);
         }
       });
     });
-    // this.resetRangeButton.addEventListener("click", () => {
-    //   this.resetRange();
-    // });
+    this.resetRangeButton.addEventListener("click", () => {
+      // this.resetRange();
+      const startDateStr = this.dateFromEl.label.split(": ")[1];
+      const endDateStr = this.dateToEl.label.split(": ")[1];
+      this.dispatchDaterangeChangedEvent(startDateStr, endDateStr);
+    });
 
     // EXERNAL EVENTS
-    // document.addEventListener("pb-timeline-data-loaded", (event) => {
-    //   this.searchResult = event.detail.searchResult; // save SearchResult instance
-    //   this.initializeRange(this.searchResult.getMinDateStr(), this.searchResult.getMaxDateStr());
-    // });
+    document.addEventListener("pb-timeline-data-loaded", (event) => {
+      this.searchResult = event.detail.searchResult; // save SearchResult instance
+      this.initializeRange(this.searchResult.getMinDateStr(), this.searchResult.getMaxDateStr());
+    });
 
     // this event is triggered by the componeent itself but can be also triggered by another component
-    // document.addEventListener("pb-timeline-daterange-changed", (event) => {
-    //   const startDateStr = event.detail.startDateStr;
-    //   const endDateStr = event.detail.endDateStr;
-    //   this.setRange(startDateStr, endDateStr);
-    // });
-    //
+    document.addEventListener("pb-timeline-daterange-changed", (event) => {
+      const startDateStr = event.detail.startDateStr;
+      const endDateStr = event.detail.endDateStr;
+      this.setRange(startDateStr, endDateStr);
+    });
 
     document.addEventListener("pb-update-daterange-picker", (event) => {
       const startDateStr = event.detail.startDateStr;
@@ -122,9 +141,10 @@ class PbDaterangePicker extends LitElement {
   render(){
     // @TOASK: why is onclick event or the buttton 'onclick="this.resetRange();"' not working?
     return html`
-      <div class="flex justify-center ">
+      <div class="paper-elements-group">
         <paper-input id="datepicker-from" data-labeltext="From Date" label="From Date"></paper-input>
         <paper-input id="datepicker-to" data-labeltext="To Date" label="To Date"></paper-input>
+        <paper-button id="apply-range" class="custom indigo" raised>apply</paper-button>
 
         <!-- <vaadin-form-layout class="date-picker-group ">
           <vaadin-date-picker id="datepicker-from" clear-button-visible label="From Date" placeholder="MM/DD/YYYY" theme="custom-input-field-style" ></vaadin-date-picker>
