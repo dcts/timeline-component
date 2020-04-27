@@ -27,7 +27,7 @@ export class PbBarChart extends LitElement {
     super();
     this.height = 100;
     this.width = 960;
-    this.maxInterval = 200;
+    this.maxInterval = 300;
     // @TODO: HARDCODED THIS
     window.hardcodedThis = this;
   }
@@ -116,18 +116,6 @@ export class PbBarChart extends LitElement {
         enabled: true,
         rescale: true,
         onzoomend: this.onzoom
-      },
-      options: {
-        scales: {
-          yAxes: [{
-            ticks: {
-              // Include a dollar sign in the ticks
-              callback: function (value, index, values) {
-                return '$' + value;
-              }
-            }
-          }]
-        }
       }
     });
   }
