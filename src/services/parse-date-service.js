@@ -20,12 +20,18 @@ export class ParseDateService {
     this.month = "??";
     this.year = "????";
 
-    const resultIsoMatch = this.input.match(this.isoMatchRegex())
+    const resultIsoMatch = this.input.match(this.isoMatchRegex());
+    const resultCustomMatch = this.input.match(this.customRegex());
     if (resultIsoMatch) {
       const split = resultIsoMatch[0].split(/-|\/|\s/);
       this.year  = split[0];
       this.month = this.setWithLeadingZero(split[1]);
       this.day   = this.setWithLeadingZero(split[2]);
+    } else if (resultCustomMatch) {
+      const split = resultCustomMatch[0].split(/\.|\s|\/|-/);
+      this.day = this.setWithLeadingZero(split[0]);
+      this.month = this.setWithLeadingZero(split[1]);
+      this.year = split[2];
     } else {
       this.findYear();
       this.findMonth();
@@ -50,6 +56,10 @@ export class ParseDateService {
     //      |        | year      | 01-09 | 1-9 | 10-12   |      |01-09  |10-29     |30,31| 1-9  |
     //      |             | dash or slash                | dash or slash                        |
     //      |preceding with space or start of string                                            | end with space endofstr or dot
+  }
+
+  customRegex() {
+    return /\d{1,2}(\.|\s|\/|-)\d{1,2}(\.|\s|\/|-)\d{4}/;
   }
 
   findYear() {

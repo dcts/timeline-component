@@ -1,10 +1,6 @@
-// Import the LitElement base class and html helper function
 import { LitElement, html, css } from 'lit-element';
-import '@vaadin/vaadin-date-picker';
 import '@polymer/paper-input/paper-input.js';
 import '@polymer/paper-button/paper-button.js';
-
-// const ParseDateService = require('../services/parse-date-service.js');
 import { ParseDateService } from "../services/parse-date-service.js";
 
 
@@ -25,7 +21,6 @@ class PbDaterangePicker extends LitElement {
         max-height: 48px;
         font-size: 14px;
         padding: 8px 16px !important;
-        /* background-color: #6096c9; */
       }
       #datepicker-from, #datepicker-to {
         margin-right: 20px;
@@ -41,6 +36,10 @@ class PbDaterangePicker extends LitElement {
           color: white !important;
         };
       }
+
+      paper-input.red {
+        --paper-input-container-focus-color: red;
+      }
     `;
   }
 
@@ -54,23 +53,27 @@ class PbDaterangePicker extends LitElement {
     this.dateFromEl = this.shadowRoot.querySelector("paper-input#datepicker-from");
     this.dateToEl = this.shadowRoot.querySelector("paper-input#datepicker-to");
 
-    this.resetRangeButton = this.shadowRoot.querySelector("paper-button#apply-range");
+    this.actionButton = this.shadowRoot.querySelector("paper-button#apply-range");
 
     [this.dateFromEl, this.dateToEl].forEach(datePicker => {
       datePicker.addEventListener('change', () => {
-        console.log("date changed");
-        let startDateStr = this.dateFromEl.value.split(": ")[1];
-        let endDateStr = this.dateToEl.value.split(": ")[1];
+        let startDateStr = this.getSelectedFromDateStr();
+        let endDateStr = this.getSelectedToDateStr();
         if (this.rangeIsValid(startDateStr, endDateStr)) {
           this.dispatchDaterangeChangedEvent(startDateStr, endDateStr);
         }
       });
     });
-    this.resetRangeButton.addEventListener("click", () => {
-      // this.resetRange();
-      const startDateStr = this.dateFromEl.label.split(": ")[1];
-      const endDateStr = this.dateToEl.label.split(": ")[1];
-      this.dispatchDaterangeChangedEvent(startDateStr, endDateStr);
+
+    this.actionButton.addEventListener("click", () => {
+      const startDateStr = this.getSelectedFromDateStr();
+      const endDateStr = this.getSelectedToDateStr();
+      if (this.rangeIsValid(startDateStr, endDateStr)) {
+        this.dispatchDaterangeChangedEvent(startDateStr, endDateStr);
+      } else {
+        console.log(`${startDateStr} - ${endDateStr}`);
+        alert("not a valid range!");
+      }
     });
 
     // EXERNAL EVENTS
@@ -104,6 +107,14 @@ class PbDaterangePicker extends LitElement {
     });
   }
 
+  getSelectedFromDateStr() {
+    return this.dateFromEl.label.includes(": ") ? this.dateFromEl.label.split(": ")[1] : undefined;
+  }
+
+  getSelectedToDateStr() {
+    return this.dateToEl.label.includes(": ") ? this.dateToEl.label.split(": ")[1] : undefined;
+  }
+
   initializeRange(startDateStr, endDateStr) {
     this.initialRange = {
       startDateStr: startDateStr,
@@ -114,7 +125,10 @@ class PbDaterangePicker extends LitElement {
   }
 
   rangeIsValid(startDateStr, endDateStr) {
-    return startDateStr < endDateStr;
+    if (startDateStr && endDateStr) {
+      return startDateStr < endDateStr;
+    }
+    return false;
   }
 
   resetRange() {
@@ -124,7 +138,9 @@ class PbDaterangePicker extends LitElement {
   }
 
   setRange(startDateStr, endDateStr) {
+    this.dateFromEl.label = `From Date: ${startDateStr}`;
     this.dateFromEl.value = startDateStr;
+    this.dateToEl.label = `To Date: ${endDateStr}`;
     this.dateToEl.value = endDateStr;
   }
 
@@ -145,12 +161,6 @@ class PbDaterangePicker extends LitElement {
         <paper-input id="datepicker-from" data-labeltext="From Date" label="From Date"></paper-input>
         <paper-input id="datepicker-to" data-labeltext="To Date" label="To Date"></paper-input>
         <paper-button id="apply-range" class="custom indigo" raised>apply</paper-button>
-
-        <!-- <vaadin-form-layout class="date-picker-group ">
-          <vaadin-date-picker id="datepicker-from" clear-button-visible label="From Date" placeholder="MM/DD/YYYY" theme="custom-input-field-style" ></vaadin-date-picker>
-          <vaadin-date-picker id="datepicker-to" clear-button-visible label="To Date" placeholder="MM/DD/YYYY"></vaadin-date-picker>
-          <vaadin-button id="reset-range" theme="primary">Reset Range</vaadin-button>
-        </vaadin-form-layout> -->
       </div>
     `;
   }
