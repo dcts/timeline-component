@@ -1,6 +1,8 @@
 import './styles.css';
 import './components/pb-daterange-picker.js';
 import './components/pb-bar-chart.js';
+import './components/pb-timeline.js';
+import './components/pb-brushing-layer.js';
 import '@vaadin/vaadin-select';
 
 import { LoadDataService } from "./services/load-data-service.js";

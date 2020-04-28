@@ -72,5 +72,9 @@ header {
 }
 
 .component-wrapper {
-  border: 0.5px dashed rgba(0,0,0,0.1);
+  /* border: 0.5px dashed rgba(0,0,0,0.1); */
+}
+
+:root {
+  --pb-timeline-col: red;
 }
