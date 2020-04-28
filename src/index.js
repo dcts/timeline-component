@@ -20,10 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
   selectDataEl.addEventListener('change', function(event) {
     load(event.target.value);
   });
-
-  document.addEventListener("pb-timeline-data-loaded", (e) => {
-    dataLoadingStatusEl.innerText = `file ${e.detail.filepath} succesfullly loaded. timestamp: ${e.detail.timestamp}`;
-  });
 });
 
 window.load = function(query) {

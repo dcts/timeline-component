@@ -12,7 +12,10 @@ export class LoadDataService {
    */
 
   // CONSTRUCTOR BROADER -> use after cors policy issue fixed
-  constructor(query) { // hardcoded queries: "Predigt" or "Briefe"
+  constructor(query, startDateStr, endDateStr) { // hardcoded queries: "Predigt" or "Briefe"
+    this.startDateStr = startDateStr;
+    this.endDateStr = endDateStr;
+
     if (query !== "Predigt" && query !== "Brief" ) {
       throw new Error(`Invalid query. Allowed queries 'Predigt' or 'Brief'. Got: ${query}`);
     }
