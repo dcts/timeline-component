@@ -1,14 +1,7 @@
-import { SearchResultService } from './search-result-service.js'
-
 export class LoadDataService {
   /*
    * LOAD DATA SERVICE
-   * - currently 2 queries possible ("Brief" or "Predigt")
-   * - fetches JSON data from Anton KBA API, expects a single JSON object with the format:
-   *   { "2012-01-01": 123, "2012-02-01": 15, ... }
-   * - triggers pb-timeline-data-loaded customEvent on finish
-   * - does not validate data, this is done by the SearchResultService class.
-   * - does not apply filtering, this is done by the SearchResultService class (start / end date)
+   * only for development currently
    */
 
   // CONSTRUCTOR BROADER -> use after cors policy issue fixed
@@ -60,8 +53,6 @@ export class LoadDataService {
     }));
   }
 }
-
-// module.exports = LoadDataService;
 
 /*
  * FETCH CSV FILE (depricated, lets make JSON standard)

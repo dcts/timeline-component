@@ -2,6 +2,7 @@ import { LitElement, html, css } from 'lit-element';
 import '@polymer/paper-input/paper-input.js';
 import '@polymer/paper-button/paper-button.js';
 import { ParseDateService } from "../services/parse-date-service.js";
+import { SearchResultService } from "../services/search-result-service.js";
 
 
 // Extend the LitElement base class
@@ -78,8 +79,8 @@ class PbDaterangePicker extends LitElement {
 
     // EXERNAL EVENTS
     document.addEventListener("pb-timeline-data-loaded", (event) => {
-      this.searchResult = event.detail.searchResult; // save SearchResult instance
-      this.initializeRange(this.searchResult.getMinDateStr(), this.searchResult.getMaxDateStr());
+      this.searchResult = new SearchResultService(event.detail.jsonData); // save SearchResult instance
+      // this.initializeRange(this.searchResult.getMinDateStr(), this.searchResult.getMaxDateStr());
     });
 
     // this event is triggered by the componeent itself but can be also triggered by another component
