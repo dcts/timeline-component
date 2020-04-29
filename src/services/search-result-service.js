@@ -183,38 +183,58 @@ export class SearchResultService {
   increaseDateBy(type, date) {
     switch(type) {
       case "D":
-        return date.addDays(1);
+        return this.addDays(date, 1);
       case "M":
-        return date.addMonths(1);
+        return this.addMonths(date, 1);
       case "Y":
-        return date.addYears(1);
+        return this.addYears(date, 1);
     }
   }
+
+  addDays(date, days) {
+    let newDate = new Date(date.valueOf());
+    newDate.setDate(newDate.getDate() + days);
+    return newDate;
+  }
+
+  addMonths(date, months) {
+    let newDate = new Date(date.valueOf());
+    let d = newDate.getDate();
+    newDate.setMonth(newDate.getMonth() + +months);
+    if (newDate.getDate() != d) {
+      newDate.setDate(0);
+    }
+    return newDate;
+  }
+
+  addYears(date, years) {
+    let newDate = new Date(date.valueOf());
+    newDate.setFullYear(newDate.getFullYear() + years);
+    return newDate;
+  }
 }
-
-
 
 /*
- * EXTEND DATE OBJECT TO USEFULL METHODS
- *
- *
- */
-Date.prototype.addDays = function(days) {
-  var date = new Date(this.valueOf());
-  date.setDate(date.getDate() + days);
-  return date;
-}
-Date.prototype.addMonths = function(months) { // https://stackoverflow.com/a/2706169/6272061
-  var date = new Date(this.valueOf());
-  var d = date.getDate();
-  date.setMonth(date.getMonth() + +months);
-  if (date.getDate() != d) {
-    date.setDate(0);
-  }
-  return date;
-}
-Date.prototype.addYears = function(years) {
-  var date = new Date(this.valueOf());
-  date.setFullYear(date.getFullYear() + years);
-  return date;
-}
+   * EXTEND DATE OBJECT TO USEFULL METHODS
+   * @TODO extend date class inside here alone does not work...
+   *
+   */
+// Date.prototype.addDays = function (days) {
+//   var date = new Date(this.valueOf());
+//   date.setDate(date.getDate() + days);
+//   return date;
+// }
+// Date.prototype.addMonths = function (months) { // https://stackoverflow.com/a/2706169/6272061
+//   var date = new Date(this.valueOf());
+//   var d = date.getDate();
+//   date.setMonth(date.getMonth() + +months);
+//   if (date.getDate() != d) {
+//     date.setDate(0);
+//   }
+//   return date;
+// }
+// Date.prototype.addYears = function (years) {
+//   var date = new Date(this.valueOf());
+//   date.setFullYear(date.getFullYear() + years);
+//   return date;
+// }

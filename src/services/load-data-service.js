@@ -26,7 +26,7 @@ export class LoadDataService {
       "api_token": "g73eNpprfHz9nMSEbo072HWmO8tbMEJPCu4KEhGi7on42dJzXD12veztQbM7"
     };
     this.url = proxy + baseUrl + "?" + this.getParamsStr(paramsObj);
-    this.fetchJson(this.url);
+    this.fetchJson();
   }
 
   getParamsStr(paramsObj) {
@@ -43,18 +43,17 @@ export class LoadDataService {
    * - in the future query could store params which define parameters pased
    *   to an API that is connected to the database
    */
-  fetchJson(url) {
-    fetch(url).then(response => response.json()).then(jsonData => {
-      const searchResult = new SearchResultService(jsonData);
-      this.dispatchLoadedEvent(searchResult, url);
+  fetchJson() {
+    fetch(this.url).then(response => response.json()).then(jsonData => {
+      this.dispatchLoadedEvent(jsonData, this.url);
     });
   }
 
-  dispatchLoadedEvent(searchResult, url) {
-    document.dispatchEvent(new CustomEvent('pb-timeline-data-loaded', {
+  dispatchLoadedEvent(jsonData, url) {
+    document.dispatchEvent(new CustomEvent('json-data-for-development-loaded', {
       bubbles: true,
       detail: {
-        searchResult: searchResult,
+        jsonData: jsonData,
         filepath: url,
         timestamp: Date.now(),
       }
