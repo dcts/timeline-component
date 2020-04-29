@@ -21,7 +21,6 @@ body {
   margin: 0;
   padding: 0;
   color: var(--dark-color);
-  font-size: 18px;
   line-height: 1.5rem;
 }
 
@@ -70,4 +69,12 @@ header {
 
 .justify-center {
   justify-content: center;
+}
+
+.component-wrapper {
+  /* border: 0.5px dashed rgba(0,0,0,0.1); */
+}
+
+:root {
+  --pb-timeline-col: red;
 }

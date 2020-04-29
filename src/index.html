@@ -27,15 +27,41 @@
   </head>
 
   <body>
-    <!-- TODO APP COMPONENT -->
+    <!-- TIMELINE COMPONENT -->
     <header>
       <div class="page-wrapper">
-        <h1 class="text-center">Todo app</h1>
+        <h1 class="text-center">KBA Timeline Component</h1>
       </div>
     </header>
     <main>
+
       <div class="page-wrapper">
-        <todo-view></todo-view>
+        <!-- <div style="max-width: 400px; margin: 0 auto;">
+          <vaadin-select id="select-data-dropdown" label="Select KBA Data">
+            <template>
+              <vaadin-list-box>
+                <vaadin-item>Predigt</vaadin-item>
+                <vaadin-item>Brief</vaadin-item>
+              </vaadin-list-box>
+            </template>
+          </vaadin-select>
+
+          <paper-input data-labeltext="From Date" label="From Date"></paper-input>
+          <paper-input data-labeltext="To Date" label="To Date"></paper-input>
+          <paper-button id="apply-range" class="custom indigo" raised>apply</paper-button>
+        </div>
+        <p id="data-loading-status" class="text-center">STATUS: not loaded</p> -->
+
+        <div class="component-wrapper">
+          <pb-daterange-picker></pb-daterange-picker>
+        </div>
+        <div class="component-wrapper" style="margin-top: 30px;">
+          <pb-timeline></pb-timeline>
+          <br><br><br><br>
+          <div style="display: flex; justify-content: center;">
+            <pb-brushing-layer></pb-brushing-layer>
+          </div>
+        </div>
       </div>
     </main>
 
