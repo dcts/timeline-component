@@ -34,34 +34,31 @@
       </div>
     </header>
     <main>
-
       <div class="page-wrapper">
-        <!-- <div style="max-width: 400px; margin: 0 auto;">
-          <vaadin-select id="select-data-dropdown" label="Select KBA Data">
-            <template>
-              <vaadin-list-box>
-                <vaadin-item>Predigt</vaadin-item>
-                <vaadin-item>Brief</vaadin-item>
-              </vaadin-list-box>
-            </template>
-          </vaadin-select>
-
-          <paper-input data-labeltext="From Date" label="From Date"></paper-input>
-          <paper-input data-labeltext="To Date" label="To Date"></paper-input>
-          <paper-button id="apply-range" class="custom indigo" raised>apply</paper-button>
+        <div class="controls-wrapper">
+          <vaadin-radio-group label="loading data ..." theme="vertical">
+            <vaadin-radio-button disabled value="1700-01-01,2000-01-01">all (decades)</vaadin-radio-button>
+            <vaadin-radio-button disabled value="1890-01-01,1970-01-01">1890-1970 (5years)</vaadin-radio-button>
+            <vaadin-radio-button disabled value="1900-01-01,1950-01-01">1900-1950 (years)</vaadin-radio-button>
+            <vaadin-radio-button disabled value="1944-01-01,1946-01-01">1944-1946 (months)</vaadin-radio-button>
+            <vaadin-radio-button disabled value="1944-01-01,1944-12-31">1944 (months)</vaadin-radio-button>
+            <vaadin-radio-button disabled value="1944-01-01,1944-02-01">Jan-Feb 1944 (days)</vaadin-radio-button>
+          </vaadin-radio-group>
         </div>
-        <p id="data-loading-status" class="text-center">STATUS: not loaded</p> -->
 
         <div class="component-wrapper">
           <pb-daterange-picker></pb-daterange-picker>
         </div>
+
         <div class="component-wrapper" style="margin-top: 30px;">
           <pb-timeline></pb-timeline>
-          <br><br><br><br>
-          <div style="display: flex; justify-content: center;">
-            <pb-brushing-layer></pb-brushing-layer>
-          </div>
         </div>
+
+
+        <!-- <br><br><br><br>
+        <div class="component-wrapper" style="display: flex; justify-content: center;">
+          <pb-brushing-layer></pb-brushing-layer>
+        </div> -->
       </div>
     </main>
 

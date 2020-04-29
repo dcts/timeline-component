@@ -1,5 +1,4 @@
 import { LitElement, html, css } from 'lit-element';
-import { tickStep } from 'd3';
 
 /**
 * A timeline component to display aggregated data. For example:
@@ -11,7 +10,6 @@ export class PbTimeline extends LitElement {
 
   static get styles() {
     return css`
-
       .wrapper {
         margin: 0 auto;
         width: 800px;
@@ -48,6 +46,9 @@ export class PbTimeline extends LitElement {
       .bin-container:nth-child(10n+1) p.year {
         /* font-weight: bold; */
         font-size: 12px;
+      }
+      .bin-container:nth-child(10n+1) {
+        border-left: 1px solid rgba(0,0,0,0.2);
       }
       .bin-container:nth-child(2n) {
         background-color: rgba(0,0,0,0.1);
@@ -111,21 +112,17 @@ export class PbTimeline extends LitElement {
 
   constructor() {
     super();
-    this.mockData = {
-      "categories": ["1900", "1901", "1902", "1903", "1904", "1905", "1906", "1907", "1908", "1909", "1910", "1911", "1912", "1913", "1914", "1915", "1916", "1917", "1918", "1919", "1920", "1921", "1922", "1923", "1924", "1925", "1926", "1927", "1928", "1929", "1930", "1931", "1932", "1933", "1934", "1935", "1936", "1937", "1938", "1939", "1940", "1940", "1941", "1943", "1944", "1945", "1946", "1947", "1948", "1949", "1950"],
-      "values": [23, 10, 29, 18, 48, 46, 69, 80, 103, 163, 168, 337, 142, 223, 267, 341, 260, 384, 271, 411, 565, 539, 486, 499, 545, 748, 724, 819, 876, 1095, 1159, 1330, 1234, 1942, 2431, 2448, 1895, 1458, 1825, 1434, 1080, 1080, 1424, 936, 954, 2207, 2710, 2562, 2238, 1722, 1581],
-      "title": "count"
-    }
-    this.mockData = {
-      "categories": ["1918", "1919", "1920", "1921", "1922", "1923", "1924", "1925", "1926", "1927", "1928", "1929", "1930", "1931", "1932", "1933", "1934", "1935", "1936", "1937", "1938", "1939", "1940", "1940", "1941", "1943", "1944", "1945", "1946", "1947", "1948", "1949", "1950"],
-      "values": [271, 411, 565, 539, 486, 499, 545, 748, 724, 819, 876, 1095, 1159, 1330, 1234, 1942, 2431, 2448, 1895, 1458, 1825, 1434, 1080, 1080, 1424, 936, 954, 2207, 2710, 2562, 2238, 1722, 1581],
-      "title": "count"
-    }
-    this.maxValue = Math.max(...this.mockData.values);
-    this.maxHeight = 60;
-    this.multiplier = 0.9;
-
+    const mockData = { categories: [], values: [], type: "" };
+    this.maxHeight = 80;
+    this.multiplier = 0.8;
     this.mousedown = false;
+    this.setData(mockData);
+  }
+
+  setData(data) {
+    this.data = data;
+    this.maxValue = Math.max(...this.data.values);
+    this.requestUpdate();
   }
 
   firstUpdated() {
@@ -173,11 +170,11 @@ export class PbTimeline extends LitElement {
   render() {
     return html`
       <div class="wrapper">
-        ${this.mockData.values.map((value, indx) => {
+        ${this.data.values.map((value, indx) => {
           return html`
             <div class="bin-container" @mousemove="${this.brushing}" @mouseup="${this.resetBrushing}">
               <div class="bin" style="height: ${(value / this.maxValue) * this.maxHeight * this.multiplier}px"></div>
-              <p class="year ${indx % 10 === 0 ? "" : "invisible" }">${this.mockData.categories[indx]}</p>
+              <p class="year ${indx % 10 === 0 ? "" : "invisible" }">${this.data.categories[indx]}</p>
             </div>
           `;
         })}
