@@ -119,6 +119,8 @@ export class PbTimeline extends LitElement {
     this.maxHeight = 80;
     this.multiplier = 0.8;
     this.mousedown = false;
+    this.selectionStart = undefined;
+    this.selectionEnd = undefined;
     this.setData(mockData);
   }
 
@@ -126,6 +128,9 @@ export class PbTimeline extends LitElement {
     this.data = data;
     this.maxValue = Math.max(...this.data.values);
     this.requestUpdate();
+    this.updateComplete.then(() => {
+      this.bins = this.shadowRoot.querySelectorAll(".bin-container");
+    });
   }
 
   firstUpdated() {
@@ -143,13 +148,44 @@ export class PbTimeline extends LitElement {
     })
   }
 
-  // initData(jonData) {
-  //   se
-  // }
-
   brushing(event) {
+    this.bins.forEach(bin => {
+      bin.classList.remove("selected");
+    });
+
     if (this.mousedown) {
-      event.currentTarget.classList.add("selected");
+      console.log("down");
+      if (!this.selectionStart) {
+        this.selectionStart = event.currentTarget;
+      }
+      this.selectionEnd = event.currentTarget;
+
+      if (this.selectionEnd.getBoundingClientRect().x < this.selectionStart.getBoundingClientRect().x) {
+        const selectionStart = this.selectionEnd;
+        const selectionEnd = this.selectionStart;
+        this.selectionStart = null;
+        this.selectionEnd = null;
+        this.selectionStart = selectionStart;
+        this.selectionEnd = selectionEnd;
+      }
+
+      console.log("this.selectionStart");
+      console.log(this.selectionStart);
+      console.log("this.selectionEnd");
+      console.log(this.selectionEnd);
+      // get all bins
+
+      // iterate through all of them
+      let selectionOn = false;
+      this.bins.forEach(bin => {
+        if (selectionOn || bin === this.selectionStart) {
+          selectionOn = true;
+          bin.classList.add("selected");
+        }
+        if (bin === this.selectionEnd) {
+          selectionOn = false;
+        }
+      })
     }
   }
 
@@ -159,6 +195,8 @@ export class PbTimeline extends LitElement {
     this.bins.forEach(bin => {
       bin.classList.remove("selected");
     });
+    this.selectionStart = undefined;
+    this.selectionEnd = undefined;
   }
 
   getSelectedStartDateStr() {
