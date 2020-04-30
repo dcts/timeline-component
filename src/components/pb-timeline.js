@@ -1,4 +1,5 @@
 import { LitElement, html, css } from 'lit-element';
+import { SearchResultService } from "../services/search-result-service.js";
 
 /**
 * A timeline component to display aggregated data. For example:
@@ -15,11 +16,12 @@ export class PbTimeline extends LitElement {
         width: 800px;
         height: 80px;
         display: flex;
-        justify-content: space-around;
+        justify-content: center;
         cursor: crosshair;
       }
       .bin-container {
-        width: var(--pb-timeline-max-width, 14px);
+        min-width: var(--pb-timeline-max-width, 14px);
+        max-width: var(--pb-timeline-max-width, 20px);
         flex-grow: 1;
         flex-basis: 0;
         display: flex;
@@ -42,6 +44,7 @@ export class PbTimeline extends LitElement {
         top: -4px;
         font-size: 10px;
         transform: rotate(-90deg);
+        z-index: 10;
       }
       .bin-container:nth-child(10n+1) p.year {
         /* font-weight: bold; */
@@ -87,7 +90,7 @@ export class PbTimeline extends LitElement {
 
         /* Position the tooltip */
         position: absolute;
-        z-index: 1;
+        z-index: 100;
         top: 100%;
         left: 50%;
         margin-left: -60px;
@@ -133,7 +136,16 @@ export class PbTimeline extends LitElement {
       this.mousedown = false;
     });
     this.bins = this.shadowRoot.querySelectorAll(".bin-container");
+
+    document.addEventListener("pb-timeline-data-loaded", e => {
+      this.searchResult = new SearchResultService(e.detail.jsonData);
+      this.setData(this.searchResult.export());
+    })
   }
+
+  // initData(jonData) {
+  //   se
+  // }
 
   brushing(event) {
     if (this.mousedown) {

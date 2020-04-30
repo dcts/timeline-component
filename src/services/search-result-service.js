@@ -197,6 +197,7 @@ export class SearchResultService {
   getDateStrLenght(scope) {
     let dateStrLengthLookup = {
       "D": 10,  // "2012-01-01".length => 10
+      "W": 8,   // "2012-W52".length => 8
       "M": 7,   // "2012-01".length => 7
       "Y": 4,   // "2012".length => 4
       "5Y": 4,  // "2012".length => 4
@@ -207,10 +208,15 @@ export class SearchResultService {
 
   // returns array with categories based on intervall and scope (in correct ordering)
   getArray(startDate, stopDate, scope) {
-    var dateArray = new Array();
-    var currentDate = startDate;
+    let dateArray = new Array();
+    let currentDate = startDate;
+    if (scope === "5Y" || scope === "10Y") {
+      const n = Number(scope.replace("Y", ""));
+      const startYear = Math.floor(Number(currentDate.toISOString().split("-")[0]) / n) * n;
+      currentDate = new Date(Date.UTC(startYear, 1, 1));
+    }
     while (currentDate <= stopDate) {
-      dateArray.push(new Date(currentDate));
+      dateArray.push(currentDate);
       currentDate = this.increaseDateBy(scope, currentDate);
     }
     return dateArray.map(date => date.toISOString().substr(0, this.getDateStrLenght(scope)));
@@ -219,7 +225,7 @@ export class SearchResultService {
   computeIntervallSizes(startDate, endDate) {
     return {
       "D": this.computeIntervallSize(startDate, endDate, "D"),
-      // "W": this.computeIntervallSize(startDate, endDate, "W"), // week
+      "W": this.computeIntervallSize(startDate, endDate, "W"),
       "M": this.computeIntervallSize(startDate, endDate, "M"),
       "Y": this.computeIntervallSize(startDate, endDate, "Y"),
       "5Y": this.computeIntervallSize(startDate, endDate, "5Y"),
@@ -228,7 +234,7 @@ export class SearchResultService {
   }
 
   computeIntervallSize(startDate, endDate, scope) {
-    let currentDate = startDate;
+    let currentDate = startDate; //normalizeDate(startDate, scope);
     let count = 0;
     while (currentDate <= endDate) {
       count++;
@@ -241,8 +247,8 @@ export class SearchResultService {
     switch(scope) {
       case "D":
         return this.addDays(date, 1);
-      // case "W": // week
-      //   return this.addDays(date, 7);
+      case "W":
+        return this.addDays(date, 7);
       case "M":
         return this.addMonths(date, 1);
       case "Y":
@@ -252,6 +258,32 @@ export class SearchResultService {
       case "10Y":
         return this.addYears(date, 10);
     }
+  }
+
+  /*
+   * assign date to category based on scope.
+   * EXAMPLES:
+   * categorizeDateStr("1956-01-01", "5Y")  // => "1955"
+   * categorizeDateStr("1954-01-01", "10Y") // => "1950"
+   * categorizeDateStr("1954-01-01", "M")   // => "1954-01"
+   * categorizeDateStr("1954-01-01", "M")   // => "1954-01"
+   * categorizeDateStr("1954-01-01", "W")   // => "1954-W01"
+   */
+  categorizeDateStr(startDateStr, scope) {
+
+  }
+
+  /*
+   * opposite function than categorizeDateStr
+   * EXAMPLES:
+   * categoryToDateStr("1956-01-01", "5Y")  // => "1955"
+   * categoryToDateStr("1954-01-01", "10Y") // => "1950"
+   * categoryToDateStr("1954-01-01", "M")   // => "1954-01"
+   * categorizeDateStr("1954-01-01", "M")   // => "1954-01"
+   * categorizeDateStr("1954-01-01", "W")   // => "1954-W01"
+   */
+  categoryToDateStr(category) {
+
   }
 
   addDays(date, days) {

@@ -80,7 +80,7 @@ class PbDaterangePicker extends LitElement {
     // EXERNAL EVENTS
     document.addEventListener("pb-timeline-data-loaded", (event) => {
       this.searchResult = new SearchResultService(event.detail.jsonData); // save SearchResult instance
-      // this.initializeRange(this.searchResult.getMinDateStr(), this.searchResult.getMaxDateStr());
+      this.initializeRange(this.searchResult.getMinDateStr(), this.searchResult.getMaxDateStr());
     });
 
     // this event is triggered by the componeent itself but can be also triggered by another component

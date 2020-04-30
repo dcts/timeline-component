@@ -54,14 +54,15 @@ const initDevControls = () => {
     window.sr = searchResult;
     // Output intervallsizes to console
     let sizes = window.sr.getIntervallSizes();
-    const selection = sizes["D"] <= 60 ? "D" : sizes["W"] <= 60 ? "W" : sizes["M"] <= 60 ? "M" : sizes["Y"] <= 60 ? "Y" : sizes["5Y"] <= 60 ? "5Y" : sizes["10Y"] <= 60 ? "10Y" : "invalid";
+    const maxInterval = 60;
+    const selection = sizes["D"] <= maxInterval ? "D" : sizes["W"] <= maxInterval ? "W" : sizes["M"] <= maxInterval ? "M" : sizes["Y"] <= maxInterval ? "Y" : sizes["5Y"] <= maxInterval ? "5Y" : sizes["10Y"] <= maxInterval ? "10Y" : "invalid";
     console.log(`-----------------------------`);
     console.log(`from ${startDateStr} to ${endDateStr}`);
     Object.keys(sr.getIntervallSizes()).forEach(scope => {
       console.log(`${scope.padStart(3, " ")} : ${sizes[scope]} ${selection === scope ? "<----" : ""}`);
     })
     // dispatch event to commuicate with components (daterange picker + timeline)
-    dispatchPbTimelineDataLoadedEvent(jsonData);
+    dispatchPbTimelineDataLoadedEvent(newJsonData);
   });
 }
 
