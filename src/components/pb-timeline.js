@@ -139,6 +139,9 @@ export class PbTimeline extends LitElement {
       this.searchResult = new SearchResultService(e.detail.jsonData);
       this.setData(this.searchResult.export());
     })
+    document.addEventListener("mouseup", () => {
+      this.mouseUp();
+    })
   }
 
   getMousePosition(mouseEvent) {
@@ -160,10 +163,12 @@ export class PbTimeline extends LitElement {
 
   mouseUp() {
     this.mousedown = false;
-    const startDateStr = new ParseDateService().run(this.getSelectedStartDateStr());
-    const endDateStr = new ParseDateService().run(this.getSelectedEndDateStr());
-    // dispatch(`${startDateStr} to ${endDateStr}`);
-    this.dispatchPbTimelineDaterangeChanged(startDateStr, endDateStr);
+    if (this.getSelectedStartDateStr()) {
+      const startDateStr = new ParseDateService().run(this.getSelectedStartDateStr());
+      const endDateStr = new ParseDateService().run(this.getSelectedEndDateStr());
+      // dispatch(`${startDateStr} to ${endDateStr}`);
+      this.dispatchPbTimelineDaterangeChanged(startDateStr, endDateStr);
+    }
   }
 
   dispatchPbTimelineDaterangeChanged(startDateStr, endDateStr) {
@@ -249,7 +254,7 @@ export class PbTimeline extends LitElement {
       <div class="wrapper">
         ${this.data.values.map((value, indx) => {
           return html`
-            <div class="bin-container" @mousemove="${this.brushing}" @mousedown="${this.mouseDown}" @mouseup="${this.mouseUp}">
+            <div class="bin-container" @mousemove="${this.brushing}" @mousedown="${this.mouseDown}">
               <div class="bin" style="height: ${(value / this.maxValue) * this.maxHeight * this.multiplier}px"></div>
               <p class="year ${indx % 10 === 0 ? "" : "invisible" }">${this.data.categories[indx]}</p>
             </div>
@@ -266,3 +271,4 @@ export class PbTimeline extends LitElement {
 
 customElements.define('pb-timeline', PbTimeline);
 
+// @mouseup="${this.mouseUp}"
