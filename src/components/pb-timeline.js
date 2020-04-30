@@ -163,10 +163,12 @@ export class PbTimeline extends LitElement {
 
   mouseUp() {
     this.mousedown = false;
-    if (this.getSelectedStartDateStr()) {
-      const startDateStr = new ParseDateService().run(this.getSelectedStartDateStr());
-      const endDateStr = new ParseDateService().run(this.getSelectedEndDateStr());
-      // dispatch(`${startDateStr} to ${endDateStr}`);
+    const start = this.getSelectedStartDateStr();
+    const end = this.getSelectedEndDateStr();
+    console.log(`${start} -> ${end}`);
+    if (start) {
+      const startDateStr = new ParseDateService().run(start);
+      const endDateStr = new ParseDateService().run(end);
       this.dispatchPbTimelineDaterangeChanged(startDateStr, endDateStr);
     }
   }
@@ -234,7 +236,7 @@ export class PbTimeline extends LitElement {
   getSelectedStartDateStr() {
     for (let i=0; i<this.bins.length; i++) {
       if (this.bins[i].classList.contains("selected")) {
-        return this.bins[i].querySelector("p").innerText;
+        return this.bins[i].dataset.datestr;
       }
     };
   }
@@ -243,7 +245,7 @@ export class PbTimeline extends LitElement {
     let lastValue = "NA";
     this.bins.forEach(bin => {
       if (bin.classList.contains("selected")) {
-        lastValue = bin.querySelector("p").innerText;
+        lastValue = bin.dataset.datestr;
       }
     })
     return lastValue;
@@ -254,7 +256,7 @@ export class PbTimeline extends LitElement {
       <div class="wrapper">
         ${this.data.values.map((value, indx) => {
           return html`
-            <div class="bin-container" @mousemove="${this.brushing}" @mousedown="${this.mouseDown}">
+            <div class="bin-container" data-datestr="${this.data.categories[indx]}" @mousemove="${this.brushing}" @mousedown="${this.mouseDown}">
               <div class="bin" style="height: ${(value / this.maxValue) * this.maxHeight * this.multiplier}px"></div>
               <p class="year ${indx % 10 === 0 ? "" : "invisible" }">${this.data.categories[indx]}</p>
             </div>
