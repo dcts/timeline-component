@@ -129,6 +129,7 @@ export class PbTimeline extends LitElement {
     this.requestUpdate();
     this.updateComplete.then(() => {
       this.bins = this.shadowRoot.querySelectorAll(".bin-container");
+      this.resetSelectedBins();
     });
   }
 
