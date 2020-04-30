@@ -8,9 +8,10 @@ export class SearchResultService {
    */
 
   constructor(jsonData, maxInterval = 60) {
-    this.data = { invalid: {}, scoped: { "D": {}, "M": {}, "Y": {}, "5Y": {}, "10Y": {} } };
+    this.data = { invalid: {}, scoped: { "D": {}, "W": {}, "M": {}, "Y": {}, "5Y": {}, "10Y": {} } };
     this.maxInterval = maxInterval;
     this.validateJsonData(jsonData);
+    this.aggregateWeeklyData();
     this.aggregateMonthlyData();
     this.aggregateYearlyData();
     this.aggregate5YearData();
@@ -68,9 +69,11 @@ export class SearchResultService {
     }
     let startDate = new Date(startDateStr);
     let endDate   = new Date(endDateStr);
-    // export scopes ("D","M","Y", "5Y", "10Y") based on intervallsize
+    // export scopes ("D", "W", "M", "Y", "5Y", "10Y") based on intervallsize
     if (this.computeIntervallSize(startDate, endDate, "D") <= this.maxInterval) {
       return this.exportDays(startDate, endDate);
+    } else if (this.computeIntervallSize(startDate, endDate, "W") <= this.maxInterval) {
+      return this.exportWeeks(startDate, endDate);
     } else if (this.computeIntervallSize(startDate, endDate, "M") <= this.maxInterval) {
       return this.exportMonths(startDate, endDate);
     } else if (this.computeIntervallSize(startDate, endDate, "Y") <= this.maxInterval) {
@@ -98,19 +101,19 @@ export class SearchResultService {
     };
   }
 
-  // exportWeeks(startDate, endDate) {
-  //   startDate = startDate || this.getMinDate();
-  //   endDate = endDate || this.getMaxDate();
-  //   let categories = this.getArray(startDate, endDate, "W");
-  //   // let values = categories.map(day => {
-  //   //   return this.data.days[day] || 0;
-  //   // })
-  //   // return {
-  //   //   categories: categories,
-  //   //   values: values,
-  //   //   scope: "D"
-  //   // };
-  // }
+  exportWeeks(startDate, endDate) {
+    startDate = startDate || this.getMinDate();
+    endDate = endDate || this.getMaxDate();
+    let categories = this.getArray(startDate, endDate, "W");
+    let values = categories.map(weekStr => {
+      return this.data.scoped["W"][weekStr] || 0;
+    })
+    return {
+      categories: categories,
+      values: values,
+      scope: "W"
+    };
+  }
 
   exportMonths(startDate, endDate) {
     startDate = startDate || this.getMinDate();
@@ -154,6 +157,16 @@ export class SearchResultService {
       values: values,
       scope: scope,
     };
+  }
+
+  aggregateWeeklyData() {
+    let weeks = {};
+    Object.keys(this.data.scoped["D"]).forEach(dayStr => {
+      let date = new Date(dayStr);
+      let weekStr = this.dateToWeekFormat(date);
+      weeks[weekStr] = weeks[weekStr] ? weeks[weekStr] + this.data.scoped["D"][dayStr] : this.data.scoped["D"][dayStr];
+    })
+    this.data.scoped["W"] = weeks;
   }
 
   aggregateMonthlyData() {
@@ -219,7 +232,17 @@ export class SearchResultService {
       dateArray.push(currentDate);
       currentDate = this.increaseDateBy(scope, currentDate);
     }
+    if (scope === "W") {
+      return dateArray.map(date => this.dateToWeekFormat(date));
+    }
     return dateArray.map(date => date.toISOString().substr(0, this.getDateStrLenght(scope)));
+  }
+
+  dateToWeekFormat(date) {
+    const year = date.getFullYear();
+    const weekNbr = this.getWeek(date);
+    let weekStr = weekNbr < 10 ? `W0${weekNbr}` : `W${weekNbr.toString()}`;
+    return `${year}-${weekStr}`;
   }
 
   computeIntervallSizes(startDate, endDate) {
@@ -260,32 +283,6 @@ export class SearchResultService {
     }
   }
 
-  /*
-   * assign date to category based on scope.
-   * EXAMPLES:
-   * categorizeDateStr("1956-01-01", "5Y")  // => "1955"
-   * categorizeDateStr("1954-01-01", "10Y") // => "1950"
-   * categorizeDateStr("1954-01-01", "M")   // => "1954-01"
-   * categorizeDateStr("1954-01-01", "M")   // => "1954-01"
-   * categorizeDateStr("1954-01-01", "W")   // => "1954-W01"
-   */
-  categorizeDateStr(startDateStr, scope) {
-
-  }
-
-  /*
-   * opposite function than categorizeDateStr
-   * EXAMPLES:
-   * categoryToDateStr("1956-01-01", "5Y")  // => "1955"
-   * categoryToDateStr("1954-01-01", "10Y") // => "1950"
-   * categoryToDateStr("1954-01-01", "M")   // => "1954-01"
-   * categorizeDateStr("1954-01-01", "M")   // => "1954-01"
-   * categorizeDateStr("1954-01-01", "W")   // => "1954-W01"
-   */
-  categoryToDateStr(category) {
-
-  }
-
   addDays(date, days) {
     let newDate = new Date(date.valueOf());
     newDate.setDate(newDate.getDate() + days);
@@ -312,32 +309,32 @@ export class SearchResultService {
    * Approximation, this function is not exact
    * returns same result for all years, which is not correct.
    */
-  // week2month(weeknr) {
-  //   return {
-  //     "1":  1,   "2": 1,   "3": 1,   "4": 1, "5": 1,
-  //     "6":  2,   "7": 2,   "8": 2,   "9": 2,
-  //     "10": 3,  "11": 3,  "12": 3,  "13": 3, "14": 3,
-  //     "15": 4,  "16": 4,  "17": 4,  "18": 4,
-  //     "19": 5,  "20": 5,  "21": 5,  "22": 5,
-  //     "23": 6,  "24": 6,  "25": 6,  "26": 6, "27": 6,
-  //     "28": 7,  "29": 7,  "30": 7,  "31": 7,
-  //     "32": 8,  "33": 8,  "34": 8,  "35": 8,
-  //     "36": 9,  "37": 9,  "38": 9,  "39": 9,  "40": 9,
-  //     "41": 10, "42": 10, "43": 10, "44": 10,
-  //     "45": 11, "46": 11, "47": 11, "48": 11,
-  //     "49": 12, "50": 12, "51": 12, "52": 12, "53": 12
-  //   }[weeknr.toString()];
-  // }
-  // getWeek(originalDate) { // https://weeknumber.net/how-to/javascript
-  //   var date = new Date(originalDate.getTime());
-  //   date.setHours(0, 0, 0, 0);
-  //   // Thursday in current week decides the year.
-  //   date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
-  //   // January 4 is always in week 1.
-  //   var week1 = new Date(date.getFullYear(), 0, 4);
-  //   // Adjust to Thursday in week 1 and count number of weeks from date to week1.
-  //   return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000
-  //     - 3 + (week1.getDay() + 6) % 7) / 7);
-  // }
+  week2month(weeknr) {
+    return {
+      "1":  1,   "2": 1,   "3": 1,   "4": 1, "5": 1,
+      "6":  2,   "7": 2,   "8": 2,   "9": 2,
+      "10": 3,  "11": 3,  "12": 3,  "13": 3, "14": 3,
+      "15": 4,  "16": 4,  "17": 4,  "18": 4,
+      "19": 5,  "20": 5,  "21": 5,  "22": 5,
+      "23": 6,  "24": 6,  "25": 6,  "26": 6, "27": 6,
+      "28": 7,  "29": 7,  "30": 7,  "31": 7,
+      "32": 8,  "33": 8,  "34": 8,  "35": 8,
+      "36": 9,  "37": 9,  "38": 9,  "39": 9,  "40": 9,
+      "41": 10, "42": 10, "43": 10, "44": 10,
+      "45": 11, "46": 11, "47": 11, "48": 11,
+      "49": 12, "50": 12, "51": 12, "52": 12, "53": 12
+    }[weeknr.toString()];
+  }
+  getWeek(originalDate) { // https://weeknumber.net/how-to/javascript
+    var date = new Date(originalDate.getTime());
+    date.setHours(0, 0, 0, 0);
+    // Thursday in current week decides the year.
+    date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+    // January 4 is always in week 1.
+    var week1 = new Date(date.getFullYear(), 0, 4);
+    // Adjust to Thursday in week 1 and count number of weeks from date to week1.
+    return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000
+      - 3 + (week1.getDay() + 6) % 7) / 7);
+  }
 }
 
