@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit-element';
 import { SearchResultService } from "../services/search-result-service.js";
+import { ParseDateService } from "../services/parse-date-service.js";
 
 /**
 * A timeline component to display aggregated data. For example:
@@ -115,13 +116,11 @@ export class PbTimeline extends LitElement {
 
   constructor() {
     super();
-    const mockData = { categories: [], values: [], type: "" };
     this.maxHeight = 80;
     this.multiplier = 0.8;
     this.mousedown = false;
-    this.selectionStart = undefined;
-    this.selectionEnd = undefined;
-    this.setData(mockData);
+    this.resetSelection();
+    this.setData({ categories: [], values: [], scope: "" });
   }
 
   setData(data) {
@@ -134,69 +133,96 @@ export class PbTimeline extends LitElement {
   }
 
   firstUpdated() {
-    this.addEventListener("mousedown", () => {
-      this.mousedown = true;
-    });
-    this.addEventListener("mouseup", () => {
-      this.mousedown = false;
-    });
     this.bins = this.shadowRoot.querySelectorAll(".bin-container");
-
     document.addEventListener("pb-timeline-data-loaded", e => {
       this.searchResult = new SearchResultService(e.detail.jsonData);
       this.setData(this.searchResult.export());
     })
   }
 
+  getMousePosition(mouseEvent) {
+    // let rect = mouseEvent.currentTarget
+    // console.log(this.shadowRoot);
+    let rect = this.shadowRoot.querySelector(".wrapper").getBoundingClientRect();
+    let x = mouseEvent.clientX - rect.left + 1; //x position within the element.
+    let y = mouseEvent.clientY - rect.top + 1;  //y position within the element.
+    return {x: x, y: y};
+  }
+
+  mouseDown(event) {
+    this.resetSelectedBins();
+    this.resetSelection();
+    this.mousedown = true;
+    this.selection.start = this.getMousePosition(event).x;
+    this.applySelectionToBins();
+  }
+
+  mouseUp() {
+    this.mousedown = false;
+    const startDateStr = new ParseDateService().run(this.getSelectedStartDateStr());
+    const endDateStr = new ParseDateService().run(this.getSelectedEndDateStr());
+    // dispatch(`${startDateStr} to ${endDateStr}`);
+    this.dispatchPbTimelineDaterangeChanged(startDateStr, endDateStr);
+  }
+
+  dispatchPbTimelineDaterangeChanged(startDateStr, endDateStr) {
+    document.dispatchEvent(new CustomEvent('pb-timeline-daterange-changed', {
+      bubbles: true,
+      detail: {
+        startDateStr: startDateStr,
+        endDateStr: endDateStr,
+      }
+    }));
+  }
+
+  getElementInterval(nodeElement) {
+    let rect = this.shadowRoot.querySelector(".wrapper").getBoundingClientRect();
+    let bin = nodeElement;
+    let interval = [bin.getBoundingClientRect().x, bin.getBoundingClientRect().x + bin.getBoundingClientRect().width]
+    let x1 = interval[0] - rect.left + 1; //x position within the element.
+    let x2 = interval[1] - rect.left + 1; //x position within the element.
+    return [x1,x2];
+  }
+
   brushing(event) {
-    this.bins.forEach(bin => {
-      bin.classList.remove("selected");
-    });
-
     if (this.mousedown) {
-      console.log("down");
-      if (!this.selectionStart) {
-        this.selectionStart = event.currentTarget;
-      }
-      this.selectionEnd = event.currentTarget;
-
-      if (this.selectionEnd.getBoundingClientRect().x < this.selectionStart.getBoundingClientRect().x) {
-        const selectionStart = this.selectionEnd;
-        const selectionEnd = this.selectionStart;
-        this.selectionStart = null;
-        this.selectionEnd = null;
-        this.selectionStart = selectionStart;
-        this.selectionEnd = selectionEnd;
-      }
-
-      console.log("this.selectionStart");
-      console.log(this.selectionStart);
-      console.log("this.selectionEnd");
-      console.log(this.selectionEnd);
-      // get all bins
-
-      // iterate through all of them
-      let selectionOn = false;
-      this.bins.forEach(bin => {
-        if (selectionOn || bin === this.selectionStart) {
-          selectionOn = true;
-          bin.classList.add("selected");
-        }
-        if (bin === this.selectionEnd) {
-          selectionOn = false;
-        }
-      })
+      this.selection.end = this.getMousePosition(event).x;
+      this.applySelectionToBins();
     }
   }
 
-  resetBrushing() {
-    this.mousedown = false;
-    alert(`selected: ${this.getSelectedStartDateStr()} - ${this.getSelectedEndDateStr()}`);
+  applySelectionToBins() {
+    const selectionInterval = this.getSelectionInterval();
+    this.bins.forEach(bin => {
+      const elInterval = this.getElementInterval(bin);
+      // if (this.intervalsOverlapping(elInterval, selectionInterval)) {
+      if (this.areOverlapping(elInterval, selectionInterval)) {
+        bin.classList.add("selected");
+      } else {
+        bin.classList.remove("selected");
+      }
+    })
+  }
+
+  areOverlapping(A, B) {
+    return B[0] < A[0] ? B[1] > A[0] : B[0] < A[1];
+  }
+
+  getSelectionInterval() {
+    return [this.selection.start, this.selection.end].sort((a,b) => a - b);
+  }
+
+  resetSelectedBins() {
     this.bins.forEach(bin => {
       bin.classList.remove("selected");
     });
-    this.selectionStart = undefined;
-    this.selectionEnd = undefined;
+  }
+
+  resetSelection() {
+    this.selection = {
+      start: undefined,
+      end: undefined
+    }
   }
 
   getSelectedStartDateStr() {
@@ -222,7 +248,7 @@ export class PbTimeline extends LitElement {
       <div class="wrapper">
         ${this.data.values.map((value, indx) => {
           return html`
-            <div class="bin-container" @mousemove="${this.brushing}" @mouseup="${this.resetBrushing}">
+            <div class="bin-container" @mousemove="${this.brushing}" @mousedown="${this.mouseDown}" @mouseup="${this.mouseUp}">
               <div class="bin" style="height: ${(value / this.maxValue) * this.maxHeight * this.multiplier}px"></div>
               <p class="year ${indx % 10 === 0 ? "" : "invisible" }">${this.data.categories[indx]}</p>
             </div>
