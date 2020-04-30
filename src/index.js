@@ -3,39 +3,21 @@ import './components/pb-daterange-picker.js';
 import './components/pb-bar-chart.js';
 import './components/pb-timeline.js';
 import './components/pb-brushing-layer.js';
-import '@vaadin/vaadin-select';
-import '@vaadin/vaadin';
-// import '@vaadin/vaadin-radio-group';
+import '@vaadin/vaadin'; // import all vadin components (only for showcase)
 
+// import services
 import { LoadDataService } from "./services/load-data-service.js";
 import { SearchResultService } from "./services/search-result-service.js";
 import { ParseDateService } from "./services/parse-date-service.js";
 
+// load json data for development
+import { jsonDataDev } from './data/dev-data.js';
+const jsonData = jsonDataDev;
 
 document.addEventListener("DOMContentLoaded", () => {
-  // load json data from KBA Anton
-  new LoadDataService("Brief");  // dispatches "json-data-for-development-loaded" event
-  // dev controls data switching functionality
-  initDevControls();
-});
-
-document.addEventListener("json-data-for-development-loaded", (e) => {
-  console.log(`DATA LOADED`);
-  const jsonData = e.detail.jsonData;
-  console.log("Adding random values in 1650 to make visibility of chart for decades");
-  jsonData["1650-01-12"] = 1667;
-  jsonData["1660-01-12"] = 2637;
-  jsonData["1670-01-12"] = 637;
-  jsonData["1720-01-12"] = 9627;
-  jsonData["1735-01-12"] = 627;
-  jsonData["1851-01-12"] = 24;
-  jsonData["1877-01-12"] = 1244;
-  jsonData["1865-01-12"] = 1334;
-  jsonData["1895-01-12"] = 287;
-  window.jsonData = jsonData;
-  // change radiobuttons states to ready
   document.querySelector("vaadin-radio-group").setAttribute("label", "Select Sample Data");
   document.querySelectorAll("vaadin-radio-button").forEach(radioButton => radioButton.removeAttribute("disabled"));
+  initDevControls();
 });
 
 const initDevControls = () => {
@@ -56,11 +38,11 @@ const initDevControls = () => {
     let sizes = window.sr.getIntervallSizes();
     const maxInterval = 60;
     const selection = sizes["D"] <= maxInterval ? "D" : sizes["W"] <= maxInterval ? "W" : sizes["M"] <= maxInterval ? "M" : sizes["Y"] <= maxInterval ? "Y" : sizes["5Y"] <= maxInterval ? "5Y" : sizes["10Y"] <= maxInterval ? "10Y" : "invalid";
-    console.log(`-----------------------------`);
-    console.log(`from ${startDateStr} to ${endDateStr}`);
+    let msg = `${startDateStr} to ${endDateStr}\n------------------------\n`;
     Object.keys(sr.getIntervallSizes()).forEach(scope => {
-      console.log(`${scope.padStart(3, " ")} : ${sizes[scope]} ${selection === scope ? "<----" : ""}`);
+      msg += `${scope.padStart(3, " ")} : ${sizes[scope]} ${selection === scope ? "<----" : ""}\n`;
     })
+    document.querySelector("textarea#logs").innerHTML = msg;
     // dispatch event to commuicate with components (daterange picker + timeline)
     dispatchPbTimelineDataLoadedEvent(newJsonData);
   });
