@@ -147,7 +147,6 @@ export class SearchResultService {
     startDate = startDate || this.getMinDate();
     endDate = endDate || this.getMaxDate();
     let scope = `${N > 1 ? N : ""}Y`;
-    console.log(scope);
     let categories = this.getArray(startDate, endDate, scope);
     let values = categories.map(year => {
       return this.data.scoped[scope][year] || 0;
