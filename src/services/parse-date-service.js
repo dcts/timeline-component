@@ -80,7 +80,7 @@ export class ParseDateService {
   }
 
   yearAndMonthRegex() {
-    return /(?<=\s|^)\d{4}-\d{2}(?=\s|$)/;
+    return /(?<=\s|^)\d{4}-([0][1-9]|[1-9]|10|11|12)(?=\s|$)/;
   }
 
   findYear() {
