@@ -1,6 +1,6 @@
 # Timeline Component for KBA / TEIPublisher
 
-Component to display a tieline of search results. Build with lit-element. Demo is hosted here: https://dcts-todo-app.firebaseapp.com/
+Component to display a timeline of search results. Build with lit-element. Demo is hosted here: https://dcts-todo-app.firebaseapp.com/
 
 **Preview**
 ![timeline-demo](https://user-images.githubusercontent.com/44790691/80798736-5a5b0280-8ba5-11ea-9e32-016d08c035c9.png)
