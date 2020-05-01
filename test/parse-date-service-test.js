@@ -168,13 +168,20 @@ test('should detect format d(d) m(m) yyyy (without leading zeros)', t => {
   t.is("1950-01-31", new ParseDateService().run("31 1 1950"));
 });
 
-test('should detect week format yyyy-W??', t => {
-  t.is("1991-01-01", new ParseDateService().run("1991-W01"));
+test('should detect week format yyyy-W?? or yyyy/W?? or yyyy W?? or yyyy.W??', t => {
+  t.is("1991-01-14", new ParseDateService().run("1991-W03"));
+  t.is("1991-01-14", new ParseDateService().run("1991 W03"));
+  t.is("1991-01-14", new ParseDateService().run("1991/W03"));
+  t.is("1991-01-14", new ParseDateService().run("1991.W03 asd"));
+  t.is("1991-01-14", new ParseDateService().run("1991 W03 asd"));
   t.is("2000-03-20", new ParseDateService().run("2000-W12"));
-  t.is("1950-03-06", new ParseDateService().run("2000-W10"));
+  t.is("2000-03-06", new ParseDateService().run("2000-W10"));
+  t.is("1992-12-28", new ParseDateService().run("1992-W53"));
+  t.is("1993-12-27", new ParseDateService().run("1993-W52"));
 });
 
 test('should fallback if weeknumber doesnot exist', t => {
+  t.is("2000-12-31", new ParseDateService().run("2000-W54"));
   t.is("2000-12-31", new ParseDateService().run("2000-W53"));
   t.is("2000-01-01", new ParseDateService().run("2000-W0"));
 });

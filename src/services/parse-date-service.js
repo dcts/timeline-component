@@ -1,3 +1,4 @@
+// export
 export class ParseDateService {
   /*
    * PARSE DATE SERVICE
@@ -22,6 +23,7 @@ export class ParseDateService {
 
     const resultIsoMatch = this.input.match(this.isoMatchRegex());
     const resultCustomMatch = this.input.match(this.customRegex());
+    const resultWeekMatch = this.input.match(this.weekMatchRegex());
     if (resultIsoMatch) {
       const split = resultIsoMatch[0].split(/-|\/|\s/);
       this.year  = split[0];
@@ -32,6 +34,11 @@ export class ParseDateService {
       this.day = this.setWithLeadingZero(split[0]);
       this.month = this.setWithLeadingZero(split[1]);
       this.year = split[2];
+    } else if (resultWeekMatch) {
+      const split = resultWeekMatch[0].split(/\.|\s|\/|-/);
+      const year = Number(split[0]);
+      const week = Number(split[1].replace("W0", "").replace("W", ""));
+      return this.getDateStrOfISOWeek(year, week);
     } else {
       this.findYear();
       this.findMonth();
@@ -60,6 +67,10 @@ export class ParseDateService {
 
   customRegex() {
     return /\d{1,2}(\.|\s|\/|-)\d{1,2}(\.|\s|\/|-)\d{4}/;
+  }
+
+  weekMatchRegex() {
+    return /\d{4}(\.|\s|\/|-)W\d{1,2}(?=\s|$|\.)/;
   }
 
   findYear() {
@@ -174,5 +185,40 @@ export class ParseDateService {
       "dic": "12", "dicembre":  "12",
     }
   }
+
+  getDateStrOfISOWeek(y, w) {
+    let simple = new Date(y, 0, 1 + (w - 1) * 7);
+    // let simple = new Date(Date.UTC(y, 0, 2, 1 + (w - 1) * 7));
+    let dow = simple.getDay();
+    let ISOweekStart = simple;
+    if (dow <= 4) {
+      ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1);
+    } else {
+      ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
+    }
+    // do not rollover to next or previous year
+    if (ISOweekStart.getFullYear() > y) {
+      return `${y}-12-31`;
+    } else if (ISOweekStart.getFullYear() < y) {
+      return `${y}-01-01`;
+    }
+    return this.formatDate(ISOweekStart);
+  }
+
+  formatDate(date) {
+    let d = new Date(date);
+    let month = '' + (d.getMonth() + 1);
+    let day = '' + d.getDate();
+    let year = d.getFullYear();
+
+    if (month.length < 2) {
+      month = '0' + month;
+    }
+    if (day.length < 2) {
+      day = '0' + day;
+    }
+    return [year, month, day].join('-');
+  }
 }
 
+// console.log(new ParseDateService().run("1991-W03"));
