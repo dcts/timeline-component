@@ -1,6 +1,12 @@
-# LitElement Tutorial
+# Timeline Component for KBA / TEIPublisher
 
-[Vaadin tutorial](https://vaadin.com/learn/tutorials/lit-element) to create a todo app. I didn't use vaadin components, instead I build my own, I found that better for understanding and learning.
+Component to display a tieline of search results. Build with lit-element. Demo is hosted here: https://dcts-todo-app.firebaseapp.com/
+
+**Preview**
+![timeline-demo](https://user-images.githubusercontent.com/44790691/80798736-5a5b0280-8ba5-11ea-9e32-016d08c035c9.png)
+
+**With Selection**
+![timeline-demo2](https://user-images.githubusercontent.com/44790691/80798743-5dee8980-8ba5-11ea-9a73-281468ae8256.png)
 
 # Requirements
 - **`nodeJS`**
