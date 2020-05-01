@@ -38,11 +38,11 @@ npm run deploy
 
 # To Dos
 - [x] Support for date stringformat "2012-W01" to "2012-W53" (weeks)
-- [ ] updating range in the rangepicker should update the selection in the timeline
-- [ ] reset range button (in the datepicker)
+- [x] updating range in the rangepicker should update the selection in the timeline
+- [x] reset range button (in the datepicker)
 - [ ] tooltip on hover
 - [ ] tooltip during selection
-- [ ] custom views for all 6 scopes 
+- [ ] custom views for all 6 scopes
   - [ ] decades(10Y)
   - [ ] decades(5Y)
   - [x] years
