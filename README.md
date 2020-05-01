@@ -5,9 +5,6 @@ Component to display a tieline of search results. Build with lit-element. Demo i
 **Preview**
 ![timeline-demo](https://user-images.githubusercontent.com/44790691/80798736-5a5b0280-8ba5-11ea-9e32-016d08c035c9.png)
 
-**With Selection**
-![timeline-demo2](https://user-images.githubusercontent.com/44790691/80798743-5dee8980-8ba5-11ea-9a73-281468ae8256.png)
-
 # Requirements
 - **`nodeJS`**
 - **`npm`**
@@ -42,6 +39,7 @@ npm run deploy
 # To Dos
 - [x] Support for date stringformat "2012-W01" to "2012-W53" (weeks)
 - [ ] updating range in the rangepicker should update the selection in the timeline
+- [ ] reset range button (in the datepicker)
 - [ ] tooltip on hover
 - [ ] tooltip during selection
 - [ ] custom views for all 6 scopes 
