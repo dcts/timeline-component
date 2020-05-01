@@ -142,6 +142,19 @@ export class PbTimeline extends LitElement {
     document.addEventListener("mouseup", () => {
       this.mouseUp();
     })
+
+    // this event is triggered by the componeent itself but can be also triggered by another component
+    document.addEventListener("pb-timeline-daterange-changed", (event) => {
+      console.log("CATCHING DATE CHANGED EVENT");
+      console.log(event.detail.startDateStr);
+      console.log(event.detail.endDateStr);
+    });
+
+    // this event is triggered by the componeent itself but can be also triggered by another component
+    document.addEventListener("pb-timeline-reset-selection", () => {
+      this.resetSelectedBins();
+      this.resetSelection();
+    });
   }
 
   getMousePosition(mouseEvent) {
@@ -162,14 +175,16 @@ export class PbTimeline extends LitElement {
   }
 
   mouseUp() {
-    this.mousedown = false;
-    const start = this.getSelectedStartDateStr();
-    const end = this.getSelectedEndDateStr();
-    console.log(`${start} -> ${end}`);
-    if (start) {
-      const startDateStr = new ParseDateService().run(start);
-      const endDateStr = new ParseDateService().run(end);
-      this.dispatchPbTimelineDaterangeChanged(startDateStr, endDateStr);
+    if (this.mousedown) {
+      this.mousedown = false;
+      const start = this.getSelectedStartDateStr();
+      const end = this.getSelectedEndDateStr();
+      console.log(`${start} -> ${end}`);
+      if (start) {
+        const startDateStr = new ParseDateService().run(start);
+        const endDateStr = new ParseDateService().run(end);
+        this.dispatchPbTimelineDaterangeChanged(startDateStr, endDateStr);
+      }
     }
   }
 

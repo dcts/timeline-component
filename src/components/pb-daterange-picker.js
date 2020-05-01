@@ -23,7 +23,7 @@ class PbDaterangePicker extends LitElement {
         font-size: 14px;
         padding: 8px 16px !important;
       }
-      #datepicker-from, #datepicker-to {
+      #dateinput-from, #dateinput-to {
         margin-right: 20px;
       }
       paper-button.custom:hover {
@@ -44,105 +44,197 @@ class PbDaterangePicker extends LitElement {
     `;
   }
 
+  static get properties() {
+    return {
+      buttonDisabled: {
+        type: Boolean
+      },
+      inputsDisabled: {
+        type: Boolean
+      },
+      range: {
+        type: Object
+      },
+      selection: {
+        type: Object
+      }
+    }
+  }
+
   // @TODO: first updated callback nutzen um shadow dom elemente zu bekommen
   // constructor / connectedCallback / firstUpdated /
   constructor() {
     super();
+    this.buttonDisabled = true;
+    this.inputsDisabled = true;
+    this.range     = { start: null, end: null };
+    this.selection = { start: null, end: null };
   }
 
   firstUpdated() {
-    this.dateFromEl = this.shadowRoot.querySelector("paper-input#datepicker-from");
-    this.dateToEl = this.shadowRoot.querySelector("paper-input#datepicker-to");
+    this.dateInputFrom = this.shadowRoot.querySelector("paper-input#dateinput-from");
+    this.dateInputTo = this.shadowRoot.querySelector("paper-input#dateinput-to");
+    this.resetRangeButton = this.shadowRoot.querySelector("paper-button#reset-range");
 
-    this.actionButton = this.shadowRoot.querySelector("paper-button#apply-range");
+    // [this.dateInputFrom, this.dateInputTo].forEach(datePicker => {
+    //   datePicker.addEventListener('change', () => {
+    //     let startDateStr = this.getSelectedFromDateStr();
+    //     let endDateStr = this.getSelectedToDateStr();
+    //     if (this.dateRangeIsValid(startDateStr, endDateStr)) {
+    //       this.dispatchDaterangeChangedEvent(startDateStr, endDateStr);
+    //     }
+    //   });
+    // });
 
-    [this.dateFromEl, this.dateToEl].forEach(datePicker => {
-      datePicker.addEventListener('change', () => {
-        let startDateStr = this.getSelectedFromDateStr();
-        let endDateStr = this.getSelectedToDateStr();
-        if (this.rangeIsValid(startDateStr, endDateStr)) {
-          this.dispatchDaterangeChangedEvent(startDateStr, endDateStr);
-        }
-      });
-    });
-
-    this.actionButton.addEventListener("click", () => {
-      const startDateStr = this.getSelectedFromDateStr();
-      const endDateStr = this.getSelectedToDateStr();
-      if (this.rangeIsValid(startDateStr, endDateStr)) {
-        this.dispatchDaterangeChangedEvent(startDateStr, endDateStr);
-      } else {
-        console.log(`${startDateStr} - ${endDateStr}`);
-        alert("not a valid range!");
-      }
-    });
+    // this.resetRangeButton.addEventListener("click", () => {
+    //   const startDateStr = this.getSelectedFromDateStr();
+    //   const endDateStr = this.getSelectedToDateStr();
+    //   if (this.dateRangeIsValid(startDateStr, endDateStr)) {
+    //     this.dispatchDaterangeChangedEvent(startDateStr, endDateStr);
+    //   } else {
+    //     console.log(`${startDateStr} - ${endDateStr}`);
+    //     alert("not a valid range!");
+    //   }
+    // });
 
     // EXERNAL EVENTS
     document.addEventListener("pb-timeline-data-loaded", (event) => {
+      // save search result
       this.searchResult = new SearchResultService(event.detail.jsonData); // save SearchResult instance
-      this.initializeRange(this.searchResult.getMinDateStr(), this.searchResult.getMaxDateStr());
+      // reset selection + initialize range
+      this.setRange(this.searchResult.getMinDateStr(), this.searchResult.getMaxDateStr());
+      // enable inputs
+      this.inputsDisabled = false;
     });
 
     // this event is triggered by the componeent itself but can be also triggered by another component
     document.addEventListener("pb-timeline-daterange-changed", (event) => {
       const startDateStr = event.detail.startDateStr;
       const endDateStr = event.detail.endDateStr;
-      this.setRange(startDateStr, endDateStr);
+      this.setSelection(startDateStr, endDateStr);
     });
 
-    document.addEventListener("pb-update-daterange-picker", (event) => {
-      const startDateStr = event.detail.startDateStr;
-      const endDateStr = event.detail.endDateStr;
-      this.setRange(startDateStr, endDateStr);
+    // this event is triggered by the componeent itself but can be also triggered by another component
+    document.addEventListener("pb-timeline-reset-selection", () => {
+      this.selection = { start: null, end: null };
+      this.setInputs(this.range.start, this.range.end);
+      this.buttonDisabled = true;
     });
+
+    // document.addEventListener("pb-update-daterange-picker", (event) => {
+    //   const startDateStr = event.detail.startDateStr;
+    //   const endDateStr = event.detail.endDateStr;
+    //   this.setRange(startDateStr, endDateStr);
+    // });
 
     this.shadowRoot.querySelectorAll("paper-input").forEach(paperInput => {
-      paperInput.addEventListener("keyup", (e) => {
-        const input = e.target.value;
-        if (input === "") {
-          e.target.label = e.target.dataset.labeltext;
-        } else {
-          e.target.label = `${e.target.dataset.labeltext}: ${new ParseDateService().run(input)}`;
-        }
+      paperInput.addEventListener("submit", (e) => {
+        console.log("submit paperInput")
       });
     });
   }
 
-  getSelectedFromDateStr() {
-    return this.dateFromEl.label.includes(": ") ? this.dateFromEl.label.split(": ")[1] : undefined;
+  stats() {
+    console.log("--- DATERANGE PICKER STATES ---");
+    console.log(`range    : ${this.range.start} - ${this.range.end}`);
+    console.log(`selection: ${this.selection.start} - ${this.selection.end}`);
+    console.log(`inputs   : ${this.inputsDisabled ? "disabled" : "on"}`);
+    console.log(`button   : ${this.buttonDisabled ? "disabled" : "on"}`);
   }
 
-  getSelectedToDateStr() {
-    return this.dateToEl.label.includes(": ") ? this.dateToEl.label.split(": ")[1] : undefined;
-  }
-
-  initializeRange(startDateStr, endDateStr) {
-    this.initialRange = {
-      startDateStr: startDateStr,
-      endDateStr: endDateStr,
+  // update labels while typing (selection not applied yet)
+  keyup(event) {
+    if (event.key === "Enter") {
+      console.log("key enter pressed");
+      this.dateInputTo.focus(); // this triggeres the "unfocus" event in both cases (which trigger the validateDate function):
+      // FROM input -> calling focus() on the TO input unfocuses the FROM input (which is the current target).
+      // TO input -> calling focus() on the TO input (which is the current target and focused) unfocuses it.
+    } else { // apply the date parsing algorithm
+      const paperInput = event.currentTarget;
+      const input = event.target.value;
+      if (input === "") {
+        paperInput.label = paperInput.dataset.labeltext;
+      } else {
+        paperInput.label = `${paperInput.dataset.labeltext}: ${new ParseDateService().run(input)}`;
+      }
     }
-    this.dateFromEl.value = startDateStr;
-    this.dateToEl.value = endDateStr;
   }
 
-  rangeIsValid(startDateStr, endDateStr) {
-    if (startDateStr && endDateStr) {
-      return startDateStr < endDateStr;
+  // is called on focuseout event of both inputs
+  // if daterange is valid -> set selection
+  // else => notify user and set selection to range (= allowed boundaries)
+  validateDate(event) {
+    console.log("validating date");
+    const startDateStr = new ParseDateService().run(this.dateInputFrom.value);
+    const endDateStr = new ParseDateService().run(this.dateInputTo.value);
+    // check if both dates are valid dateStr's
+    if (!startDateStr.match(/\d{4}-\d{2}-\d{2}/) || !endDateStr.match(/\d{4}-\d{2}-\d{2}/)) {
+      // date entered is not valid -> set reset button true
+      this.buttonDisabled = false;
+      return;
     }
-    return false;
+
+    // check if within range
+    if (startDateStr < this.range.start) {
+      alert("startdate was out of range, automatically changed to fit boundaries");
+      startDateStr = this.range.start;
+      setInputFrom(startDateStr);
+    }
+    if (endDateStr > this.range.end) {
+      alert("enddate was out of range, automatically changed to fit boundaries");
+      endDateStr = this.range.end;
+      setInputTo(endDateStr);
+    }
+    // check if valid
+    if (startDateStr > endDateStr) {
+      alert("invalid range, automatically swaped")
+      [startDateStr, endDateStr] = [endDateStr, startDateStr]; // swap values
+      this.setInputs(startDateStr, endDateStr);
+    }
+    this.selection = { start: startDateStr, end: endDateStr };
+    this.dispatchDaterangeChangedEvent(startDateStr, endDateStr);
   }
 
-  resetRange() {
-    this.dateFromEl.value = this.initialRange.startDateStr;
-    this.dateToEl.value = this.initialRange.endDateStr;
-    this.dispatchDaterangeChangedEvent(this.initialRange.startDateStr, this.initialRange.endDateStr);
+
+  // dateRangeIsValid(startDateStr, endDateStr) {
+  //   if (startDateStr && endDateStr) {
+  //     return startDateStr < endDateStr;
+  //   }
+  //   return false;
+  // }
+
+  // resets selection when clicked on reset selection button
+  resetSelection() {
+    this.dispatchResetSelectionEvent();
   }
 
   setRange(startDateStr, endDateStr) {
-    this.dateFromEl.label = `From Date: ${startDateStr}`;
-    this.dateFromEl.value = startDateStr;
-    this.dateToEl.label = `To Date: ${endDateStr}`;
-    this.dateToEl.value = endDateStr;
+    this.range     = { start: startDateStr, end: endDateStr }; // set range (interval)
+    this.selection = { start: null, end: null }; // reset current selection
+    this.buttonDisabled = true;                  // if no selection -> resetbutton disabled
+    this.setInputs(startDateStr, endDateStr); // set input fields
+  }
+
+  setSelection(startDateStr, endDateStr) {
+    this.selection = { start: startDateStr, end: endDateStr };
+    this.setInputs(startDateStr, endDateStr);
+    this.buttonDisabled = false; // enable reset selection button
+  }
+
+  setInputs(startDateStr, endDateStr) {
+    this.setInputFrom(startDateStr);
+    this.setInputTo(endDateStr);
+    this.inputsDisabled = false;
+  }
+
+  setInputFrom(dateStr) {
+    this.dateInputFrom.label = `From Date: ${dateStr}`;
+    this.dateInputFrom.value = dateStr;
+  }
+
+  setInputTo(dateStr) {
+    this.dateInputTo.label = `To Date: ${dateStr}`;
+    this.dateInputTo.value = dateStr;
   }
 
   dispatchDaterangeChangedEvent(startDateStr, endDateStr) {
@@ -155,13 +247,38 @@ class PbDaterangePicker extends LitElement {
     }));
   }
 
+  dispatchResetSelectionEvent() {
+    document.dispatchEvent(new CustomEvent('pb-timeline-reset-selection', {
+      bubbles: true,
+    }));
+  }
+
   render(){
-    // @TOASK: why is onclick event or the buttton 'onclick="this.resetRange();"' not working?
     return html`
       <div class="paper-elements-group">
-        <paper-input id="datepicker-from" data-labeltext="From Date" label="From Date"></paper-input>
-        <paper-input id="datepicker-to" data-labeltext="To Date" label="To Date"></paper-input>
-        <paper-button id="apply-range" class="custom indigo" raised>apply</paper-button>
+        <paper-input
+          id="dateinput-from"
+          data-labeltext="From Date"
+          label="From Date"
+          @keyup="${this.keyup}"
+          @focusout="${this.validateDate}"
+          ?disabled="${this.inputsDisabled}"
+          ></paper-input>
+          <paper-input
+          id="dateinput-to"
+          data-labeltext="To Date"
+          label="To Date"
+          @keyup="${this.keyup}"
+          @focusout="${this.validateDate}"
+          ?disabled="${this.inputsDisabled}"
+        ></paper-input>
+        <paper-button
+          id="reset-range"
+          class="${this.buttonDisabled ? "" : "custom indigo"}"
+          raised
+          @click="${this.resetSelection}"
+          ?disabled="${this.buttonDisabled}">reset selection
+        </paper-button>
       </div>
     `;
   }
