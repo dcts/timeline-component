@@ -24,11 +24,17 @@ export class ParseDateService {
     const resultIsoMatch = this.input.match(this.isoMatchRegex());
     const resultCustomMatch = this.input.match(this.customRegex());
     const resultWeekMatch = this.input.match(this.weekMatchRegex());
+    const resultYearAndMonthMatch = this.input.match(this.yearAndMonthRegex());
     if (resultIsoMatch) {
       const split = resultIsoMatch[0].split(/-|\/|\s/);
       this.year  = split[0];
       this.month = this.setWithLeadingZero(split[1]);
       this.day   = this.setWithLeadingZero(split[2]);
+    } else if (resultYearAndMonthMatch) {
+      const split = resultYearAndMonthMatch[0].split("-");
+      this.year = split[0];
+      this.month = this.setWithLeadingZero(split[1]);
+      this.day = "01";
     } else if (resultCustomMatch) {
       const split = resultCustomMatch[0].split(/\.|\s|\/|-/);
       this.day = this.setWithLeadingZero(split[0]);
@@ -60,9 +66,9 @@ export class ParseDateService {
   // allowed 2012-01-31 /  2012-1-31 / 2012/01/31 / 2012/1/31 / 2012 1 31 / 2012 01 31
   isoMatchRegex() {
     return /(?<=\s|^)\d{4}(-|\s|\/)([0][1-9]|[1-9]|10|11|12)(-|\s|\/)([0][1-9]|[1-2][0-9]|3[01]|[1-9])(?=\s|$|\.)/;
-    //      |        | year      | 01-09 | 1-9 | 10-12   |      |01-09  |10-29     |30,31| 1-9  |
-    //      |             | dash or slash                | dash or slash                        |
-    //      |preceding with space or start of string                                            | end with space endofstr or dot
+    //      |        | year         | 01-09 | 1-9 | 10-12   |         |01-09  |10-29     |30,31| 1-9  |
+    //      |             | dash or slash                   | dash or slash                           |
+    //      |preceding with space or start of string                                                  | end with space endofstr or dot
   }
 
   customRegex() {
@@ -71,6 +77,10 @@ export class ParseDateService {
 
   weekMatchRegex() {
     return /\d{4}(\.|\s|\/|-)W\d{1,2}(?=\s|$|\.)/;
+  }
+
+  yearAndMonthRegex() {
+    return /(?<=\s|^)\d{4}-\d{2}(?=\s|$)/;
   }
 
   findYear() {
