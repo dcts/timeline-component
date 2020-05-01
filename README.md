@@ -1,12 +1,9 @@
 # Timeline Component for KBA / TEIPublisher
 
-Component to display a tieline of search results. Build with lit-element. Demo is hosted here: https://dcts-todo-app.firebaseapp.com/
+Component to display a timeline of search results. Build with lit-element. Demo is hosted here: https://dcts-todo-app.firebaseapp.com/
 
 **Preview**
 ![timeline-demo](https://user-images.githubusercontent.com/44790691/80798736-5a5b0280-8ba5-11ea-9e32-016d08c035c9.png)
-
-**With Selection**
-![timeline-demo2](https://user-images.githubusercontent.com/44790691/80798743-5dee8980-8ba5-11ea-9a73-281468ae8256.png)
 
 # Requirements
 - **`nodeJS`**
@@ -36,27 +33,24 @@ npm run deploy
 ```
 
 ### Testing with AVA
-- to test the `ParseDateService` I used [AVA testing framework](https://github.com/avajs/ava). To enable modern module imports in AVA I installed npm package `esm` as described on [StackOverflow](https://stackoverflow.com/a/55803624/6272061).
+- to test the `ParseDateService` the [AVA testing framework](https://github.com/avajs/ava) was used. To enable modern module imports in AVA the npm package `esm` was installed as described on [StackOverflow](https://stackoverflow.com/a/55803624/6272061).
 
 
 # To Dos
-- [ ] Move eventlisteners to connectedCallback as described here: https://github.com/Polymer/lit-element/issues/139#issuecomment-411284566
+- [x] Support for date stringformat "2012-W01" to "2012-W53" (weeks)
+- [ ] updating range in the rangepicker should update the selection in the timeline
+- [ ] reset range button (in the datepicker)
+- [ ] tooltip on hover
+- [ ] tooltip during selection
+- [ ] custom views for all 6 scopes 
+  - [ ] decades(10Y)
+  - [ ] decades(5Y)
+  - [x] years
+  - [ ] months
+  - [ ] weeks
+  - [ ] day
 
-# To Learn List
-- [x] lit-element basic syntax + HTML templates
-- [x] pass props through attributes
-- [ ] eventhandling
-- [ ] dot-syntax confusion for booleans + functions?
-- [ ] synchronize/bind states between components
-
-# ToAsk (marked with @TOASK in the code)
-- [x] 1) bug: todo-task is displayed twice somehow...
-- [ ] 2) Debugging tricks? Anything mentionable? how do you debug when not knowing where the rendered element comes from?
-- [ ] 3) why do i need to request rerendering of the todo-view when I change the list
-- [ ] 4) Eventhandling by binding function to another scope of `this`, is that best practice?
-- [ ] 5) we need to update the child element and parent element by ourselves? We are responsible for doing that in our code, right?
-
-# KBA API
+# KBA API Notes
 
 CORS problem:
 
