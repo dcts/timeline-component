@@ -186,3 +186,15 @@ test('should fallback if weeknumber doesnot exist', t => {
   t.is("2000-01-01", new ParseDateService().run("2000-W0"));
 });
 
+test('should detect year and month seperated by dash format yyyy-mm', t => {
+  t.is("2000-01-01", new ParseDateService().run("2000-01"));
+  t.is("1865-12-01", new ParseDateService().run("1867-12"));
+  t.is("1999-06-01", new ParseDateService().run("1999-06"));
+});
+
+test('should detect year and month seperated by dash format yyyy-mm (with leading zeros)', t => {
+  t.is("2000-01-01", new ParseDateService().run("2000-1"));
+  t.is("1865-02-01", new ParseDateService().run("1867-2"));
+  t.is("1999-06-01", new ParseDateService().run("1999-6"));
+});
+
