@@ -183,12 +183,15 @@ export class PbTimeline extends LitElement {
       if (start) {
         const startDateStr = new ParseDateService().run(start);
         const endDateStr = new ParseDateService().run(end);
-        this.dispatchPbTimelineDaterangeChanged(startDateStr, endDateStr);
+        console.log("AFTER TRANSFORM");
+        console.log(startDateStr);
+        console.log(endDateStr);
+        this.dispatchTimelineDaterangeChangedEvent(startDateStr, endDateStr);
       }
     }
   }
 
-  dispatchPbTimelineDaterangeChanged(startDateStr, endDateStr) {
+  dispatchTimelineDaterangeChangedEvent(startDateStr, endDateStr) {
     document.dispatchEvent(new CustomEvent('pb-timeline-daterange-changed', {
       bubbles: true,
       detail: {

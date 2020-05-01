@@ -111,6 +111,8 @@ class PbDaterangePicker extends LitElement {
     document.addEventListener("pb-timeline-daterange-changed", (event) => {
       const startDateStr = event.detail.startDateStr;
       const endDateStr = event.detail.endDateStr;
+      console.log("catched daterange changed event from within daterange picker!")
+      console.log(`${startDateStr} - ${endDateStr}`);
       this.setSelection(startDateStr, endDateStr);
     });
 
@@ -147,52 +149,57 @@ class PbDaterangePicker extends LitElement {
     if (event.key === "Enter") {
       console.log("key enter pressed");
       this.dateInputTo.focus(); // this triggeres the "unfocus" event in both cases (which trigger the validateDate function):
+      this.validateDate();
       // FROM input -> calling focus() on the TO input unfocuses the FROM input (which is the current target).
       // TO input -> calling focus() on the TO input (which is the current target and focused) unfocuses it.
-    } else { // apply the date parsing algorithm
-      const paperInput = event.currentTarget;
-      const input = event.target.value;
-      if (input === "") {
-        paperInput.label = paperInput.dataset.labeltext;
-      } else {
-        paperInput.label = `${paperInput.dataset.labeltext}: ${new ParseDateService().run(input)}`;
-      }
+    } else { // apply the date parsing algorithm and display prediction on paperinput label
+      this.liveUpdateLabel(event)
+    }
+  }
+
+  liveUpdateLabel(keyboardEvent) {
+    const paperInput = keyboardEvent.currentTarget;
+    const input = keyboardEvent.target.value;
+    if (input === "") {
+      paperInput.label = paperInput.dataset.labeltext;
+    } else {
+      paperInput.label = `${paperInput.dataset.labeltext}: ${new ParseDateService().run(input)}`;
     }
   }
 
   // is called on focuseout event of both inputs
   // if daterange is valid -> set selection
   // else => notify user and set selection to range (= allowed boundaries)
-  validateDate(event) {
+  validateDate() {
     console.log("validating date");
-    const startDateStr = new ParseDateService().run(this.dateInputFrom.value);
-    const endDateStr = new ParseDateService().run(this.dateInputTo.value);
+    let startDateStr = new ParseDateService().run(this.dateInputFrom.value);
+    let endDateStr = new ParseDateService().run(this.dateInputTo.value);
     // check if both dates are valid dateStr's
     if (!startDateStr.match(/\d{4}-\d{2}-\d{2}/) || !endDateStr.match(/\d{4}-\d{2}-\d{2}/)) {
       // date entered is not valid -> set reset button true
       this.buttonDisabled = false;
       return;
     }
-
     // check if within range
     if (startDateStr < this.range.start) {
       alert("startdate was out of range, automatically changed to fit boundaries");
       startDateStr = this.range.start;
-      setInputFrom(startDateStr);
+      this.setInputFrom(startDateStr);
     }
-    if (endDateStr > this.range.end) {
+    if (endDateStr > this.range.end || endDateStr < this.range.start) {
       alert("enddate was out of range, automatically changed to fit boundaries");
       endDateStr = this.range.end;
-      setInputTo(endDateStr);
+      this.setInputTo(endDateStr);
     }
     // check if valid
-    if (startDateStr > endDateStr) {
-      alert("invalid range, automatically swaped")
-      [startDateStr, endDateStr] = [endDateStr, startDateStr]; // swap values
+    if (startDateStr < endDateStr) {
       this.setInputs(startDateStr, endDateStr);
+      this.selection = { start: startDateStr, end: endDateStr };
+      this.dispatchDaterangeChangedEvent(startDateStr, endDateStr);
+    } else {
+      alert("invalid daterange, startdate needs to be before enddate");
+      this.buttonDisabled = false;
     }
-    this.selection = { start: startDateStr, end: endDateStr };
-    this.dispatchDaterangeChangedEvent(startDateStr, endDateStr);
   }
 
 
