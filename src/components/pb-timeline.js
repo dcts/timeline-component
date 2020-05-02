@@ -252,21 +252,12 @@ export class PbTimeline extends LitElement {
   }
 
   getSelectedStartDateStr() {
-    for (let i=0; i<this.bins.length; i++) {
-      if (this.bins[i].classList.contains("selected")) {
-        return this.bins[i].dataset.datestr;
-      }
-    };
+    return this.shadowRoot.querySelectorAll(".bin-container.selected")[0].dataset.datestr;
   }
 
   getSelectedEndDateStr() {
-    let lastValue = "NA";
-    this.bins.forEach(bin => {
-      if (bin.classList.contains("selected")) {
-        lastValue = bin.dataset.datestr;
-      }
-    })
-    return lastValue;
+    const selectedBins = this.shadowRoot.querySelectorAll(".bin-container.selected");
+    return selectedBins[selectedBins.length-1].dataset.datestr;
   }
 
   render() {
