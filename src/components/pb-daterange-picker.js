@@ -76,28 +76,7 @@ class PbDaterangePicker extends LitElement {
     this.dateInputTo = this.shadowRoot.querySelector("paper-input#dateinput-to");
     this.resetRangeButton = this.shadowRoot.querySelector("paper-button#reset-range");
 
-    // [this.dateInputFrom, this.dateInputTo].forEach(datePicker => {
-    //   datePicker.addEventListener('change', () => {
-    //     let startDateStr = this.getSelectedFromDateStr();
-    //     let endDateStr = this.getSelectedToDateStr();
-    //     if (this.dateRangeIsValid(startDateStr, endDateStr)) {
-    //       this.dispatchDaterangeChangedEvent(startDateStr, endDateStr);
-    //     }
-    //   });
-    // });
-
-    // this.resetRangeButton.addEventListener("click", () => {
-    //   const startDateStr = this.getSelectedFromDateStr();
-    //   const endDateStr = this.getSelectedToDateStr();
-    //   if (this.dateRangeIsValid(startDateStr, endDateStr)) {
-    //     this.dispatchDaterangeChangedEvent(startDateStr, endDateStr);
-    //   } else {
-    //     console.log(`${startDateStr} - ${endDateStr}`);
-    //     alert("not a valid range!");
-    //   }
-    // });
-
-    // EXERNAL EVENTS
+    // EVENTS
     document.addEventListener("pb-timeline-data-loaded", (event) => {
       // save search result
       this.searchResult = new SearchResultService(event.detail.jsonData); // save SearchResult instance
@@ -107,32 +86,18 @@ class PbDaterangePicker extends LitElement {
       this.inputsDisabled = false;
     });
 
-    // this event is triggered by the componeent itself but can be also triggered by another component
+    // this event is triggered by the component itself but can be also triggered by another component
     document.addEventListener("pb-timeline-daterange-changed", (event) => {
       const startDateStr = event.detail.startDateStr;
       const endDateStr = event.detail.endDateStr;
-      console.log("catched daterange changed event from within daterange picker!")
-      console.log(`${startDateStr} - ${endDateStr}`);
       this.setSelection(startDateStr, endDateStr);
     });
 
-    // this event is triggered by the componeent itself but can be also triggered by another component
+    // this event is triggered by the component itself but can be also triggered by another component
     document.addEventListener("pb-timeline-reset-selection", () => {
       this.selection = { start: null, end: null };
       this.setInputs(this.range.start, this.range.end);
       this.buttonDisabled = true;
-    });
-
-    // document.addEventListener("pb-update-daterange-picker", (event) => {
-    //   const startDateStr = event.detail.startDateStr;
-    //   const endDateStr = event.detail.endDateStr;
-    //   this.setRange(startDateStr, endDateStr);
-    // });
-
-    this.shadowRoot.querySelectorAll("paper-input").forEach(paperInput => {
-      paperInput.addEventListener("submit", (e) => {
-        console.log("submit paperInput")
-      });
     });
   }
 

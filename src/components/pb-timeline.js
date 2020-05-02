@@ -146,8 +146,15 @@ export class PbTimeline extends LitElement {
     // this event is triggered by the componeent itself but can be also triggered by another component
     document.addEventListener("pb-timeline-daterange-changed", (event) => {
       // console.log("CATCHING DATE CHANGED EVENT");
-      // console.log(event.detail.startDateStr);
-      // console.log(event.detail.endDateStr);
+      const startDateStr = event.detail.startDateStr;
+      const endDateStr = event.detail.endDateStr;
+      this.bins.forEach(bin => {
+        if (bin.dataset.isodatestr >= startDateStr && bin.dataset.isodatestr <= endDateStr) {
+          bin.classList.add("selected");
+        } else {
+          bin.classList.remove("selected");
+        }
+      })
     });
 
     // this event is triggered by the componeent itself but can be also triggered by another component
@@ -268,7 +275,11 @@ export class PbTimeline extends LitElement {
       <div class="wrapper">
         ${this.data.values.map((value, indx) => {
           return html`
-            <div class="bin-container" data-datestr="${this.data.categories[indx]}" @mousemove="${this.brushing}" @mousedown="${this.mouseDown}">
+            <div class="bin-container"
+              data-isodatestr="${new ParseDateService().run(this.data.categories[indx])}"
+              data-datestr="${this.data.categories[indx]}"
+              @mousemove="${this.brushing}"
+              @mousedown="${this.mouseDown}">
               <div class="bin" style="height: ${(value / this.maxValue) * this.maxHeight * this.multiplier}px"></div>
               <p class="year ${indx % 10 === 0 ? "" : "invisible" }">${this.data.categories[indx]}</p>
             </div>
