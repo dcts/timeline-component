@@ -145,7 +145,6 @@ export class PbTimeline extends LitElement {
 
     // this event is triggered by the componeent itself but can be also triggered by another component
     document.addEventListener("pb-timeline-daterange-changed", (event) => {
-      // console.log("CATCHING DATE CHANGED EVENT");
       const startDateStr = event.detail.startDateStr;
       const endDateStr = event.detail.endDateStr;
       this.bins.forEach(bin => {
