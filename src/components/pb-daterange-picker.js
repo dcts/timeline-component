@@ -148,8 +148,15 @@ class PbDaterangePicker extends LitElement {
   keyup(event) {
     if (event.key === "Enter") {
       console.log("key enter pressed");
-      this.dateInputTo.focus(); // this triggeres the "unfocus" event in both cases (which trigger the validateDate function):
-      this.validateDate();
+      if (event.currentTarget === this.dateInputFrom) {
+        this.dateInputTo.focus();
+      }
+      this.validateSelectionRange();
+      event.stopPropagation();
+
+
+      // this.dateInputTo.focus(); // this triggeres the "unfocus" event in both cases (which trigger the validateDate function):
+      // this.validateDate();
       // FROM input -> calling focus() on the TO input unfocuses the FROM input (which is the current target).
       // TO input -> calling focus() on the TO input (which is the current target and focused) unfocuses it.
     } else { // apply the date parsing algorithm and display prediction on paperinput label
@@ -170,8 +177,8 @@ class PbDaterangePicker extends LitElement {
   // is called on focuseout event of both inputs
   // if daterange is valid -> set selection
   // else => notify user and set selection to range (= allowed boundaries)
-  validateDate() {
-    console.log("validating date");
+  validateSelectionRange() {
+    console.log("validating selected daterange");
     let startDateStr = new ParseDateService().run(this.dateInputFrom.value);
     let endDateStr = new ParseDateService().run(this.dateInputTo.value);
     // check if both dates are valid dateStr's
@@ -182,12 +189,12 @@ class PbDaterangePicker extends LitElement {
     }
     // check if within range
     if (startDateStr < this.range.start) {
-      alert("startdate was out of range, automatically changed to fit boundaries");
+      console.log("startdate was out of range, automatically changed to fit boundaries");
       startDateStr = this.range.start;
       this.setInputFrom(startDateStr);
     }
     if (endDateStr > this.range.end || endDateStr < this.range.start) {
-      alert("enddate was out of range, automatically changed to fit boundaries");
+      console.log("enddate was out of range, automatically changed to fit boundaries");
       endDateStr = this.range.end;
       this.setInputTo(endDateStr);
     }
@@ -197,7 +204,7 @@ class PbDaterangePicker extends LitElement {
       this.selection = { start: startDateStr, end: endDateStr };
       this.dispatchDaterangeChangedEvent(startDateStr, endDateStr);
     } else {
-      alert("invalid daterange, startdate needs to be before enddate");
+      console.log("invalid daterange, startdate needs to be before enddate");
       this.buttonDisabled = false;
     }
   }
@@ -268,7 +275,7 @@ class PbDaterangePicker extends LitElement {
           data-labeltext="From Date"
           label="From Date"
           @keyup="${this.keyup}"
-          @focusout="${this.validateDate}"
+          @focusout="${this.validateSelectionRange}"
           ?disabled="${this.inputsDisabled}"
           ></paper-input>
           <paper-input
@@ -276,7 +283,7 @@ class PbDaterangePicker extends LitElement {
           data-labeltext="To Date"
           label="To Date"
           @keyup="${this.keyup}"
-          @focusout="${this.validateDate}"
+          @focusout="${this.validateSelectionRange}"
           ?disabled="${this.inputsDisabled}"
         ></paper-input>
         <paper-button

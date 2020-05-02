@@ -145,9 +145,9 @@ export class PbTimeline extends LitElement {
 
     // this event is triggered by the componeent itself but can be also triggered by another component
     document.addEventListener("pb-timeline-daterange-changed", (event) => {
-      console.log("CATCHING DATE CHANGED EVENT");
-      console.log(event.detail.startDateStr);
-      console.log(event.detail.endDateStr);
+      // console.log("CATCHING DATE CHANGED EVENT");
+      // console.log(event.detail.startDateStr);
+      // console.log(event.detail.endDateStr);
     });
 
     // this event is triggered by the componeent itself but can be also triggered by another component
@@ -158,8 +158,6 @@ export class PbTimeline extends LitElement {
   }
 
   getMousePosition(mouseEvent) {
-    // let rect = mouseEvent.currentTarget
-    // console.log(this.shadowRoot);
     let rect = this.shadowRoot.querySelector(".wrapper").getBoundingClientRect();
     let x = mouseEvent.clientX - rect.left + 1; //x position within the element.
     let y = mouseEvent.clientY - rect.top + 1;  //y position within the element.
@@ -179,13 +177,9 @@ export class PbTimeline extends LitElement {
       this.mousedown = false;
       const start = this.getSelectedStartDateStr();
       const end = this.getSelectedEndDateStr();
-      console.log(`${start} -> ${end}`);
       if (start) {
         const startDateStr = new ParseDateService().run(start);
         const endDateStr = new ParseDateService().run(end);
-        console.log("AFTER TRANSFORM");
-        console.log(startDateStr);
-        console.log(endDateStr);
         this.dispatchTimelineDaterangeChangedEvent(startDateStr, endDateStr);
       }
     }
