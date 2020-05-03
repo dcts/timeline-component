@@ -48,13 +48,13 @@ export class PbTimeline extends LitElement {
         transform: rotate(-90deg);
         z-index: 10;
       }
-      .bin-container:nth-child(10n+1) p.year {
-        /* font-weight: bold; */
+      /* .bin-container:nth-child(10n+1) p.year {
+        font-weight: bold;
         font-size: 12px;
-      }
-      .bin-container:nth-child(10n+1) {
+      } */
+      /* .bin-container:nth-child(10n+1) {
         border-left: 1px solid rgba(0,0,0,0.2);
-      }
+      } */
       .bin-container:nth-child(2n) {
         background-color: rgba(0,0,0,0.1);
         background-color: #f1f1f1;
@@ -122,7 +122,7 @@ export class PbTimeline extends LitElement {
   constructor() {
     super();
     this.maxHeight = 80;
-    this.multiplier = 0.8;
+    this.multiplier = 0.75;
     this.mousedown = false;
     this.resetSelection();
     this.setData({ categories: [], values: [], scope: "" });
@@ -303,7 +303,7 @@ export class PbTimeline extends LitElement {
               @mousemove="${this.mouseMove}"
               @mousedown="${this.mouseDown}">
               <div class="bin" style="height: ${(value / this.maxValue) * this.maxHeight * this.multiplier}px"></div>
-              <p class="year ${indx % 10 === 0 ? "" : "invisible" }">${this.data.categories[indx]}</p>
+              <p class="year">${this.data.categories[indx]}</p>
             </div>
           `;
         })}
