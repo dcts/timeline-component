@@ -19,6 +19,7 @@ export class PbTimeline extends LitElement {
         display: flex;
         justify-content: center;
         cursor: crosshair;
+        position: relative;
       }
       .bin-container {
         min-width: var(--pb-timeline-max-width, 14px);
@@ -74,31 +75,35 @@ export class PbTimeline extends LitElement {
         opacity: 0;
       }
 
-      .tooltip {
-        position: relative;
-        display: inline-block;
-        border-bottom: 1px dotted black;
-      }
-
-      .tooltip .tooltiptext {
+      .tooltiptext.hidden {
         visibility: hidden;
-        width: 120px;
+      }
+      .tooltiptext {
+        /* min-width: 10px; */
+        display: inline-block;
+        white-space: nowrap;
+        height: 20px;
+        line-height: 20px;
+        position: absolute;
+        font-size: 11px;
         background-color: black;
         color: #fff;
         text-align: center;
         border-radius: 6px;
-        padding: 5px 0;
-
-        /* Position the tooltip */
-        position: absolute;
-        z-index: 100;
-        top: 100%;
-        left: 50%;
-        margin-left: -60px;
+        padding: 5px 10px;
+        top: 85px;
+        left: 0;
       }
 
-      .tooltip:hover .tooltiptext {
-        visibility: visible;
+      .tooltiptext::after {
+        content: "";
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: transparent transparent black transparent;
       }
     `;
   }
@@ -135,6 +140,7 @@ export class PbTimeline extends LitElement {
 
   firstUpdated() {
     this.bins = this.shadowRoot.querySelectorAll(".bin-container");
+    this.tooltip = this.shadowRoot.getElementById("tooltip");
     document.addEventListener("pb-timeline-data-loaded", e => {
       this.searchResult = new SearchResultService(e.detail.jsonData);
       this.setData(this.searchResult.export());
@@ -210,11 +216,26 @@ export class PbTimeline extends LitElement {
     return [x1,x2];
   }
 
-  brushing(event) {
+  mouseMove(event) {
     if (this.mousedown) {
-      this.selection.end = this.getMousePosition(event).x;
-      this.applySelectionToBins();
+      this.brushing(event);
     }
+    this.showtooltip(event);
+  }
+
+  brushing(event) {
+    this.selection.end = this.getMousePosition(event).x;
+    this.applySelectionToBins();
+  }
+
+  showtooltip(event) {
+    // this.tooltip.style.left = (this.getMousePosition(event).x - this.tooltip.offsetWidth / 2) + "px";
+    const interval = this.getElementInterval(event.currentTarget);
+    const offset = Math.round((((interval[0] + interval[1]) / 2) - this.tooltip.offsetWidth / 2));
+    this.tooltip.style.left = offset + "px";
+    const datestr = event.currentTarget.dataset.datestr;
+    const value = event.currentTarget.dataset.value;
+    this.tooltip.innerHTML = `<strong>${datestr}</strong>: ${value}`;
   }
 
   applySelectionToBins() {
@@ -260,21 +281,33 @@ export class PbTimeline extends LitElement {
     return selectedBins[selectedBins.length-1].dataset.datestr;
   }
 
+  hideTooltip() {
+    this.tooltip.classList.add("hidden");
+  }
+
+  displayTooltip() {
+    this.tooltip.classList.remove("hidden");
+  }
+
   render() {
     return html`
-      <div class="wrapper">
+      <div class="wrapper"
+        @mouseenter="${this.displayTooltip}"
+        @mouseleave="${this.hideTooltip}">
         ${this.data.values.map((value, indx) => {
           return html`
             <div class="bin-container"
               data-isodatestr="${new ParseDateService().run(this.data.categories[indx])}"
               data-datestr="${this.data.categories[indx]}"
-              @mousemove="${this.brushing}"
+              data-value="${value}"
+              @mousemove="${this.mouseMove}"
               @mousedown="${this.mouseDown}">
               <div class="bin" style="height: ${(value / this.maxValue) * this.maxHeight * this.multiplier}px"></div>
               <p class="year ${indx % 10 === 0 ? "" : "invisible" }">${this.data.categories[indx]}</p>
             </div>
           `;
         })}
+        <div id="tooltip" class="tooltiptext hidden"><strong>1928</strong>: 128</div>
       </div>
     `;
   }
