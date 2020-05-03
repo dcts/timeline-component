@@ -246,11 +246,11 @@ export class SearchResultService {
 
   computeIntervallSizes(startDate, endDate) {
     return {
-      "D": this.computeIntervallSize(startDate, endDate, "D"),
-      "W": this.computeIntervallSize(startDate, endDate, "W"),
-      "M": this.computeIntervallSize(startDate, endDate, "M"),
-      "Y": this.computeIntervallSize(startDate, endDate, "Y"),
-      "5Y": this.computeIntervallSize(startDate, endDate, "5Y"),
+      "D":   this.computeIntervallSize(startDate, endDate, "D"),
+      "W":   this.computeIntervallSize(startDate, endDate, "W"),
+      "M":   this.computeIntervallSize(startDate, endDate, "M"),
+      "Y":   this.computeIntervallSize(startDate, endDate, "Y"),
+      "5Y":  this.computeIntervallSize(startDate, endDate, "5Y"),
       "10Y": this.computeIntervallSize(startDate, endDate, "10Y"),
     }
   }
@@ -263,6 +263,13 @@ export class SearchResultService {
       currentDate = this.increaseDateBy(scope, currentDate);
     }
     return count;
+  }
+
+  /*
+   *
+   */
+  normalizeDate(startDate, scope) {
+
   }
 
   increaseDateBy(scope, date) {
