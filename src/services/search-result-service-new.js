@@ -146,6 +146,71 @@ export class SearchResultServiceNew {
       ISOweekStart.setDate(simple.getDate() + 8 - simple.getUTCDay());
     return ISOweekStart.toISOString().split("T")[0];
   }
+
+  getIntervalSizes() {
+    const startDateStr = this.getMinDateStr();
+    const endDateStr = this.getMaxDateStr();
+    return {
+      "D": this.computeIntervalSize(startDateStr, endDateStr, "D"),
+      "W": this.computeIntervalSize(startDateStr, endDateStr, "W"),
+      "M": this.computeIntervalSize(startDateStr, endDateStr, "M"),
+      "Y": this.computeIntervalSize(startDateStr, endDateStr, "Y"),
+      "5Y": this.computeIntervalSize(startDateStr, endDateStr, "5Y"),
+      "10Y": this.computeIntervalSize(startDateStr, endDateStr, "10Y"),
+    }
+  }
+
+  computeIntervalSize(startDateStr, endDateStr, scope) {
+    const endDate = this.dateStrToUTCDate(endDateStr);
+    const startCategory = this.classify(startDateStr, scope);
+    const firstDayDateStr = this.getFirstDay(startCategory);
+    let currentDate = this.dateStrToUTCDate(firstDayDateStr);
+    let count = 0;
+    while (currentDate <= endDate) {
+      count++;
+      currentDate = this.increaseDateBy(scope, currentDate);
+    }
+    return count;
+  }
+
+  increaseDateBy(scope, date) {
+    switch (scope) {
+      case "D":
+        return this.addDays(date, 1);
+      case "W":
+        return this.addDays(date, 7);
+      case "M":
+        return this.addMonths(date, 1);
+      case "Y":
+        return this.addYears(date, 1);
+      case "5Y":
+        return this.addYears(date, 5);
+      case "10Y":
+        return this.addYears(date, 10);
+    }
+  }
+
+  addDays(date, days) {
+    let newDate = new Date(date.valueOf());
+    newDate.setDate(newDate.getDate() + days);
+    return newDate;
+  }
+
+  addMonths(date, months) {
+    let newDate = new Date(date.valueOf());
+    let d = newDate.getDate();
+    newDate.setMonth(newDate.getMonth() + +months);
+    if (newDate.getDate() != d) {
+      newDate.setDate(0);
+    }
+    return newDate;
+  }
+
+  addYears(date, years) {
+    let newDate = new Date(date.valueOf());
+    newDate.setFullYear(newDate.getFullYear() + years);
+    return newDate;
+  }
 }
 
 

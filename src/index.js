@@ -8,6 +8,7 @@ import '@vaadin/vaadin'; // import all vadin components (only for showcase)
 // import services
 import { LoadDataService } from "./services/load-data-service.js";
 import { SearchResultService } from "./services/search-result-service.js";
+import { SearchResultServiceNew } from "./services/search-result-service-new.js";
 import { ParseDateService } from "./services/parse-date-service.js";
 
 // load json data for development
@@ -34,6 +35,7 @@ const initDevControls = () => {
     // init seearch result object and make visible to window
     const searchResult = new SearchResultService(newJsonData);
     window.sr = searchResult;
+    window.srn = new SearchResultServiceNew(newJsonData);;
     // Output intervallsizes to console
     let sizes = window.sr.getIntervallSizes();
     const maxInterval = 60;
