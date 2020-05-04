@@ -256,7 +256,7 @@ class PbDaterangePicker extends LitElement {
           class="${this.buttonDisabled ? "" : "custom indigo"}"
           raised
           @click="${this.resetSelection}"
-          ?disabled="${this.buttonDisabled}">reset selection
+          ?disabled="${this.buttonDisabled}">reset
         </paper-button>
       </div>
     `;
