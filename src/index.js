@@ -1,14 +1,10 @@
 import './styles.css';
 import './components/pb-daterange-picker.js';
-import './components/pb-bar-chart.js';
 import './components/pb-timeline.js';
-import './components/pb-brushing-layer.js';
 import '@vaadin/vaadin'; // import all vadin components (only for showcase)
 
 // import services
-import { LoadDataService } from "./services/load-data-service.js";
 import { SearchResultService } from "./services/search-result-service.js";
-import { ParseDateService } from "./services/parse-date-service.js";
 
 // load json data for development
 import { jsonDataDev } from './data/dev-data.js';
