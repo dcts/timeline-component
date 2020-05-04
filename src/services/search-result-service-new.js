@@ -16,7 +16,7 @@ export class SearchResultServiceNew {
 
   validateJsonData(jsonData) {
     Object.keys(jsonData).sort().forEach(key => {
-      if (this.isValidDatestr(key)) {
+      if (this.isValidDateStr(key)) {
         this.data.valid[key] = Number(jsonData[key]);
       } else {
         this.data.invalid[key] = Number(jsonData[key]);
@@ -38,6 +38,102 @@ export class SearchResultServiceNew {
     return this.dateStrToUTCDate(this.getMaxDateStr());
   }
 
+  export(scope) {
+    // validate scope
+    if (!this.scopes.includes(scope)) {
+      throw new Error(`invalid scope provided, expected: ["10Y", "5Y", "Y", "M", "W", "D"]. Got: "${scope}"`);
+    }
+    // initialize object to export
+    const exportData = {
+      data: [],
+      scope: scope,
+      binTitleRotated: this.binTitleRotatedLookup(scope)
+    }
+    // intervall
+    const startCategory = this.classify(this.getMinDateStr(), scope);
+    const startDateStr = this.getFirstDay(startCategory);
+    let currentDate = this.dateStrToUTCDate(startDateStr);
+    const endDate = this.getMaxDate();
+    // initialize all bin Object and push to array
+    while (currentDate <= endDate) {
+      const currentDateStr = this.UTCDateToDateStr(currentDate);
+      const currentCategory = this.classify(currentDateStr, scope);
+      exportData.data.push(this.buildBinObject(currentDateStr, currentCategory, scope));
+      currentDate = this.increaseDateBy(scope, currentDate);
+    }
+    // count all values
+    return exportData;
+  }
+
+  binTitleRotatedLookup(scope) {
+    const lookup = {
+      "10Y": true,
+      "5Y": true,
+      "Y": true,
+      "M": false, // only exception not to rotate in monthly scope
+      "W": true,
+      "D": true,
+    }
+    return lookup[scope];
+  }
+
+  buildBinObject(dateStr, category, scope) {
+    // for all scopes the same
+    const binObject = {
+      dateStr: dateStr,
+      category: category,
+      value: 0
+    }
+    switch (scope) {
+      case "10Y":
+        binObject.binTitle       = category;
+        binObject.tooltip        = `${category} - ${Number(category) + 9}`; // 1900 - 1999
+        binObject.selectionStart = category;
+        binObject.selectionEnd   = `${Number(category) + 9}`;
+        binObject.seperator      = Number(category) % 100 === 0; // divisible by 100
+        break;
+      case "5Y":
+        binObject.binTitle       = category;
+        binObject.tooltip        = `${category} - ${Number(category) + 4}`; // 1995 - 1999
+        binObject.selectionStart = category;
+        binObject.selectionEnd   = `${Number(category) + 4}`;
+        binObject.seperator      = Number(category) % 50 === 0; // divisible by 50
+        break;
+      case "Y":
+        binObject.binTitle       = category;
+        binObject.tooltip        = category;
+        binObject.selectionStart = category;
+        binObject.selectionEnd   = category;
+        binObject.seperator      = Number(category) % 10 === 0; // divisible by 10
+        break;
+      case "M":
+        const split    = dateStr.split("-");
+        const monthNum = Number(split[1]);
+        const month    = this.monthLookup(monthNum); // Jan,Feb,Mar,...,Nov,Dez
+        binObject.binTitle       = month[0]; // J,F,M,A,M,J,J,..N,D
+        binObject.tooltip        = `${month} ${split[0]}`; // May 1996
+        binObject.selectionStart = `${month} ${split[0]}`;
+        binObject.selectionEnd   = `${month} ${split[0]}`;
+        binObject.title          = dateStr.split("-")[0]; // YYYY
+        binObject.seperator      = false;
+        break;
+      case "W":
+        binObject.binTitle = "";
+        binObject.tooltip = "";
+        binObject.selectionStart = "";
+        binObject.selectionEnd = "";
+        binObject.seperator = false;
+        break;
+      case "D":
+        binObject.binTitle = "";
+        binObject.tooltip = "";
+        binObject.selectionStart = "";
+        binObject.selectionEnd = "";
+        binObject.seperator = false;
+        break;
+    }
+    return binObject;
+  }
 
   /*
    * ...classifies dateStr into category (based on scope)
@@ -79,16 +175,17 @@ export class SearchResultServiceNew {
    * getFirstDay("2010") // =>
    */
   getFirstDay(categoryStr) {
-    if (categoryStr.match(/^\d{4}-\d{2}-\d{2}$/)) { // YYYY-MM-DD
+    if (categoryStr.match(/^\d{4}-\d{2}-\d{2}$/)) { // YYYY-MM-DD => return same value
       return categoryStr;
     }
     if (categoryStr.match(/^\d{4}-\d{2}$/)) { // YYYY-MM
-      return `${categoryStr}-01`;
+      return `${categoryStr}-01`;             // add    -01
     }
     if (categoryStr.match(/^\d{4}$/)) { // YYYY
-      return `${categoryStr}-01-01`;
+      return `${categoryStr}-01-01`;    // add -01-01
     }
-    if (categoryStr.match(/^\d{4}-W(5[0-3]|[1-4][0-9]|[1-9])$/)) {
+    if (categoryStr.match(/^\d{4}-W([1-9]|[1-4][0-9]|5[0-3])$/)) { // YYYY-W?  // ? => [1-53]
+      //                    |YYYY-W |1-9 | 10-49    | 50-53 |
       const split = categoryStr.split("-");
       const year = Number(split[0]);
       const weekNummber = Number(split[1].replace("W", ""));
@@ -98,8 +195,8 @@ export class SearchResultServiceNew {
   }
 
   dateStrToUTCDate(dateStr) {
-    if (!dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
-      throw new Error(`invalid dateStr format, expected "YYYY-MM-DD", got: "${dateStr}".`);
+    if (!this.isValidDateStr(dateStr)) {
+      throw new Error(`invalid dateStr, expected "YYYY-MM-DD" with month[1-12] and day[1-31], got: "${dateStr}".`);
     }
     const split = dateStr.split("-");
     const year  = Number(split[0]);
@@ -109,7 +206,7 @@ export class SearchResultServiceNew {
   }
 
   UTCDateToDateStr(UTCDate) {
-    return UTCDate.toISOString();
+    return UTCDate.toISOString().split("T")[0];
   }
 
   UTCDateToWeekFormat(UTCDate) {
@@ -210,6 +307,40 @@ export class SearchResultServiceNew {
     let newDate = new Date(date.valueOf());
     newDate.setFullYear(newDate.getFullYear() + years);
     return newDate;
+  }
+
+  isValidDateStr(str) {
+    let split = str.split("-");
+    if (split.length !== 3) return false;
+    let year = split[0];
+    let month = split[1];
+    let day = split[2];
+    if (year === "0000" || day === "00" || month === "00") return false;
+    if (Number(day) < 1 || Number(day) > 31) return false;
+    if (Number(month) < 1 || Number(month) > 12) return false;
+    // if all checks are passed => valid datestring!
+    return true;
+  }
+
+  monthLookup(num) {
+    if (num > 12 || num < 1) {
+      throw new Error(`invalid 'num' provided, expected 1-12. Got: ${num}`);
+    }
+    const lookup = {
+      "1": "Jan",
+      "2": "Feb",
+      "3": "Mar",
+      "4": "Apr",
+      "5": "May",
+      "6": "Jun",
+      "7": "Jul",
+      "8": "Aug",
+      "9": "Sep",
+      "10": "Oct",
+      "11": "Nov",
+      "12": "Dec",
+    }
+    return lookup[num.toString()];
   }
 }
 
