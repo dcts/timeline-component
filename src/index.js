@@ -34,12 +34,13 @@ const initDevControls = () => {
     // init seearch result object and make visible to window
     const searchResult = new SearchResultService(newJsonData);
     window.sr = searchResult;
+
     // Output intervallsizes to console
-    let sizes = window.sr.getIntervallSizes();
+    let sizes = window.sr.getIntervalSizes();
     const maxInterval = 60;
     const selection = sizes["D"] <= maxInterval ? "D" : sizes["W"] <= maxInterval ? "W" : sizes["M"] <= maxInterval ? "M" : sizes["Y"] <= maxInterval ? "Y" : sizes["5Y"] <= maxInterval ? "5Y" : sizes["10Y"] <= maxInterval ? "10Y" : "invalid";
     let msg = `${startDateStr} to ${endDateStr}\n------------------------\n`;
-    Object.keys(sr.getIntervallSizes()).forEach(scope => {
+    Object.keys(sizes).forEach(scope => {
       msg += `${scope.padStart(3, " ")} : ${sizes[scope]} ${selection === scope ? "<----" : ""}\n`;
     })
     document.querySelector("textarea#logs").innerHTML = msg;

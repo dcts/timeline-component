@@ -1,13 +1,16 @@
-export class SearchResultService {
+export class SearchResultServiceNew {
   /*
    * SEARCH RESULT OBJECT
-   * dscription goes here...
+   * - initializes with JSON response of server
+   * - transforms data in array format sorted by date
+   * - chaining methods for easy readable data manipulation
+   * - Type defines the 3 possible scopes "D" (days) / "M" (months) / "Y" (years)
    */
 
   constructor(jsonData = {}, maxInterval = 60) {
     this.data = { invalid: {}, valid: {} };
     this.maxInterval = maxInterval;
-    this.scopes = ["D", "W", "M", "Y", "5Y", "10Y"];
+    this.scopes = ["10Y", "5Y", "Y", "M", "W", "D"];
     this.validateJsonData(jsonData);
   }
 
@@ -36,21 +39,10 @@ export class SearchResultService {
   }
 
   export(scope) {
-    // auto assign scope when no argument provided
-    if (!scope) {
-      for (let i=0; i<this.scopes.length; i++) {
-        if (this.computeIntervalSize(this.scopes[i]) <= this.maxInterval) {
-          scope = this.scopes[i];
-          break;
-        }
-      }
-    }
-
     // validate scope
     if (!this.scopes.includes(scope)) {
       throw new Error(`invalid scope provided, expected: ["10Y", "5Y", "Y", "M", "W", "D"]. Got: "${scope}"`);
     }
-    //
     // initialize object to export
     const exportData = {
       data: [],
@@ -70,17 +62,6 @@ export class SearchResultService {
       currentDate = this.increaseDateBy(scope, currentDate);
     }
     // count all values
-    Object.keys(this.data.valid).sort().forEach(dateStr => {
-      const currentCategory = this.classify(dateStr, scope);
-      const targetBinObject = exportData.data.find(it => it.category === currentCategory);
-      try {
-        targetBinObject.value += this.data.valid[dateStr] || 0;
-      } catch(e) {
-        console.log(e);
-        console.log("currentCategory");
-        console.log(currentCategory);
-      }
-    });
     return exportData;
   }
 
@@ -105,21 +86,21 @@ export class SearchResultService {
     }
     switch (scope) {
       case "10Y":
-        binObject.binTitle       = Number(category) % 100 === 0 ? category : undefined;
+        binObject.binTitle       = category;
         binObject.tooltip        = `${category} - ${Number(category) + 9}`; // 1900 - 1999
         binObject.selectionStart = category;
         binObject.selectionEnd   = `${Number(category) + 9}`;
         binObject.seperator      = Number(category) % 100 === 0; // divisible by 100
         break;
       case "5Y":
-        binObject.binTitle       = Number(category) % 50 === 0 ? category : undefined;
+        binObject.binTitle       = category;
         binObject.tooltip        = `${category} - ${Number(category) + 4}`; // 1995 - 1999
         binObject.selectionStart = category;
         binObject.selectionEnd   = `${Number(category) + 4}`;
         binObject.seperator      = Number(category) % 50 === 0; // divisible by 50
         break;
       case "Y":
-        binObject.binTitle       = Number(category) % 10 === 0 ? category : undefined;
+        binObject.binTitle       = category;
         binObject.tooltip        = category;
         binObject.selectionStart = category;
         binObject.selectionEnd   = category;
@@ -133,8 +114,8 @@ export class SearchResultService {
         binObject.tooltip        = `${month} ${split[0]}`; // May 1996
         binObject.selectionStart = `${month} ${split[0]}`;
         binObject.selectionEnd   = `${month} ${split[0]}`;
-        binObject.title          = monthNum === 1 ? dateStr.split("-")[0] : undefined; // YYYY
-        binObject.seperator      = monthNum === 1;
+        binObject.title          = dateStr.split("-")[0]; // YYYY
+        binObject.seperator      = false;
         break;
       case "W":
         const year = category.split("-")[0];; // => 2001
@@ -149,12 +130,11 @@ export class SearchResultService {
         const yearStr  = dateStr.split("-")[0];
         const monthStr = dateStr.split("-")[1];
         const dayStr   = dateStr.split("-")[2];
-        binObject.binTitle = this.dateStrToUTCDate(dateStr).getUTCDay() === 1 ? `${Number(dayStr)}.${Number(monthStr)}` : ""; // 26.5
-        binObject.tooltip = dateStr;
-        binObject.selectionStart = dateStr;
-        binObject.selectionEnd = dateStr;
-        binObject.title = dayStr === "01" ? `${this.monthLookup(Number(monthStr))} ${yearStr}` : undefined; // May 1996
-        binObject.seperator = this.dateStrToUTCDate(dateStr).getUTCDay() === 1; // every monday
+        binObject.binTitle = `${Number(dayStr)}.${Number(monthStr)}`;
+        binObject.tooltip = "";
+        binObject.selectionStart = "";
+        binObject.selectionEnd = "";
+        binObject.seperator = false;
         break;
     }
     return binObject;
@@ -270,22 +250,22 @@ export class SearchResultService {
   }
 
   getIntervalSizes() {
+    const startDateStr = this.getMinDateStr();
+    const endDateStr = this.getMaxDateStr();
     return {
-      "D": this.computeIntervalSize("D"),
-      "W": this.computeIntervalSize("W"),
-      "M": this.computeIntervalSize("M"),
-      "Y": this.computeIntervalSize("Y"),
-      "5Y": this.computeIntervalSize("5Y"),
-      "10Y": this.computeIntervalSize("10Y"),
+      "D": this.computeIntervalSize(startDateStr, endDateStr, "D"),
+      "W": this.computeIntervalSize(startDateStr, endDateStr, "W"),
+      "M": this.computeIntervalSize(startDateStr, endDateStr, "M"),
+      "Y": this.computeIntervalSize(startDateStr, endDateStr, "Y"),
+      "5Y": this.computeIntervalSize(startDateStr, endDateStr, "5Y"),
+      "10Y": this.computeIntervalSize(startDateStr, endDateStr, "10Y"),
     }
   }
 
-  computeIntervalSize(scope) {
-    const startDateStr = this.getMinDateStr();
-    const endDateStr = this.getMaxDateStr();
+  computeIntervalSize(startDateStr, endDateStr, scope) {
+    const endDate = this.dateStrToUTCDate(endDateStr);
     const startCategory = this.classify(startDateStr, scope);
     const firstDayDateStr = this.getFirstDay(startCategory);
-    const endDate = this.dateStrToUTCDate(endDateStr);
     let currentDate = this.dateStrToUTCDate(firstDayDateStr);
     let count = 0;
     while (currentDate <= endDate) {
@@ -314,23 +294,23 @@ export class SearchResultService {
 
   addDays(date, days) {
     let newDate = new Date(date.valueOf());
-    newDate.setUTCDate(newDate.getUTCDate() + days);
+    newDate.setDate(newDate.getDate() + days);
     return newDate;
   }
 
   addMonths(date, months) {
     let newDate = new Date(date.valueOf());
-    let d = newDate.getUTCDate();
-    newDate.setUTCMonth(newDate.getUTCMonth() + +months);
-    if (newDate.getUTCDate() != d) {
-      newDate.setUTCDate(0);
+    let d = newDate.getDate();
+    newDate.setMonth(newDate.getMonth() + +months);
+    if (newDate.getDate() != d) {
+      newDate.setDate(0);
     }
     return newDate;
   }
 
   addYears(date, years) {
     let newDate = new Date(date.valueOf());
-    newDate.setUTCFullYear(newDate.getUTCFullYear() + years);
+    newDate.setFullYear(newDate.getFullYear() + years);
     return newDate;
   }
 

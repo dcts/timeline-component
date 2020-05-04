@@ -215,7 +215,7 @@ export class ParseDateService {
     return this.formatDate(ISOweekStart);
   }
 
-  formatDate(date) {
+  formatDate(date) { // target is ISO format => 2020-05-31
     let d = new Date(date);
     let month = '' + (d.getMonth() + 1);
     let day = '' + d.getDate();
@@ -230,5 +230,3 @@ export class ParseDateService {
     return [year, month, day].join('-');
   }
 }
-
-// console.log(new ParseDateService().run("1991-W03"));
