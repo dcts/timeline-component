@@ -40,20 +40,18 @@ export class PbTimeline extends LitElement {
       p, .bin {
         user-select: none;
       }
-      p.year {
+      p.bin-title {
         pointer-events: none;
         position: absolute;
         top: -4px;
         font-size: 10px;
         z-index: 10;
+        /* font-weight: bold; */
+        font-size: 12px;
       }
       p.rotated {
         transform: rotate(-90deg);
       }
-      /* .bin-container:nth-child(10n+1) p.year {
-        font-weight: bold;
-        font-size: 12px;
-      } */
       .bin-container.border-left {
         border-left: 1px solid rgba(0,0,0,0.2);
       }
@@ -316,7 +314,7 @@ export class PbTimeline extends LitElement {
             @mousemove="${this.mouseMove}"
             @mousedown="${this.mouseDown}">
             <div class="bin" style="height: ${(binObj.value / this.maxValue) * this.maxHeight * this.multiplier}px"></div>
-            <p class="year ${this.dataObj.binTitleRotated ? "rotated" : ""}">${binObj.binTitle}</p>
+            <p class="bin-title ${this.dataObj.binTitleRotated ? "rotated" : ""}">${binObj.binTitle || ""}</p>
           </div>
         `;
       })}

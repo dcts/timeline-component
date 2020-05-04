@@ -105,21 +105,21 @@ export class SearchResultService {
     }
     switch (scope) {
       case "10Y":
-        binObject.binTitle       = category;
+        binObject.binTitle       = Number(category) % 100 === 0 ? category : undefined;
         binObject.tooltip        = `${category} - ${Number(category) + 9}`; // 1900 - 1999
         binObject.selectionStart = category;
         binObject.selectionEnd   = `${Number(category) + 9}`;
         binObject.seperator      = Number(category) % 100 === 0; // divisible by 100
         break;
       case "5Y":
-        binObject.binTitle       = category;
+        binObject.binTitle       = Number(category) % 50 === 0 ? category : undefined;
         binObject.tooltip        = `${category} - ${Number(category) + 4}`; // 1995 - 1999
         binObject.selectionStart = category;
         binObject.selectionEnd   = `${Number(category) + 4}`;
         binObject.seperator      = Number(category) % 50 === 0; // divisible by 50
         break;
       case "Y":
-        binObject.binTitle       = category;
+        binObject.binTitle       = Number(category) % 10 === 0 ? category : undefined;
         binObject.tooltip        = category;
         binObject.selectionStart = category;
         binObject.selectionEnd   = category;
@@ -149,7 +149,7 @@ export class SearchResultService {
         const yearStr  = dateStr.split("-")[0];
         const monthStr = dateStr.split("-")[1];
         const dayStr   = dateStr.split("-")[2];
-        binObject.binTitle = `${Number(dayStr)}.${Number(monthStr)}`; // 26.5
+        binObject.binTitle = this.dateStrToUTCDate(dateStr).getUTCDay() === 1 ? `${Number(dayStr)}.${Number(monthStr)}` : ""; // 26.5
         binObject.tooltip = dateStr;
         binObject.selectionStart = dateStr;
         binObject.selectionEnd = dateStr;
