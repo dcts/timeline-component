@@ -265,13 +265,6 @@ export class SearchResultService {
     return count;
   }
 
-  /*
-   *
-   */
-  normalizeDate(startDate, scope) {
-
-  }
-
   increaseDateBy(scope, date) {
     switch(scope) {
       case "D":
