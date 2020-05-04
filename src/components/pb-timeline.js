@@ -45,16 +45,18 @@ export class PbTimeline extends LitElement {
         position: absolute;
         top: -4px;
         font-size: 10px;
-        transform: rotate(-90deg);
         z-index: 10;
+      }
+      p.rotated {
+        transform: rotate(-90deg);
       }
       /* .bin-container:nth-child(10n+1) p.year {
         font-weight: bold;
         font-size: 12px;
       } */
-      /* .bin-container:nth-child(10n+1) {
+      .bin-container.border-left {
         border-left: 1px solid rgba(0,0,0,0.2);
-      } */
+      }
       .bin-container:nth-child(2n) {
         background-color: rgba(0,0,0,0.1);
         background-color: #f1f1f1;
@@ -125,12 +127,12 @@ export class PbTimeline extends LitElement {
     this.multiplier = 0.75;
     this.mousedown = false;
     this.resetSelection();
-    this.setData({ categories: [], values: [], scope: "" });
+    // this.setData({ data: [], scope: "" });
   }
 
-  setData(data) {
-    this.data = data;
-    this.maxValue = Math.max(...this.data.values);
+  setData(dataObj) {
+    this.dataObj = dataObj;
+    this.maxValue = Math.max(...this.dataObj.data.map(binObj => binObj.value));
     this.requestUpdate();
     this.updateComplete.then(() => {
       this.bins = this.shadowRoot.querySelectorAll(".bin-container");
@@ -233,7 +235,7 @@ export class PbTimeline extends LitElement {
     const interval = this.getElementInterval(event.currentTarget);
     const offset = Math.round((((interval[0] + interval[1]) / 2) - this.tooltip.offsetWidth / 2));
     this.tooltip.style.left = offset + "px";
-    const datestr = event.currentTarget.dataset.datestr;
+    const datestr = event.currentTarget.dataset.tooltip;
     const value = event.currentTarget.dataset.value;
     this.tooltip.innerHTML = `<strong>${datestr}</strong>: ${value}`;
   }
@@ -294,22 +296,31 @@ export class PbTimeline extends LitElement {
       <div class="wrapper"
         @mouseenter="${this.displayTooltip}"
         @mouseleave="${this.hideTooltip}">
-        ${this.data.values.map((value, indx) => {
-          return html`
-            <div class="bin-container"
-              data-isodatestr="${new ParseDateService().run(this.data.categories[indx])}"
-              data-datestr="${this.data.categories[indx]}"
-              data-value="${value}"
-              @mousemove="${this.mouseMove}"
-              @mousedown="${this.mouseDown}">
-              <div class="bin" style="height: ${(value / this.maxValue) * this.maxHeight * this.multiplier}px"></div>
-              <p class="year">${this.data.categories[indx]}</p>
-            </div>
-          `;
-        })}
+        ${this.dataObj ? this.renderBins() : ""}
         <div id="tooltip" class="tooltiptext hidden"><strong>1928</strong>: 128</div>
       </div>
     `;
+  }
+
+  renderBins() {
+    return html`
+      ${this.dataObj.data.map(binObj => {
+        return html`
+          <div class="bin-container ${binObj.seperator ? "border-left" : ""}"
+            data-tooltip="${binObj.tooltip}"
+            data-selectionStart="${binObj.selectionStart}"
+            data-selectionEnd="${binObj.selectionEnd}"
+            data-isodatestr="${binObj.dateStr}"
+            data-datestr="${binObj.dateStr}"
+            data-value="${binObj.value}"
+            @mousemove="${this.mouseMove}"
+            @mousedown="${this.mouseDown}">
+            <div class="bin" style="height: ${(binObj.value / this.maxValue) * this.maxHeight * this.multiplier}px"></div>
+            <p class="year ${this.dataObj.binTitleRotated ? "rotated" : ""}">${binObj.binTitle}</p>
+          </div>
+        `;
+      })}
+    `
   }
 
   connectedCallback() {

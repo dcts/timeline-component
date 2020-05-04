@@ -7,7 +7,7 @@ export class SearchResultService {
   constructor(jsonData = {}, maxInterval = 60) {
     this.data = { invalid: {}, valid: {} };
     this.maxInterval = maxInterval;
-    this.scopes = ["10Y", "5Y", "Y", "M", "W", "D"];
+    this.scopes = ["D", "W", "M", "Y", "5Y", "10Y"];
     this.validateJsonData(jsonData);
   }
 
@@ -36,10 +36,21 @@ export class SearchResultService {
   }
 
   export(scope) {
+    // auto assign scope when no argument provided
+    if (!scope) {
+      for (let i=0; i<this.scopes.length; i++) {
+        if (this.computeIntervalSize(this.scopes[i]) <= this.maxInterval) {
+          scope = this.scopes[i];
+          break;
+        }
+      }
+    }
+
     // validate scope
     if (!this.scopes.includes(scope)) {
       throw new Error(`invalid scope provided, expected: ["10Y", "5Y", "Y", "M", "W", "D"]. Got: "${scope}"`);
     }
+    //
     // initialize object to export
     const exportData = {
       data: [],
@@ -259,22 +270,22 @@ export class SearchResultService {
   }
 
   getIntervalSizes() {
-    const startDateStr = this.getMinDateStr();
-    const endDateStr = this.getMaxDateStr();
     return {
-      "D": this.computeIntervalSize(startDateStr, endDateStr, "D"),
-      "W": this.computeIntervalSize(startDateStr, endDateStr, "W"),
-      "M": this.computeIntervalSize(startDateStr, endDateStr, "M"),
-      "Y": this.computeIntervalSize(startDateStr, endDateStr, "Y"),
-      "5Y": this.computeIntervalSize(startDateStr, endDateStr, "5Y"),
-      "10Y": this.computeIntervalSize(startDateStr, endDateStr, "10Y"),
+      "D": this.computeIntervalSize("D"),
+      "W": this.computeIntervalSize("W"),
+      "M": this.computeIntervalSize("M"),
+      "Y": this.computeIntervalSize("Y"),
+      "5Y": this.computeIntervalSize("5Y"),
+      "10Y": this.computeIntervalSize("10Y"),
     }
   }
 
-  computeIntervalSize(startDateStr, endDateStr, scope) {
-    const endDate = this.dateStrToUTCDate(endDateStr);
+  computeIntervalSize(scope) {
+    const startDateStr = this.getMinDateStr();
+    const endDateStr = this.getMaxDateStr();
     const startCategory = this.classify(startDateStr, scope);
     const firstDayDateStr = this.getFirstDay(startCategory);
+    const endDate = this.dateStrToUTCDate(endDateStr);
     let currentDate = this.dateStrToUTCDate(firstDayDateStr);
     let count = 0;
     while (currentDate <= endDate) {
