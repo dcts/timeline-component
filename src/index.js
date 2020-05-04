@@ -8,7 +8,6 @@ import '@vaadin/vaadin'; // import all vadin components (only for showcase)
 // import services
 import { LoadDataService } from "./services/load-data-service.js";
 import { SearchResultService } from "./services/search-result-service.js";
-import { SearchResultServiceNew } from "./services/search-result-service-new.js";
 import { ParseDateService } from "./services/parse-date-service.js";
 
 // load json data for development
