@@ -21,6 +21,7 @@ test('check if correct ISO week found', t => {
 })
 
 test('classify() should return correct category strings for dateStr\'s', t => {
+  t.is("2010", new SearchResultServiceNew().classify("2016-01-12", "10Y"));
   t.is("2015", new SearchResultServiceNew().classify("2016-01-12", "5Y"));
   t.is("2016", new SearchResultServiceNew().classify("2016-01-12", "Y"));
   t.is("2016-01", new SearchResultServiceNew().classify("2016-01-12", "M"));

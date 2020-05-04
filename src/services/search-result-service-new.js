@@ -31,6 +31,12 @@ export class SearchResultServiceNew {
     let days = Object.keys(this.data.valid);
     return days.sort()[days.length - 1];
   }
+  getMinDate() {
+    return this.dateStrToUTCDate(this.getMinDateStr());
+  }
+  getMaxDate() {
+    return this.dateStrToUTCDate(this.getMaxDateStr());
+  }
 
 
   /*
@@ -51,7 +57,7 @@ export class SearchResultServiceNew {
       throw new Error(`both inputs must be provided. Got dateStr=${dateStr}, scope=${scope}`);
     }
     switch (scope) {
-      case "10Y", "5Y":
+      case "10Y": case "5Y":
         const intervalSize = Number(scope.replace("Y", ""));
         const startYear = Math.floor(Number(dateStr.split("-")[0]) / intervalSize) * intervalSize;
         return startYear.toString();
