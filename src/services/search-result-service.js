@@ -154,7 +154,8 @@ export class SearchResultService {
         binObject.selectionStart = dateStr;
         binObject.selectionEnd = dateStr;
         binObject.title = dayStr === "01" ? `${this.monthLookup(Number(monthStr))} ${yearStr}` : undefined; // May 1996
-        binObject.seperator = this.dateStrToUTCDate(dateStr).getUTCDay() === 1; // every monday
+        binObject.seperator = this.dateStrToUTCDate(dateStr).getUTCDay() === 1 || this.dateStrToUTCDate(dateStr).getUTCDay() === 6; // every monday
+        binObject.weekend = this.dateStrToUTCDate(dateStr).getUTCDay() === 6 || this.dateStrToUTCDate(dateStr).getUTCDay() === 0; // every monday
         break;
     }
     return binObject;

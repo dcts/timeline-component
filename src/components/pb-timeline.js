@@ -43,21 +43,32 @@ export class PbTimeline extends LitElement {
       p.bin-title {
         pointer-events: none;
         position: absolute;
-        top: -4px;
+        top: 5px;
         font-size: 10px;
         z-index: 10;
+        margin: 0;
         /* font-weight: bold; */
         font-size: 12px;
         user-select: none;
+      }
+      p.bin-title.months {
+        top: -1px;
+      }
+      p.bin-title.weeks {
+        top: -1px;
+      }
+      p.bin-title.days {
+        top: -1px;
       }
       p.rotated {
         transform: rotate(-90deg);
       }
       .bin-container.border-left {
-        border-left: 1px solid rgba(0,0,0,0.2);
+        border-left: 1px solid rgba(0,0,0,0.4);
       }
       .bin-container:nth-child(2n) {
         background-color: rgba(0,0,0,0.1);
+        background-color: #f8f8f8;
         background-color: #f1f1f1;
       }
       .bin-container:hover .bin {
@@ -69,8 +80,14 @@ export class PbTimeline extends LitElement {
       .bin-container.selected p {
         font-weight: bold;
       }
+      .bin-container.white {
+        background-color: white;
+      }
+      .bin-container.grey {
+        background-color: #f1f1f1;
+      }
       .bin-container.selected {
-        background-color: #e6eaff;
+        background-color: #e6eaff !important;
       }
       .invisible {
         opacity: 0;
@@ -303,9 +320,10 @@ export class PbTimeline extends LitElement {
 
   renderBins() {
     return html`
-      ${this.dataObj.data.map(binObj => {
+      ${this.dataObj.data.map((binObj, indx) => {
         return html`
-          <div class="bin-container ${binObj.seperator ? "border-left" : ""}"
+          <div class="bin-container ${binObj.seperator ? "border-left" : ""}
+            ${this.dataObj.scope === "D" && binObj.weekend ? "grey" : this.dataObj.scope === "D" ? "white" : indx % 2 === 0 ? "grey" : "white"}"
             data-tooltip="${binObj.tooltip}"
             data-selectionStart="${binObj.selectionStart}"
             data-selectionEnd="${binObj.selectionEnd}"
@@ -315,7 +333,11 @@ export class PbTimeline extends LitElement {
             @mousemove="${this.mouseMove}"
             @mousedown="${this.mouseDown}">
             <div class="bin" style="height: ${(binObj.value / this.maxValue) * this.maxHeight * this.multiplier}px"></div>
-            <p class="bin-title ${this.dataObj.binTitleRotated ? "rotated" : ""}">${binObj.binTitle || ""}</p>
+            <p class="bin-title
+              ${this.dataObj.binTitleRotated ? "rotated" : ""}
+              ${this.dataObj.scope === "M" ? "months" : this.dataObj.scope === "W" ? "weeks:" : this.dataObj.scope === "D" ? "days:" : ""}"
+              >${binObj.binTitle || ""}
+            </p>
           </div>
         `;
       })}
