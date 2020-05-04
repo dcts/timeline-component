@@ -143,7 +143,6 @@ export class PbTimeline extends LitElement {
     this.multiplier = 0.75;
     this.mousedown = false;
     this.resetSelection();
-    // this.setData({ data: [], scope: "" });
   }
 
   setData(dataObj) {
@@ -178,6 +177,7 @@ export class PbTimeline extends LitElement {
           bin.classList.remove("selected");
         }
       })
+      this.showtooltipSelection();
     });
 
     // this event is triggered by the componeent itself but can be also triggered by another component
@@ -234,11 +234,19 @@ export class PbTimeline extends LitElement {
     return [x1,x2];
   }
 
+  getSelectedBins() {
+    return Array.prototype.slice.call(this.bins).filter(binContainer =>  {
+      return binContainer.classList.contains("selected");
+    });
+  }
+
   mouseMove(event) {
     if (this.mousedown) {
       this.brushing(event);
+      this.showtooltipSelection();
+    } else if (this.selection.start === undefined) { // no selection currently made
+      this.showtooltip(event);
     }
-    this.showtooltip(event);
   }
 
   brushing(event) {
@@ -247,13 +255,24 @@ export class PbTimeline extends LitElement {
   }
 
   showtooltip(event) {
-    // this.tooltip.style.left = (this.getMousePosition(event).x - this.tooltip.offsetWidth / 2) + "px";
     const interval = this.getElementInterval(event.currentTarget);
     const offset = Math.round((((interval[0] + interval[1]) / 2) - this.tooltip.offsetWidth / 2));
     this.tooltip.style.left = offset + "px";
     const datestr = event.currentTarget.dataset.tooltip;
     const value = event.currentTarget.dataset.value;
     this.tooltip.innerHTML = `<strong>${datestr}</strong>: ${value}`;
+  }
+
+  showtooltipSelection() {
+    const selectedBins = this.getSelectedBins();
+    const intervalStart = this.getElementInterval(selectedBins[0])[0]; // get first selected element left boundary
+    const intervalEnd = this.getElementInterval(selectedBins[selectedBins.length-1])[1]; // get last selected element right boundary
+    const interval = [intervalStart, intervalEnd];
+    const offset = Math.round((((interval[0] + interval[1]) / 2) - this.tooltip.offsetWidth / 2));
+    this.tooltip.style.left = offset + "px";
+    const label = `${selectedBins[0].dataset.selectionstart} - ${selectedBins[selectedBins.length-1].dataset.selectionend}`;
+    const value = selectedBins.map(bin => Number(bin.dataset.value)).reduce((a, b) => a + b);
+    this.tooltip.innerHTML = `<strong>${label}</strong>: ${value}`;
   }
 
   applySelectionToBins() {
