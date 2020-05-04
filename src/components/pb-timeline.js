@@ -319,7 +319,9 @@ export class PbTimeline extends LitElement {
   }
 
   hideTooltip() {
-    this.tooltip.classList.add("hidden");
+    if (this.selection.start === undefined) {
+      this.tooltip.classList.add("hidden");
+    }
   }
 
   displayTooltip() {
