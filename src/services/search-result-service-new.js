@@ -114,8 +114,8 @@ export class SearchResultServiceNew {
         binObject.tooltip        = `${month} ${split[0]}`; // May 1996
         binObject.selectionStart = `${month} ${split[0]}`;
         binObject.selectionEnd   = `${month} ${split[0]}`;
-        binObject.title          = dateStr.split("-")[0]; // YYYY
-        binObject.seperator      = false;
+        binObject.title          = monthNum === 1 ? dateStr.split("-")[0] : undefined; // YYYY
+        binObject.seperator      = monthNum === 1;
         break;
       case "W":
         const year = category.split("-")[0];; // => 2001
@@ -134,7 +134,7 @@ export class SearchResultServiceNew {
         binObject.tooltip = dateStr;
         binObject.selectionStart = dateStr;
         binObject.selectionEnd = dateStr;
-        binObject.title = `${this.monthLookup(Number(monthStr))} ${yearStr}`; // May 1996
+        binObject.title = dayStr === "01" ? `${this.monthLookup(Number(monthStr))} ${yearStr}` : undefined; // May 1996
         binObject.seperator = this.dateStrToUTCDate(dateStr).getUTCDay() === 1; // every monday
         break;
     }
