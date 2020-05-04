@@ -118,24 +118,18 @@ export class SearchResultServiceNew {
         binObject.seperator      = false;
         break;
       case "W":
-        const year = category.split("-")[0];; // => 2001
-        const week = category.split("-")[1];; // => W52
-        binObject.binTitle       = week;
-        binObject.tooltip        = `${year} ${week}`; // 1996 W52
-        binObject.selectionStart = `${year} ${week}`;
-        binObject.selectionEnd   = `${year} ${week}`;
-        binObject.seperator      = week === "W1";
+        binObject.binTitle = category.split("-")[1];
+        binObject.tooltip = "";
+        binObject.selectionStart = "";
+        binObject.selectionEnd = "";
+        binObject.seperator = false;
         break;
       case "D":
-        const yearStr  = dateStr.split("-")[0];
-        const monthStr = dateStr.split("-")[1];
-        const dayStr   = dateStr.split("-")[2];
-        binObject.binTitle = `${Number(dayStr)}.${Number(monthStr)}`; // 26.5
-        binObject.tooltip = dateStr;
-        binObject.selectionStart = dateStr;
-        binObject.selectionEnd = dateStr;
-        binObject.title = `${this.monthLookup(Number(monthStr))} ${yearStr}`; // May 1996
-        binObject.seperator = this.dateStrToUTCDate(dateStr).getUTCDay() === 1; // every monday
+        binObject.binTitle = "";
+        binObject.tooltip = "";
+        binObject.selectionStart = "";
+        binObject.selectionEnd = "";
+        binObject.seperator = false;
         break;
     }
     return binObject;

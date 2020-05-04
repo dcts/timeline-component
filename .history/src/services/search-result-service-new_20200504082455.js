@@ -127,15 +127,14 @@ export class SearchResultServiceNew {
         binObject.seperator      = week === "W1";
         break;
       case "D":
-        const yearStr  = dateStr.split("-")[0];
-        const monthStr = dateStr.split("-")[1];
-        const dayStr   = dateStr.split("-")[2];
-        binObject.binTitle = `${Number(dayStr)}.${Number(monthStr)}`; // 26.5
-        binObject.tooltip = dateStr;
-        binObject.selectionStart = dateStr;
-        binObject.selectionEnd = dateStr;
-        binObject.title = `${this.monthLookup(Number(monthStr))} ${yearStr}`; // May 1996
-        binObject.seperator = this.dateStrToUTCDate(dateStr).getUTCDay() === 1; // every monday
+        const year = dateStr.split("-")[0];
+        const month = dateStr.split("-")[1];
+        const day = dateStr.split("-")[2];
+        binObject.binTitle = dateStr;
+        binObject.tooltip = "";
+        binObject.selectionStart = "";
+        binObject.selectionEnd = "";
+        binObject.seperator = false;
         break;
     }
     return binObject;

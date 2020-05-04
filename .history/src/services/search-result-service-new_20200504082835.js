@@ -134,8 +134,8 @@ export class SearchResultServiceNew {
         binObject.tooltip = dateStr;
         binObject.selectionStart = dateStr;
         binObject.selectionEnd = dateStr;
-        binObject.title = `${this.monthLookup(Number(monthStr))} ${yearStr}`; // May 1996
-        binObject.seperator = this.dateStrToUTCDate(dateStr).getUTCDay() === 1; // every monday
+        binObject.title = `${this.monthLookup(Number(monthStr))} ${yearStr}`;
+        binObject.seperator = false;
         break;
     }
     return binObject;
