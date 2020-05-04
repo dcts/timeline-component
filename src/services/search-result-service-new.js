@@ -62,6 +62,17 @@ export class SearchResultServiceNew {
       currentDate = this.increaseDateBy(scope, currentDate);
     }
     // count all values
+    Object.keys(this.data.valid).sort().forEach(dateStr => {
+      const currentCategory = this.classify(dateStr, scope);
+      const targetBinObject = exportData.data.find(it => it.category === currentCategory);
+      try {
+        targetBinObject.value += this.data.valid[dateStr] || 0;
+      } catch(e) {
+        console.log(e);
+        console.log("currentCategory");
+        console.log(currentCategory);
+      }
+    });
     return exportData;
   }
 
@@ -295,23 +306,23 @@ export class SearchResultServiceNew {
 
   addDays(date, days) {
     let newDate = new Date(date.valueOf());
-    newDate.setDate(newDate.getDate() + days);
+    newDate.setUTCDate(newDate.getUTCDate() + days);
     return newDate;
   }
 
   addMonths(date, months) {
     let newDate = new Date(date.valueOf());
-    let d = newDate.getDate();
-    newDate.setMonth(newDate.getMonth() + +months);
-    if (newDate.getDate() != d) {
-      newDate.setDate(0);
+    let d = newDate.getUTCDate();
+    newDate.setUTCMonth(newDate.getUTCMonth() + +months);
+    if (newDate.getUTCDate() != d) {
+      newDate.setUTCDate(0);
     }
     return newDate;
   }
 
   addYears(date, years) {
     let newDate = new Date(date.valueOf());
-    newDate.setFullYear(newDate.getFullYear() + years);
+    newDate.setUTCFullYear(newDate.getUTCFullYear() + years);
     return newDate;
   }
 
