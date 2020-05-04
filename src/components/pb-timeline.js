@@ -48,6 +48,7 @@ export class PbTimeline extends LitElement {
         z-index: 10;
         /* font-weight: bold; */
         font-size: 12px;
+        user-select: none;
       }
       p.rotated {
         transform: rotate(-90deg);
