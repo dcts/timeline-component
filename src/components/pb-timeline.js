@@ -18,10 +18,10 @@ export class PbTimeline extends LitElement {
         height: 80px;
         display: flex;
         justify-content: center;
-        cursor: crosshair;
         position: relative;
       }
       .bin-container {
+        cursor: crosshair;
         min-width: var(--pb-timeline-max-width, 14px);
         max-width: var(--pb-timeline-max-width, 20px);
         flex-grow: 1;
@@ -92,18 +92,22 @@ export class PbTimeline extends LitElement {
       .invisible {
         opacity: 0;
       }
-
-      .tooltiptext.hidden {
+      .draggable {
+        cursor: grab;
+        user-select: none;
+        padding-right: 30px !important;
+      }
+      .hidden {
         visibility: hidden;
       }
-      .tooltiptext {
+      #tooltip {
         /* min-width: 10px; */
         display: inline-block;
         white-space: nowrap;
-        height: 20px;
-        line-height: 20px;
+        height: 15px;
         position: absolute;
         font-size: 11px;
+        line-height: 15px;
         background-color: black;
         color: #fff;
         text-align: center;
@@ -112,8 +116,13 @@ export class PbTimeline extends LitElement {
         top: 85px;
         left: 0;
       }
+      #tooltip-close {
+        position: absolute;
+        top: -13px;
+        right: -10px;
+      }
 
-      .tooltiptext::after {
+      #tooltip::after { /* small triangle that points to top */
         content: "";
         position: absolute;
         bottom: 100%;
@@ -122,6 +131,49 @@ export class PbTimeline extends LitElement {
         border-width: 5px;
         border-style: solid;
         border-color: transparent transparent black transparent;
+      }
+
+      /* PURE CSS CLOSE BUTTON */
+      .close{
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 50px;
+        overflow: hidden;
+        transform: scale(0.25);
+      }
+      .close.rounded.black {
+        cursor: pointer;
+      }
+
+      .close::before, .close::after {
+        content: '';
+        position: absolute;
+        height: 2px;
+        width: 100%;
+        top: 50%;
+        left: 0;
+        margin-top: -1px;
+        background: #fff;
+      }
+      .close::before {
+        transform: rotate(45deg);
+      }
+      .close::after {
+        transform: rotate(-45deg);
+      }
+
+      .close.thick::before, .close.thick::after {
+        height: 4px;
+        margin-top: -2px;
+      }
+
+      .close.black::before, .close.black::after {
+        height: 8px;
+        margin-top: -4px;
+      }
+      .close.rounded::before, .close.rounded::after {
+        border-radius: 5px;
       }
     `;
   }
@@ -152,6 +204,8 @@ export class PbTimeline extends LitElement {
     this.updateComplete.then(() => {
       this.bins = this.shadowRoot.querySelectorAll(".bin-container");
       this.resetSelectedBins();
+      this.resetSelection();
+      this.hideTooltip();
     });
   }
 
@@ -184,6 +238,7 @@ export class PbTimeline extends LitElement {
     document.addEventListener("pb-timeline-reset-selection", () => {
       this.resetSelectedBins();
       this.resetSelection();
+      this.hideTooltip();
     });
   }
 
@@ -225,6 +280,13 @@ export class PbTimeline extends LitElement {
     }));
   }
 
+  dispatchPbTimelineResetSelectionEvent() {
+    document.dispatchEvent(new CustomEvent('pb-timeline-reset-selection', {
+      bubbles: true,
+      detail: {}
+    }));
+  }
+
   getElementInterval(nodeElement) {
     let rect = this.shadowRoot.querySelector(".wrapper").getBoundingClientRect();
     let bin = nodeElement;
@@ -244,6 +306,8 @@ export class PbTimeline extends LitElement {
     if (this.mousedown) {
       this.brushing(event);
       this.showtooltipSelection();
+      this.tooltip.classList.add("draggable");
+      this.tooltip.querySelector("#tooltip-close").classList.remove("hidden");
     } else if (this.selection.start === undefined) { // no selection currently made
       this.showtooltip(event);
     }
@@ -259,8 +323,8 @@ export class PbTimeline extends LitElement {
     const offset = Math.round((((interval[0] + interval[1]) / 2) - this.tooltip.offsetWidth / 2));
     this.tooltip.style.left = offset + "px";
     const datestr = event.currentTarget.dataset.tooltip;
-    const value = event.currentTarget.dataset.value;
-    this.tooltip.innerHTML = `<strong>${datestr}</strong>: ${value}`;
+    const value = this.numberWithCommas(event.currentTarget.dataset.value);
+    this.tooltip.querySelector("#tooltip-text").innerHTML = `<strong>${datestr}</strong>: ${value}`;
   }
 
   showtooltipSelection() {
@@ -272,7 +336,8 @@ export class PbTimeline extends LitElement {
     this.tooltip.style.left = offset + "px";
     const label = `${selectedBins[0].dataset.selectionstart} - ${selectedBins[selectedBins.length-1].dataset.selectionend}`;
     const value = selectedBins.map(bin => Number(bin.dataset.value)).reduce((a, b) => a + b);
-    this.tooltip.innerHTML = `<strong>${label}</strong>: ${value}`;
+    const valueFormatted = this.numberWithCommas(value);
+    this.tooltip.querySelector("#tooltip-text").innerHTML = `<strong>${label}</strong>: ${valueFormatted}`;
   }
 
   applySelectionToBins() {
@@ -321,6 +386,8 @@ export class PbTimeline extends LitElement {
   hideTooltip() {
     if (this.selection.start === undefined) {
       this.tooltip.classList.add("hidden");
+      this.tooltip.classList.remove("draggable");
+      this.tooltip.querySelector("#tooltip-close").classList.add("hidden");
     }
   }
 
@@ -328,13 +395,31 @@ export class PbTimeline extends LitElement {
     this.tooltip.classList.remove("hidden");
   }
 
+  mouseenter() {
+    if (this.dataObj) { // if data is loaded
+      this.displayTooltip();
+    }
+  }
+
+  numberWithCommas(input) {
+    return input.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, "'");
+  }
+
   render() {
     return html`
       <div class="wrapper"
-        @mouseenter="${this.displayTooltip}"
+        @mouseenter="${this.mouseenter}"
         @mouseleave="${this.hideTooltip}">
         ${this.dataObj ? this.renderBins() : ""}
-        <div id="tooltip" class="tooltiptext hidden"><strong>1928</strong>: 128</div>
+        <div id="tooltip" class="hidden">
+          <span id="tooltip-text"></span>
+          <div
+            id="tooltip-close"
+            class="hidden"
+            @click="${this.dispatchPbTimelineResetSelectionEvent}"
+            ><span class="close rounded black"></span>
+          </div>
+        </div>
       </div>
     `;
   }
