@@ -375,12 +375,14 @@ export class PbTimeline extends LitElement {
   }
 
   getSelectedStartDateStr() {
-    return this.shadowRoot.querySelectorAll(".bin-container.selected")[0].dataset.datestr;
+    const selectionStartStr = this.shadowRoot.querySelectorAll(".bin-container.selected")[0].dataset.selectionstart;
+    return new ParseDateService().run(selectionStartStr);
   }
 
   getSelectedEndDateStr() {
     const selectedBins = this.shadowRoot.querySelectorAll(".bin-container.selected");
-    return selectedBins[selectedBins.length-1].dataset.datestr;
+    const selectionEndStr = selectedBins[selectedBins.length-1].dataset.selectionend;
+    return new ParseDateService().run(selectionEndStr);
   }
 
   hideTooltip() {
@@ -431,8 +433,8 @@ export class PbTimeline extends LitElement {
           <div class="bin-container ${binObj.seperator ? "border-left" : ""}
             ${this.dataObj.scope === "D" && binObj.weekend ? "grey" : this.dataObj.scope === "D" ? "white" : indx % 2 === 0 ? "grey" : "white"}"
             data-tooltip="${binObj.tooltip}"
-            data-selectionStart="${binObj.selectionStart}"
-            data-selectionEnd="${binObj.selectionEnd}"
+            data-selectionstart="${binObj.selectionStart}"
+            data-selectionend="${binObj.selectionEnd}"
             data-isodatestr="${binObj.dateStr}"
             data-datestr="${binObj.dateStr}"
             data-value="${binObj.value}"
