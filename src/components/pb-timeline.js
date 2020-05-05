@@ -120,6 +120,7 @@ export class PbTimeline extends LitElement {
         border-radius: 5px;
         height: 12px;
         line-height: 12px;
+        user-select: none;
       }
       /* TOOLTIP */
       #tooltip {
