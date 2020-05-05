@@ -205,8 +205,13 @@ export class PbTimeline extends LitElement {
       this.bins = this.shadowRoot.querySelectorAll(".bin-container");
       this.resetSelectedBins();
       this.resetSelection();
-      this.hideTooltip();
+      this.resetTooltip();
     });
+  }
+
+  resetTooltip() {
+    this.hideTooltip();
+    this.tooltip.querySelector("#tooltip-text").innerHTML = "";
   }
 
   firstUpdated() {
@@ -413,14 +418,20 @@ export class PbTimeline extends LitElement {
         @mouseenter="${this.mouseenter}"
         @mouseleave="${this.hideTooltip}">
         ${this.dataObj ? this.renderBins() : ""}
-        <div id="tooltip" class="hidden">
-          <span id="tooltip-text"></span>
-          <div
-            id="tooltip-close"
-            class="hidden"
-            @click="${this.dispatchPbTimelineResetSelectionEvent}"
-            ><span class="close rounded black"></span>
-          </div>
+        ${this.renderTooltip()}
+      </div>
+    `;
+  }
+
+  renderTooltip() {
+    return html`
+      <div id="tooltip" class="hidden">
+        <span id="tooltip-text"></span>
+        <div
+          id="tooltip-close"
+          class="hidden"
+          @click="${this.dispatchPbTimelineResetSelectionEvent}"
+          ><span class="close rounded black"></span>
         </div>
       </div>
     `;
@@ -451,12 +462,6 @@ export class PbTimeline extends LitElement {
       })}
     `
   }
-
-  connectedCallback() {
-    super.connectedCallback();
-  }
 }
 
 customElements.define('pb-timeline', PbTimeline);
-
-// @mouseup="${this.mouseUp}"
