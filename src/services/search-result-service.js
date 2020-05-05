@@ -115,7 +115,7 @@ export class SearchResultService {
         break;
       case "5Y":
         // add year titles
-        binObject.title          = Number(category) % 50 === 0 ? `${category} - ${Number(category) + 49}` : undefined;
+        // binObject.title          = Number(category) % 50 === 0 ? `${category} - ${Number(category) + 49}` : undefined;
         binObject.binTitle       = Number(category) % 50 === 0 ? category : undefined;
         binObject.tooltip        = `${category} - ${Number(category) + 4}`; // 1995 - 1999
         binObject.selectionStart = category;
