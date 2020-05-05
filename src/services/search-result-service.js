@@ -90,7 +90,7 @@ export class SearchResultService {
       "5Y": true,
       "Y": true,
       "M": false, // only exception not to rotate in monthly scope
-      "W": false,
+      "W": true,
       "D": true,
     }
     return lookup[scope];
@@ -115,7 +115,7 @@ export class SearchResultService {
         break;
       case "5Y":
         // add year titles
-        // binObject.title          = Number(category) % 50 === 0 ? `${category} - ${Number(category) + 49}` : undefined;
+        binObject.title          = Number(category) % 50 === 0 ? `${category} - ${Number(category) + 49}` : undefined;
         binObject.binTitle       = Number(category) % 50 === 0 ? category : undefined;
         binObject.tooltip        = `${category} - ${Number(category) + 4}`; // 1995 - 1999
         binObject.selectionStart = category;
@@ -145,8 +145,10 @@ export class SearchResultService {
       case "W":
         const year = category.split("-")[0];; // => 2001
         const week = category.split("-")[1];; // => W52
-        binObject.binTitle       = Number(week.replace("W", "")) % 2 === 1 ? week.replace("W", "") : undefined;
         const monthNumber = this.week2month(Number(week.replace("W", "")));
+        // binObject.binTitle =  monthNumber ? week.replace("W", "") : undefined;
+        // binObject.binTitle = (Number(week.replace("W", "")) + 1) % 2 === 0 ? week : undefined;
+        binObject.binTitle = monthNumber ? week : undefined;
         binObject.title = monthNumber ? this.monthLookup(monthNumber) : undefined;
         binObject.tooltip        = `${year} ${week}`; // 1996 W52
         binObject.selectionStart = `${year} ${week}`;
@@ -161,7 +163,9 @@ export class SearchResultService {
         binObject.tooltip = dateStr;
         binObject.selectionStart = dateStr;
         binObject.selectionEnd = dateStr;
-        binObject.title = dayStr === "01" ? `${this.monthLookup(Number(monthStr))} ${yearStr}` : undefined; // May 1996
+        if (this.dateStrToUTCDate(dateStr).getUTCDay() === 1 ) {
+          binObject.title = `${this.classify(dateStr, "W").replace("-"," ")}`;
+        }
         binObject.seperator = this.dateStrToUTCDate(dateStr).getUTCDay() === 1; // every monday
         // binObject.weekend = this.dateStrToUTCDate(dateStr).getUTCDay() === 6 || this.dateStrToUTCDate(dateStr).getUTCDay() === 0; // every monday
         break;

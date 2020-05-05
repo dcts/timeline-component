@@ -50,12 +50,13 @@ export class PbTimeline extends LitElement {
         /* font-weight: bold; */
         font-size: 12px;
         user-select: none;
+        white-space: nowrap;
       }
       p.bin-title.months {
         top: -1px;
       }
       p.bin-title.weeks {
-        top: -1px !important;
+        top: 3px !important;
         /* font-size: 20px !important; */
       }
       p.bin-title.days {
@@ -104,6 +105,7 @@ export class PbTimeline extends LitElement {
 
       /* MAIN TITLE ABOVE BINS */
       .bins-title {
+        cursor: auto;
         font-weight: normal !important;
         margin: 0;
         white-space: nowrap;
