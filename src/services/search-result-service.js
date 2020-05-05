@@ -90,7 +90,7 @@ export class SearchResultService {
       "5Y": true,
       "Y": true,
       "M": false, // only exception not to rotate in monthly scope
-      "W": true,
+      "W": false,
       "D": true,
     }
     return lookup[scope];
@@ -105,6 +105,8 @@ export class SearchResultService {
     }
     switch (scope) {
       case "10Y":
+        // add year titles
+        binObject.title          = Number(category) % 100 === 0 ? `${category} - ${Number(category) + 99}` : undefined;
         binObject.binTitle       = Number(category) % 100 === 0 ? category : undefined;
         binObject.tooltip        = `${category} - ${Number(category) + 9}`; // 1900 - 1999
         binObject.selectionStart = category;
@@ -112,6 +114,8 @@ export class SearchResultService {
         binObject.seperator      = Number(category) % 100 === 0; // divisible by 100
         break;
       case "5Y":
+        // add year titles
+        binObject.title          = Number(category) % 50 === 0 ? `${category} - ${Number(category) + 49}` : undefined;
         binObject.binTitle       = Number(category) % 50 === 0 ? category : undefined;
         binObject.tooltip        = `${category} - ${Number(category) + 4}`; // 1995 - 1999
         binObject.selectionStart = category;
@@ -119,6 +123,8 @@ export class SearchResultService {
         binObject.seperator      = Number(category) % 50 === 0; // divisible by 50
         break;
       case "Y":
+        // add year titles
+        binObject.title          = Number(category) % 10 === 0 ? `${category} - ${Number(category) + 9}` : undefined;
         binObject.binTitle       = Number(category) % 10 === 0 ? category : undefined;
         binObject.tooltip        = category;
         binObject.selectionStart = category;
@@ -139,7 +145,9 @@ export class SearchResultService {
       case "W":
         const year = category.split("-")[0];; // => 2001
         const week = category.split("-")[1];; // => W52
-        binObject.binTitle       = week;
+        binObject.binTitle       = Number(week.replace("W", "")) % 2 === 1 ? week.replace("W", "") : undefined;
+        const monthNumber = this.week2month(Number(week.replace("W", "")));
+        binObject.title = monthNumber ? this.monthLookup(monthNumber) : undefined;
         binObject.tooltip        = `${year} ${week}`; // 1996 W52
         binObject.selectionStart = `${year} ${week}`;
         binObject.selectionEnd   = `${year} ${week}`;
@@ -154,8 +162,8 @@ export class SearchResultService {
         binObject.selectionStart = dateStr;
         binObject.selectionEnd = dateStr;
         binObject.title = dayStr === "01" ? `${this.monthLookup(Number(monthStr))} ${yearStr}` : undefined; // May 1996
-        binObject.seperator = this.dateStrToUTCDate(dateStr).getUTCDay() === 1 || this.dateStrToUTCDate(dateStr).getUTCDay() === 6; // every monday
-        binObject.weekend = this.dateStrToUTCDate(dateStr).getUTCDay() === 6 || this.dateStrToUTCDate(dateStr).getUTCDay() === 0; // every monday
+        binObject.seperator = this.dateStrToUTCDate(dateStr).getUTCDay() === 1; // every monday
+        // binObject.weekend = this.dateStrToUTCDate(dateStr).getUTCDay() === 6 || this.dateStrToUTCDate(dateStr).getUTCDay() === 0; // every monday
         break;
     }
     return binObject;
@@ -367,6 +375,23 @@ export class SearchResultService {
       "12": "Dec",
     }
     return lookup[num.toString()];
+  }
+
+  week2month(weeknr) {
+    return {
+      "1": 1, //"2": 1, "3": 1, "4": 1, "5": 1,
+      "6": 2, //"7": 2, "8": 2, "9": 2,
+      "10": 3, //"11": 3, "12": 3, "13": 3, "14": 3,
+      "15": 4, //"16": 4, "17": 4, "18": 4,
+      "19": 5, //"20": 5, "21": 5, "22": 5,
+      "23": 6, //"24": 6, "25": 6, "26": 6, "27": 6,
+      "28": 7, //"29": 7, "30": 7, "31": 7,
+      "32": 8, //"33": 8, "34": 8, "35": 8,
+      "36": 9, //"37": 9, "38": 9, "39": 9, "40": 9,
+      "41": 10, //"42": 10, "43": 10, "44": 10,
+      "45": 11, //"46": 11, "47": 11, "48": 11,
+      "49": 12, //"50": 12, "51": 12, "52": 12, "53": 12
+    }[weeknr.toString()];
   }
 }
 

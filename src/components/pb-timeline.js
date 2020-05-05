@@ -55,7 +55,8 @@ export class PbTimeline extends LitElement {
         top: -1px;
       }
       p.bin-title.weeks {
-        top: -1px;
+        top: -1px !important;
+        /* font-size: 20px !important; */
       }
       p.bin-title.days {
         top: -1px;
@@ -100,6 +101,25 @@ export class PbTimeline extends LitElement {
       .hidden {
         visibility: hidden;
       }
+
+      /* MAIN TITLE ABOVE BINS */
+      .bins-title {
+        font-weight: normal !important;
+        margin: 0;
+        white-space: nowrap;
+        z-index: 200;
+        position: absolute;
+        left: 0;
+        top: -20px;
+        font-size: 12px;
+        background-color: #535353;
+        color: #ffffff;
+        padding: 2px 4px;
+        border-radius: 5px;
+        height: 12px;
+        line-height: 12px;
+      }
+      /* TOOLTIP */
       #tooltip {
         /* min-width: 10px; */
         display: inline-block;
@@ -442,7 +462,7 @@ export class PbTimeline extends LitElement {
       ${this.dataObj.data.map((binObj, indx) => {
         return html`
           <div class="bin-container ${binObj.seperator ? "border-left" : ""}
-            ${this.dataObj.scope === "D" && binObj.weekend ? "grey" : this.dataObj.scope === "D" ? "white" : indx % 2 === 0 ? "grey" : "white"}"
+            ${indx % 2 === 0 ? "grey" : "white"}"
             data-tooltip="${binObj.tooltip}"
             data-selectionstart="${binObj.selectionStart}"
             data-selectionend="${binObj.selectionEnd}"
@@ -454,9 +474,12 @@ export class PbTimeline extends LitElement {
             <div class="bin" style="height: ${(binObj.value / this.maxValue) * this.maxHeight * this.multiplier}px"></div>
             <p class="bin-title
               ${this.dataObj.binTitleRotated ? "rotated" : ""}
-              ${this.dataObj.scope === "M" ? "months" : this.dataObj.scope === "W" ? "weeks:" : this.dataObj.scope === "D" ? "days:" : ""}"
-              >${binObj.binTitle || ""}
+              ${this.dataObj.scope === "M" ? "months" : this.dataObj.scope === "W" ? "weeks" : this.dataObj.scope === "D" ? "days" : ""}"
+              >${binObj.binTitle ? binObj.binTitle : ""}
             </p>
+            ${binObj.title ? html`
+              <p class="bins-title">${binObj.title}</p>
+            ` : ""}
           </div>
         `;
       })}
