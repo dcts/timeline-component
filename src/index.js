@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelector("vaadin-radio-group").setAttribute("label", "Select View Option");
   document.querySelectorAll("vaadin-radio-button").forEach(radioButton => radioButton.removeAttribute("disabled"));
   initDevControls();
+  document.querySelectorAll("vaadin-radio-button")[2].checked = true;
 });
 
 const initDevControls = () => {
