@@ -3,15 +3,32 @@ import { SearchResultService } from "../services/search-result-service.js";
 import { ParseDateService } from "../services/parse-date-service.js";
 
 /**
-* A timeline component to display aggregated data. For example:
-* - number of letters send/received per year / month / day.
+* A timeline component that displays a barchart for search results
+* and has 6 different scaling settings (scopes)
+* - Decades (10Y)
+* - 5 Years (5Y)
+* - Years (Y)
+* - Months (M)
+* - Weeks (W)
+* - Days (D)
 *
-*
+* Features
+* - brushing / selection of subdata
+* - reset selection
+* - tooltip on hover and over selection
 */
 export class PbTimeline extends LitElement {
 
   static get styles() {
     return css`
+      .hidden {
+        visibility: hidden;
+      }
+      .draggable {
+        cursor: grab;
+        user-select: none;
+        padding-right: 30px !important;
+      }
       .wrapper {
         margin: 0 auto;
         width: 800px;
@@ -31,45 +48,8 @@ export class PbTimeline extends LitElement {
         justify-content: center;
         position: relative;
       }
-      .bin {
-        width: 80%;
-        background-color: #ccc;
-        border-radius: 2px;
-        user-select: none;
-      }
-      p, .bin {
-        user-select: none;
-      }
-      p.bin-title {
-        pointer-events: none;
-        position: absolute;
-        top: 5px;
-        font-size: 10px;
-        z-index: 10;
-        margin: 0;
-        /* font-weight: bold; */
-        font-size: 12px;
-        user-select: none;
-      }
-      p.bin-title.months {
-        top: -1px;
-      }
-      p.bin-title.weeks {
-        top: -1px;
-      }
-      p.bin-title.days {
-        top: -1px;
-      }
-      p.rotated {
-        transform: rotate(-90deg);
-      }
       .bin-container.border-left {
         border-left: 1px solid rgba(0,0,0,0.4);
-      }
-      .bin-container:nth-child(2n) {
-        background-color: rgba(0,0,0,0.1);
-        background-color: #f8f8f8;
-        background-color: #f1f1f1;
       }
       .bin-container:hover .bin {
         background-color: #3f52b5;
@@ -89,19 +69,55 @@ export class PbTimeline extends LitElement {
       .bin-container.selected {
         background-color: #e6eaff !important;
       }
-      .invisible {
-        opacity: 0;
-      }
-      .draggable {
-        cursor: grab;
+      .bin {
+        width: 80%;
+        background-color: #ccc;
+        border-radius: 2px;
         user-select: none;
-        padding-right: 30px !important;
       }
-      .hidden {
-        visibility: hidden;
+      p.bin-title {
+        pointer-events: none;
+        position: absolute;
+        top: 5px;
+        font-size: 10px;
+        z-index: 10;
+        margin: 0;
+        font-size: 12px;
+        user-select: none;
+        white-space: nowrap;
       }
+      p.bin-title.months {
+        top: -1px;
+      }
+      p.bin-title.weeks {
+        top: 3px;
+      }
+      p.bin-title.days {
+        top: -1px;
+      }
+      p.bin-title.rotated {
+        transform: rotate(-90deg);
+      }
+      .bins-title {
+        cursor: auto;
+        font-weight: normal !important;
+        margin: 0;
+        white-space: nowrap;
+        z-index: 200;
+        position: absolute;
+        left: 0;
+        top: -20px;
+        font-size: 12px;
+        background-color: #535353;
+        color: #ffffff;
+        padding: 2px 4px;
+        border-radius: 5px;
+        height: 12px;
+        line-height: 12px;
+        user-select: none;
+      }
+      /* TOOLTIP */
       #tooltip {
-        /* min-width: 10px; */
         display: inline-block;
         white-space: nowrap;
         height: 15px;
@@ -121,7 +137,6 @@ export class PbTimeline extends LitElement {
         top: -13px;
         right: -10px;
       }
-
       #tooltip::after { /* small triangle that points to top */
         content: "";
         position: absolute;
@@ -132,8 +147,7 @@ export class PbTimeline extends LitElement {
         border-style: solid;
         border-color: transparent transparent black transparent;
       }
-
-      /* PURE CSS CLOSE BUTTON */
+      /* pure css close button for tooltip */
       .close{
         position: relative;
         display: inline-block;
@@ -145,7 +159,6 @@ export class PbTimeline extends LitElement {
       .close.rounded.black {
         cursor: pointer;
       }
-
       .close::before, .close::after {
         content: '';
         position: absolute;
@@ -162,12 +175,10 @@ export class PbTimeline extends LitElement {
       .close::after {
         transform: rotate(-45deg);
       }
-
       .close.thick::before, .close.thick::after {
         height: 4px;
         margin-top: -2px;
       }
-
       .close.black::before, .close.black::after {
         height: 8px;
         margin-top: -4px;
@@ -191,8 +202,8 @@ export class PbTimeline extends LitElement {
 
   constructor() {
     super();
-    this.maxHeight = 80;
-    this.multiplier = 0.75;
+    this.maxHeight = 80; // in pixels, has to be identical to the max-height specified in CSS
+    this.multiplier = 0.75; // max percentage of bin compared to the bin-conainer. Set 1 for full height (not recommended)
     this.mousedown = false;
     this.resetSelection();
   }
@@ -205,8 +216,13 @@ export class PbTimeline extends LitElement {
       this.bins = this.shadowRoot.querySelectorAll(".bin-container");
       this.resetSelectedBins();
       this.resetSelection();
-      this.hideTooltip();
+      this.resetTooltip();
     });
+  }
+
+  resetTooltip() {
+    this.hideTooltip();
+    this.tooltip.querySelector("#tooltip-text").innerHTML = "";
   }
 
   firstUpdated() {
@@ -413,14 +429,20 @@ export class PbTimeline extends LitElement {
         @mouseenter="${this.mouseenter}"
         @mouseleave="${this.hideTooltip}">
         ${this.dataObj ? this.renderBins() : ""}
-        <div id="tooltip" class="hidden">
-          <span id="tooltip-text"></span>
-          <div
-            id="tooltip-close"
-            class="hidden"
-            @click="${this.dispatchPbTimelineResetSelectionEvent}"
-            ><span class="close rounded black"></span>
-          </div>
+        ${this.renderTooltip()}
+      </div>
+    `;
+  }
+
+  renderTooltip() {
+    return html`
+      <div id="tooltip" class="hidden">
+        <span id="tooltip-text"></span>
+        <div
+          id="tooltip-close"
+          class="hidden"
+          @click="${this.dispatchPbTimelineResetSelectionEvent}"
+          ><span class="close rounded black"></span>
         </div>
       </div>
     `;
@@ -431,7 +453,7 @@ export class PbTimeline extends LitElement {
       ${this.dataObj.data.map((binObj, indx) => {
         return html`
           <div class="bin-container ${binObj.seperator ? "border-left" : ""}
-            ${this.dataObj.scope === "D" && binObj.weekend ? "grey" : this.dataObj.scope === "D" ? "white" : indx % 2 === 0 ? "grey" : "white"}"
+            ${indx % 2 === 0 ? "grey" : "white"}"
             data-tooltip="${binObj.tooltip}"
             data-selectionstart="${binObj.selectionStart}"
             data-selectionend="${binObj.selectionEnd}"
@@ -443,20 +465,17 @@ export class PbTimeline extends LitElement {
             <div class="bin" style="height: ${(binObj.value / this.maxValue) * this.maxHeight * this.multiplier}px"></div>
             <p class="bin-title
               ${this.dataObj.binTitleRotated ? "rotated" : ""}
-              ${this.dataObj.scope === "M" ? "months" : this.dataObj.scope === "W" ? "weeks:" : this.dataObj.scope === "D" ? "days:" : ""}"
-              >${binObj.binTitle || ""}
+              ${this.dataObj.scope === "M" ? "months" : this.dataObj.scope === "W" ? "weeks" : this.dataObj.scope === "D" ? "days" : ""}"
+              >${binObj.binTitle ? binObj.binTitle : ""}
             </p>
+            ${binObj.title ? html`
+              <p class="bins-title">${binObj.title}</p>
+            ` : ""}
           </div>
         `;
       })}
     `
   }
-
-  connectedCallback() {
-    super.connectedCallback();
-  }
 }
 
 customElements.define('pb-timeline', PbTimeline);
-
-// @mouseup="${this.mouseUp}"

@@ -31,7 +31,6 @@ body {
 a {
   color: var(--dark-color);
 }
-
 a:visited,
 a:active {
   color: var(--shade-color);
@@ -52,17 +51,12 @@ header {
   color: var(--base-color);
 }
 
-.text-center {
-  text-align: center;
-}
-
 .page-wrapper {
   max-width: 1200px;
   margin: 0 auto;
   padding-left: 20px;
   padding-right: 20px;
 }
-
 .controls-wrapper {
   max-width: 1200px;
   margin: 0 auto;
@@ -76,29 +70,24 @@ header {
   width: 300px;
   margin-right: 15px;
   margin-left: 15px;
-  /* box-shadow: 0 0 14px rgba(0,0,0,0.1); */
   background-color: rgba(0,0,0,0.04);
   border-radius: 7px;
   padding: 10px 20px;
 }
+
 textarea#logs {
   font-family: "Courier New", Courier, monospace;
   width: 255px;
   height: 149px;
   background: white;
 }
+
 .flex {
   display: flex;
 }
-
+.text-center {
+  text-align: center;
+}
 .justify-center {
   justify-content: center;
-}
-
-.component-wrapper {
-  border: 0.5px dashed rgba(0,0,0,0.1);
-}
-
-:root {
-  --pb-timeline-col: red;
 }

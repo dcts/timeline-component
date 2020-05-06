@@ -4,7 +4,6 @@ import '@polymer/paper-button/paper-button.js';
 import { ParseDateService } from "../services/parse-date-service.js";
 import { SearchResultService } from "../services/search-result-service.js";
 
-
 // Extend the LitElement base class
 class PbDaterangePicker extends LitElement {
 
@@ -173,14 +172,6 @@ class PbDaterangePicker extends LitElement {
       this.buttonDisabled = false;
     }
   }
-
-
-  // dateRangeIsValid(startDateStr, endDateStr) {
-  //   if (startDateStr && endDateStr) {
-  //     return startDateStr < endDateStr;
-  //   }
-  //   return false;
-  // }
 
   // resets selection when clicked on reset selection button
   resetSelection() {
