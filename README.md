@@ -36,7 +36,7 @@ npm run deploy
 ```
 npm run test
 ```
-to test the `ParseDateService` and `SearchResultService`. [AVA testing framework](https://github.com/avajs/ava) was used (with the npm package `esm` to enable modern module imports in AVA as described on [StackOverflow](https://stackoverflow.com/a/55803624/6272061)). Run
+to test the `ParseDateService` and `SearchResultService`. [AVA testing framework](https://github.com/avajs/ava) was used + the npm package `esm` to enable modern module imports in AVA (as described on [StackOverflow](https://stackoverflow.com/a/55803624/6272061)).
 
 
 # To Dos
