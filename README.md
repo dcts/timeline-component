@@ -1,9 +1,9 @@
 # Timeline Component for KBA / TEIPublisher
 
-Component to display a timeline of search results. Build with lit-element. Demo is hosted here: https://dcts-todo-app.firebaseapp.com/
+Component to display a timeline (barchart) of search results. Build with lit-element. Demo is hosted here: https://dcts-todo-app.firebaseapp.com/
 
 **Preview**
-![timeline-demo](https://user-images.githubusercontent.com/44790691/80798736-5a5b0280-8ba5-11ea-9e32-016d08c035c9.png)
+![Bildschirmfoto von 2020-05-06 05-18-00](https://user-images.githubusercontent.com/44790691/81136032-a79af380-8f5a-11ea-8191-03a0e739c45d.png)
 
 # Requirements
 - **`nodeJS`**
@@ -33,37 +33,21 @@ npm run deploy
 ```
 
 ### Testing with AVA
-- to test the `ParseDateService` the [AVA testing framework](https://github.com/avajs/ava) was used. To enable modern module imports in AVA the npm package `esm` was installed as described on [StackOverflow](https://stackoverflow.com/a/55803624/6272061).
-
+- to test the `ParseDateService` and `SearchResultService` the [AVA testing framework](https://github.com/avajs/ava) was used. To enable modern module imports in AVA the npm package `esm` was installed as described on [StackOverflow](https://stackoverflow.com/a/55803624/6272061).
 
 # To Dos
 - [x] Support for date stringformat "2012-W01" to "2012-W53" (weeks)
 - [x] updating range in the rangepicker should update the selection in the timeline
 - [x] reset range button (in the datepicker)
-- [ ] tooltip on hover
-- [ ] tooltip during selection
-- [ ] custom views for all 6 scopes
-  - [ ] decades(10Y)
-  - [ ] decades(5Y)
+- [x] tooltip on hover
+- [x] tooltip during selection
+- [ ] move electon around by dragging
+- [ ] distinct behavior for both inputs
+- [x] custom views for all 6 scopes
+  - [x] decades(10Y)
+  - [x] decades(5Y)
   - [x] years
-  - [ ] months
-  - [ ] weeks
-  - [ ] day
-
-# KBA API Notes
-
-CORS problem:
-
-```javascript
-// Open the console on any page and run this (does not work):
-fetch("https://kba.anton.ch/api/timeline?object_type=Brief")
-  .then(response => response.json())
-  .then(jsonData => { console.log(jsonData) });
-
-// this works (with proxy)
-fetch("https://cors-anywhere.herokuapp.com/https://kba.anton.ch/api/timeline?object_type=Brief")
-  .then(response => response.json())
-  .then(jsonData => { console.log(jsonData) });
-```
-
-- solution? (https://stackoverflow.com/a/55652989/6272061)
+  - [x] months
+  - [x] weeks
+  - [x] day
+- [ ] cleanup code and repo
