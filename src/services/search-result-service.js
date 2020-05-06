@@ -1,15 +1,26 @@
 export class SearchResultService {
   /*
   * SEARCH RESULT OBJECT
-  * Service that loads initial data from a datasource
-  * (can be a database or an API) and converts it in
+  * Service that loads initial data from a datasource,
+  * can be a database or an API, and converts it in
   * a format that can be used by the pb-timeline component.
   *
-  * jsonData: data to load, must be a single object, where
-  *    keys => valid datestrings formatted YYYY-MM-DD
-  *    values => number of results for this day
-  * maxInterval:
-  *    interval
+  * public methods:
+  *   getMinDateStr()
+  *   getMaxDateStr()
+  *   getMinDate()
+  *   getMaxDate()
+  *   export()
+  *   getIntervalSizes()
+  */
+
+  /*
+  * CONSRTUCTOR INPUTS EXPLAINED
+  * jsonData: data to load, object with
+  *   keys => valid datestrings formatted YYYY-MM-DD
+  *   values => number of results for this day
+  * maxInterval: max amount of bins allowed
+  * scopes: array of all 6 possible values for scope
   */
   constructor(jsonData = {}, maxInterval = 60) {
     this.data = { invalid: {}, valid: {} };
@@ -19,8 +30,26 @@ export class SearchResultService {
   }
 
   /*
-   * exports data for each scope. availible scopes:
-   *   ["D", "W", "M", "Y", "5Y", "10Y"]
+  * based on the loaded jsonData, compute
+  * - min date as dateStr or utc-date-object
+  * - max date as dateStr or utc-date-object
+  */
+  getMinDateStr() {
+    return Object.keys(this.data.valid).sort()[0];
+  }
+  getMaxDateStr() {
+    let days = Object.keys(this.data.valid);
+    return days.sort()[days.length - 1];
+  }
+  getMinDate() {
+    return this._dateStrToUTCDate(this.getMinDateStr());
+  }
+  getMaxDate() {
+    return this._dateStrToUTCDate(this.getMaxDateStr());
+  }
+
+  /*
+   * exports data for each scope
    * when no argument is provided, the optimal scope based
    * on the maxInterval (default 60) will be assigned
    */
@@ -63,6 +92,7 @@ export class SearchResultService {
     });
     return exportData;
   }
+
   /*
   * returns optimal scope based on the maxInterval
   * by computing the scope that meets the criteria
@@ -93,26 +123,7 @@ export class SearchResultService {
   }
 
   /*
-   * based on the loaded jsonData
-   * - gets min date (as dateStr or date-object
-   * - gets max date (as dateStr or date-object)
-   */
-  getMinDateStr() {
-    return Object.keys(this.data.valid).sort()[0];
-  }
-  getMaxDateStr() {
-    let days = Object.keys(this.data.valid);
-    return days.sort()[days.length - 1];
-  }
-  getMinDate() {
-    return this._dateStrToUTCDate(this.getMinDateStr());
-  }
-  getMaxDate() {
-    return this._dateStrToUTCDate(this.getMaxDateStr());
-  }
-
-  /*
-   * lookup table which bin titles are rotated
+   * lookup table which bin titles should be rotated
    */
   _binTitleRotatedLookup(scope) {
     const lookup = {
@@ -297,8 +308,8 @@ export class SearchResultService {
   }
 
   /*
-   * examples:
-   * 1 Jan 2020 =>  2020-W1
+   * example:
+   * 1 Jan 2020 => 2020-W1
    */
   _UTCDateToWeekFormat(UTCDate) {
     const year = this._getISOWeekYear(UTCDate);
@@ -307,7 +318,8 @@ export class SearchResultService {
   }
 
   /*
-   * returns the ISO week as number based on a UTC date
+   * returns the ISO week (_getISOWeek) or year (_getISOWeekYear)
+   * as number based on a UTC date.
    */
   _getISOWeek(UTCDate) { // https://weeknumber.net/how-to/javascript
     let date = new Date(UTCDate.getTime());
@@ -322,8 +334,8 @@ export class SearchResultService {
   }
   /*
   * returns the ISO week year as number based on a UTC date
-  * this is only needed for rollovers, sometimes for example W1
-  * can start in the year before or W53 start in the following year
+  * this is only needed for rollovers, for example:
+  * => 1.jan 2011 is in W52 of year 2010.
   */
   _getISOWeekYear(UTCDate) { // https://weeknumber.net/how-to/javascript
     var date = new Date(UTCDate.getTime());
@@ -359,7 +371,6 @@ export class SearchResultService {
       "10Y": this._computeIntervalSize("10Y"),
     }
   }
-
   _computeIntervalSize(scope) {
     const endDate = this._dateStrToUTCDate(this.getMaxDateStr());
     const firstDayDateStr = this._getFirstDay(this._classify(this.getMinDateStr(), scope));
@@ -371,7 +382,6 @@ export class SearchResultService {
     }
     return count;
   }
-
   _increaseDateBy(scope, date) {
     switch (scope) {
       case "D":
@@ -389,28 +399,37 @@ export class SearchResultService {
     }
   }
 
-  _addDays(date, days) {
-    let newDate = new Date(date.valueOf());
-    newDate.setUTCDate(newDate.getUTCDate() + days);
-    return newDate;
+  /*
+  * functions that add n days (_addDays), months (_addMonths)
+  * or years (_addYears) to a UTC date object
+  * returns the computed new UTC date
+  */
+  _addDays(UTCDate, days) {
+    let newUTCDate = new Date(UTCDate.valueOf());
+    newUTCDate.setUTCDate(newUTCDate.getUTCDate() + days);
+    return newUTCDate;
   }
-
-  _addMonths(date, months) {
-    let newDate = new Date(date.valueOf());
-    let d = newDate.getUTCDate();
-    newDate.setUTCMonth(newDate.getUTCMonth() + +months);
-    if (newDate.getUTCDate() != d) {
-      newDate.setUTCDate(0);
+  _addMonths(UTCdate, months) {
+    let newUTCDate = new Date(UTCdate.valueOf());
+    let d = newUTCDate.getUTCDate();
+    newUTCDate.setUTCMonth(newUTCDate.getUTCMonth() + +months);
+    if (newUTCDate.getUTCDate() != d) {
+      newUTCDate.setUTCDate(0);
     }
-    return newDate;
+    return newUTCDate;
+  }
+  _addYears(UTCdate, years) {
+    let newUTCDate = new Date(UTCdate.valueOf());
+    newUTCDate.setUTCFullYear(newUTCDate.getUTCFullYear() + years);
+    return newUTCDate;
   }
 
-  _addYears(date, years) {
-    let newDate = new Date(date.valueOf());
-    newDate.setUTCFullYear(newDate.getUTCFullYear() + years);
-    return newDate;
-  }
-
+  /*
+  * Validates dateStr. rules:
+  * => year: 4 digit number
+  * => month: [1-12]
+  * => day: [1-31]
+  */
   _isValidDateStr(str) {
     let split = str.split("-");
     if (split.length !== 3) return false;
@@ -424,6 +443,10 @@ export class SearchResultService {
     return true;
   }
 
+  /*
+  * Converts month number (str or number) to a 3 char
+  * abbreviation of the month (in english)
+  */
   _monthLookup(num) {
     if (num > 12 || num < 1) {
       throw new Error(`invalid 'num' provided, expected 1-12. Got: ${num}`);
