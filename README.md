@@ -33,7 +33,11 @@ npm run deploy
 ```
 
 ### Testing with AVA
-- to test the `ParseDateService` and `SearchResultService` the [AVA testing framework](https://github.com/avajs/ava) was used. To enable modern module imports in AVA the npm package `esm` was installed as described on [StackOverflow](https://stackoverflow.com/a/55803624/6272061).
+```
+npm run test
+```
+to test the `ParseDateService` and `SearchResultService`. [AVA testing framework](https://github.com/avajs/ava) was used + the npm package `esm` to enable modern module imports in AVA (as described on [StackOverflow](https://stackoverflow.com/a/55803624/6272061)).
+
 
 # To Dos
 - [x] Support for date stringformat "2012-W01" to "2012-W53" (weeks)
