@@ -1,9 +1,9 @@
 # Timeline Component for KBA / TEIPublisher
 
-Component to display a timeline (barchart) of search results. Build with lit-element. [Check out the interactive demo](https://dcts-todo-app.firebaseapp.com/).
+Component to display a timeline (barchart) of search results. Build with lit-element. [Check out the interactive demo](https://dcts-timeline.web.app/).
 
 **Preview**<br>
-<a href="ttps://dcts-todo-app.firebaseapp.com/"><img src="https://user-images.githubusercontent.com/44790691/81136032-a79af380-8f5a-11ea-8191-03a0e739c45d.png"></a>
+<a href="https://dcts-timeline.web.app/"><img src="https://user-images.githubusercontent.com/44790691/81136032-a79af380-8f5a-11ea-8191-03a0e739c45d.png"></a>
 
 # Requirements
 - **`nodeJS`**
