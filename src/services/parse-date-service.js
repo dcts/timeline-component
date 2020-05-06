@@ -1,16 +1,21 @@
 export class ParseDateService {
   /*
   * PARSE DATE SERVICE
-  * whenever the user inputs a date it should be automatically detected
-  * a lot of formats should be supported, for example:
-  * - 1. April 1970
-  * - 1970 (only year)
-  * - 1970-12-23
-  * - 1900 12 23
-  * - 1 jan 1970
+  * whenever the user types a date, it should be allowed
+  * to type in a lot of dirrerent date formats. This service
+  * should detect all of the supported formats. Some supported formats:
+  * - 1. April 1970 => 1970-04-01
+  * - 1970          => 1970-01-01
+  * - 1970-12-23    => 1970-12-23
+  * - 1900 12 23    => 1900-12-23
+  * - 1 jan 1970    => 1970-01-01
+  * - 2020-W12      => 2020-03-16
+  * - 2020-01       => 2020-01-01
+  * For all formats check the tests written in AVA `test/parse-date-service-test.js`
+  *
+  * public methods
+  *   run()
   */
-
-  // single purpose object, each initialization runs the parsing
   constructor() {
   }
 
@@ -62,22 +67,49 @@ export class ParseDateService {
     return `${this.year}-${this.month}-${this.day}`;
   }
 
-  // allowed 2012-01-31 /  2012-1-31 / 2012/01/31 / 2012/1/31 / 2012 1 31 / 2012 01 31
+  /*
+  * matches ISO string format (with some extensions)
+  * | 2012-01-31 | 2012-1-31 | 2012/01/31 |
+  * | 2012/1/31  | 2012 1 31 | 2012 01 31 |
+  */
   _isoMatchRegex() {
     return /(?<=\s|^)\d{4}(-|\s|\/)([0][1-9]|[1-9]|10|11|12)(-|\s|\/)([0][1-9]|[1-2][0-9]|3[01]|[1-9])(?=\s|$|\.)/;
-    //      |        | year         | 01-09 | 1-9 | 10-12   |         |01-09  |10-29     |30,31| 1-9  |
-    //      |             | dash or slash                   | dash or slash                           |
-    //      |preceding with space or start of string                                                  | end with space endofstr or dot
+    /*      |        | year         | 01-09 | 1-9 | 10-12   |         |01-09  |10-29     |30,31| 1-9  |
+    *       |             | dash or slash                   | dash or slash                           |
+    *       |preceding with space or start of string                 end with space endofstr or dot <-|*/
   }
 
+  /*
+  * matches a custom date string format (reversed order, day-month-year)
+  * | 12.3.2000 | 1.2.2012 | 1-2-2012 |
+  * | 12/3/2000 | 1 2 2012 | 1/2/2012 |
+  */
   _customRegex() {
     return /\d{1,2}(\.|\s|\/|-)\d{1,2}(\.|\s|\/|-)\d{4}/;
+    /*      | day  |           | month |          | year
+    *              |___________________|
+    *                        |
+    *        seperated by dot, space, slash or dash */
   }
 
+  /*
+  * matches a date format that specifies the week
+  * | 2012-W1 | 2012 W1  | 2012 W01 |
+  * | 2020.W2 | 2020-W53 | 2012/W1  |
+  */
   _weekMatchRegex() {
     return /\d{4}(\.|\s|\/|-)W\d{1,2}(?=\s|$|\.)/;
+    /*      |year |         |W1-W53   |
+    *             |___________________|
+    *                      |
+    *     seperated by dot, space, slash or dash */
   }
 
+  /*
+  * matches a date format with only year and month
+  * YYYY-MM (1-12)
+  * | 2020-01 | 2020-12 | 2012-1 |
+  */
   _yearAndMonthRegex() {
     return /(?<=\s|^)\d{4}-([0][1-9]|[1-9]|10|11|12)(?=\s|$)/;
   }
@@ -105,24 +137,32 @@ export class ParseDateService {
     return undefined;
   }
 
+  /*
+  * find single numbers from 1-31
+  */
   _findDay() {
-    // find single numbers from 1 - 31
     let regex = /(?<=\s|^)([0][1-9]|[1-2][0-9]|3[01]|[1-9])(?=\s|$|\.|st|nd|rd|th)/;
-    //           |         | 01-09 | 10-29    |30,31|1-9    | ends with whitespace, endofstr or dot.
-    //           | starts with whitepace or startoftr       | won't be included in match (lookbehind operator)
-    //           | look behind operator (not included)
-    //           | https://stackoverflow.com/a/6713378/6272061
+    /*           |         | 01-09 | 10-29    |30,31|1-9    | ends with whitespace, endofstr or dot.
+    *            | starts with whitepace or startoftr       | won't be included in match (lookbehind operator)
+    *            | look behind operator (not included)
+    *            | https://stackoverflow.com/a/6713378/6272061 */
     const result = this.input.match(regex)
     if (result) {
       this.day = this._setWithLeadingZero(result[0]);
     }
   }
 
-  _setWithLeadingZero(str) {
-    if (str.length == 1) {
-      return "0" + str;
+  /*
+  * if a string or number has only 1 digit or char
+  * a leading zro is added
+  * returns a string
+  */
+  _setWithLeadingZero(input) {
+    input = input.toString();
+    if (input.length == 1) {
+      return "0" + input;
     } else {
-      return str;
+      return input;
     }
   }
 
@@ -197,7 +237,6 @@ export class ParseDateService {
 
   _getDateStrOfISOWeek(y, w) {
     let simple = new Date(y, 0, 1 + (w - 1) * 7);
-    // let simple = new Date(Date.UTC(y, 0, 2, 1 + (w - 1) * 7));
     let dow = simple.getDay();
     let ISOweekStart = simple;
     if (dow <= 4) {
@@ -211,21 +250,17 @@ export class ParseDateService {
     } else if (ISOweekStart.getFullYear() < y) {
       return `${y}-01-01`;
     }
-    return this._formatDate(ISOweekStart);
+    return this._dateToDateStr(ISOweekStart);
   }
 
-  _formatDate(date) { // target is ISO format => 2020-05-31
+  /*
+  * formats date object to dateStr YYYY-MM-DD
+  */
+  _dateToDateStr(date) {
     let d = new Date(date);
-    let month = '' + (d.getMonth() + 1);
-    let day = '' + d.getDate();
+    let month = this._setWithLeadingZero((d.getMonth() + 1));
+    let day = this._setWithLeadingZero(d.getDate());
     let year = d.getFullYear();
-
-    if (month.length < 2) {
-      month = '0' + month;
-    }
-    if (day.length < 2) {
-      day = '0' + day;
-    }
-    return [year, month, day].join('-');
+    return `${year}-${month}-${day}`;
   }
 }
