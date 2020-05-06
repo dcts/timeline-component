@@ -1,77 +1,57 @@
 export class SearchResultService {
   /*
-   * SEARCH RESULT OBJECT
-   * dscription goes here...
-   */
-
+  * SEARCH RESULT OBJECT
+  * Service that loads initial data from a datasource
+  * (can be a database or an API) and converts it in
+  * a format that can be used by the pb-timeline component.
+  *
+  * jsonData: data to load, must be a single object, where
+  *    keys => valid datestrings formatted YYYY-MM-DD
+  *    values => number of results for this day
+  * maxInterval:
+  *    interval
+  */
   constructor(jsonData = {}, maxInterval = 60) {
     this.data = { invalid: {}, valid: {} };
     this.maxInterval = maxInterval;
     this.scopes = ["D", "W", "M", "Y", "5Y", "10Y"];
-    this.validateJsonData(jsonData);
+    this._validateJsonData(jsonData);
   }
 
-  validateJsonData(jsonData) {
-    Object.keys(jsonData).sort().forEach(key => {
-      if (this.isValidDateStr(key)) {
-        this.data.valid[key] = Number(jsonData[key]);
-      } else {
-        this.data.invalid[key] = Number(jsonData[key]);
-      }
-    });
-  }
-
-  getMinDateStr() {
-    return Object.keys(this.data.valid).sort()[0];
-  }
-  getMaxDateStr() {
-    let days = Object.keys(this.data.valid);
-    return days.sort()[days.length - 1];
-  }
-  getMinDate() {
-    return this.dateStrToUTCDate(this.getMinDateStr());
-  }
-  getMaxDate() {
-    return this.dateStrToUTCDate(this.getMaxDateStr());
-  }
-
+  /*
+   * exports data for each scope. availible scopes:
+   *   ["D", "W", "M", "Y", "5Y", "10Y"]
+   * when no argument is provided, the optimal scope based
+   * on the maxInterval (default 60) will be assigned
+   */
   export(scope) {
     // auto assign scope when no argument provided
-    if (!scope) {
-      for (let i=0; i<this.scopes.length; i++) {
-        if (this.computeIntervalSize(this.scopes[i]) <= this.maxInterval) {
-          scope = this.scopes[i];
-          break;
-        }
-      }
-    }
-
+    scope = scope || this._autoAssignScope();
     // validate scope
     if (!this.scopes.includes(scope)) {
       throw new Error(`invalid scope provided, expected: ["10Y", "5Y", "Y", "M", "W", "D"]. Got: "${scope}"`);
     }
-    //
     // initialize object to export
     const exportData = {
       data: [],
       scope: scope,
-      binTitleRotated: this.binTitleRotatedLookup(scope)
+      binTitleRotated: this._binTitleRotatedLookup(scope)
     }
-    // intervall
-    const startCategory = this.classify(this.getMinDateStr(), scope);
-    const startDateStr = this.getFirstDay(startCategory);
-    let currentDate = this.dateStrToUTCDate(startDateStr);
+    // get start and end date
+    const startCategory = this._classify(this.getMinDateStr(), scope);
+    const startDateStr = this._getFirstDay(startCategory);
+    let currentDate = this._dateStrToUTCDate(startDateStr);
     const endDate = this.getMaxDate();
-    // initialize all bin Object and push to array
+    // iterate until end of intervall reached, add binObject for each step
     while (currentDate <= endDate) {
-      const currentDateStr = this.UTCDateToDateStr(currentDate);
-      const currentCategory = this.classify(currentDateStr, scope);
-      exportData.data.push(this.buildBinObject(currentDateStr, currentCategory, scope));
-      currentDate = this.increaseDateBy(scope, currentDate);
+      const currentDateStr = this._UTCDateToDateStr(currentDate);
+      const currentCategory = this._classify(currentDateStr, scope);
+      exportData.data.push(this._buildBinObject(currentDateStr, currentCategory, scope));
+      currentDate = this._increaseDateBy(scope, currentDate);
     }
     // count all values
     Object.keys(this.data.valid).sort().forEach(dateStr => {
-      const currentCategory = this.classify(dateStr, scope);
+      const currentCategory = this._classify(dateStr, scope);
       const targetBinObject = exportData.data.find(it => it.category === currentCategory);
       try {
         targetBinObject.value += this.data.valid[dateStr] || 0;
@@ -83,8 +63,58 @@ export class SearchResultService {
     });
     return exportData;
   }
+  /*
+  * returns optimal scope based on the maxInterval
+  * by computing the scope that meets the criteria
+  * nbr of bins <= maxInterval
+  */
+  _autoAssignScope() {
+    for (let i = 0; i < this.scopes.length; i++) {
+      if (this._computeIntervalSize(this.scopes[i]) <= this.maxInterval) {
+        return this.scopes[i];
+      }
+    }
+    throw new Error(`Interval too big! Computed: ${this._computeIntervalSize(this.scopes[i])}. Allowed: ${this.maxInterval}. Try to increase maxInterval.`);
+  }
 
-  binTitleRotatedLookup(scope) {
+  /*
+  * splits input data in 2 sections
+  * => valid data
+  * => invalid (if not a vaid date, for example 2012-00-00 is invalid)
+  */
+  _validateJsonData(jsonData) {
+    Object.keys(jsonData).sort().forEach(key => {
+      if (this._isValidDateStr(key)) {
+        this.data.valid[key] = Number(jsonData[key]);
+      } else {
+        this.data.invalid[key] = Number(jsonData[key]);
+      }
+    });
+  }
+
+  /*
+   * based on the loaded jsonData
+   * - gets min date (as dateStr or date-object
+   * - gets max date (as dateStr or date-object)
+   */
+  getMinDateStr() {
+    return Object.keys(this.data.valid).sort()[0];
+  }
+  getMaxDateStr() {
+    let days = Object.keys(this.data.valid);
+    return days.sort()[days.length - 1];
+  }
+  getMinDate() {
+    return this._dateStrToUTCDate(this.getMinDateStr());
+  }
+  getMaxDate() {
+    return this._dateStrToUTCDate(this.getMaxDateStr());
+  }
+
+  /*
+   * lookup table which bin titles are rotated
+   */
+  _binTitleRotatedLookup(scope) {
     const lookup = {
       "10Y": true,
       "5Y": true,
@@ -96,79 +126,90 @@ export class SearchResultService {
     return lookup[scope];
   }
 
-  buildBinObject(dateStr, category, scope) {
-    // for all scopes the same
+  /*
+   * Helper method that builds a binObject that
+   * can be read by the pb-timeline component
+   */
+  _buildBinObject(dateStr, category, scope) {
+    const split = dateStr.split("-");
+    const yearStr = split[0];
+    const monthStr = split[1];
+    const dayStr = split[2];
+    // for all scopes this remains the same
     const binObject = {
       dateStr: dateStr,
       category: category,
       value: 0
     }
-    switch (scope) {
-      case "10Y":
-        // add year titles
-        binObject.title          = Number(category) % 100 === 0 ? `${category} - ${Number(category) + 99}` : undefined;
-        binObject.binTitle       = Number(category) % 100 === 0 ? category : undefined;
-        binObject.tooltip        = `${category} - ${Number(category) + 9}`; // 1900 - 1999
-        binObject.selectionStart = category;
-        binObject.selectionEnd   = `${Number(category) + 9}`;
-        binObject.seperator      = Number(category) % 100 === 0; // divisible by 100
-        break;
-      case "5Y":
-        // add year titles
-        binObject.title          = Number(category) % 50 === 0 ? `${category} - ${Number(category) + 49}` : undefined;
-        binObject.binTitle       = Number(category) % 50 === 0 ? category : undefined;
-        binObject.tooltip        = `${category} - ${Number(category) + 4}`; // 1995 - 1999
-        binObject.selectionStart = category;
-        binObject.selectionEnd   = `${Number(category) + 4}`;
-        binObject.seperator      = Number(category) % 50 === 0; // divisible by 50
-        break;
-      case "Y":
-        // add year titles
-        binObject.title          = Number(category) % 10 === 0 ? `${category} - ${Number(category) + 9}` : undefined;
-        binObject.binTitle       = Number(category) % 10 === 0 ? category : undefined;
-        binObject.tooltip        = category;
-        binObject.selectionStart = category;
-        binObject.selectionEnd   = category;
-        binObject.seperator      = Number(category) % 10 === 0; // divisible by 10
-        break;
-      case "M":
-        const split    = dateStr.split("-");
-        const monthNum = Number(split[1]);
-        const month    = this.monthLookup(monthNum); // Jan,Feb,Mar,...,Nov,Dez
-        binObject.binTitle       = month[0]; // J,F,M,A,M,J,J,..N,D
-        binObject.tooltip        = `${month} ${split[0]}`; // May 1996
-        binObject.selectionStart = `${month} ${split[0]}`;
-        binObject.selectionEnd   = `${month} ${split[0]}`;
-        binObject.title          = monthNum === 1 ? dateStr.split("-")[0] : undefined; // YYYY
-        binObject.seperator      = monthNum === 1;
-        break;
-      case "W":
-        const year = category.split("-")[0];; // => 2001
-        const week = category.split("-")[1];; // => W52
-        const monthNumber = this.week2month(Number(week.replace("W", "")));
-        // binObject.binTitle =  monthNumber ? week.replace("W", "") : undefined;
-        // binObject.binTitle = (Number(week.replace("W", "")) + 1) % 2 === 0 ? week : undefined;
-        binObject.binTitle = monthNumber ? week : undefined;
-        binObject.title = monthNumber ? this.monthLookup(monthNumber) : undefined;
-        binObject.tooltip        = `${year} ${week}`; // 1996 W52
-        binObject.selectionStart = `${year} ${week}`;
-        binObject.selectionEnd   = `${year} ${week}`;
-        binObject.seperator      = week === "W1";
-        break;
-      case "D":
-        const yearStr  = dateStr.split("-")[0];
-        const monthStr = dateStr.split("-")[1];
-        const dayStr   = dateStr.split("-")[2];
-        binObject.binTitle = this.dateStrToUTCDate(dateStr).getUTCDay() === 1 ? `${Number(dayStr)}.${Number(monthStr)}` : ""; // 26.5
-        binObject.tooltip = dateStr;
-        binObject.selectionStart = dateStr;
-        binObject.selectionEnd = dateStr;
-        if (this.dateStrToUTCDate(dateStr).getUTCDay() === 1 ) {
-          binObject.title = `${this.classify(dateStr, "W").replace("-"," ")}`;
-        }
-        binObject.seperator = this.dateStrToUTCDate(dateStr).getUTCDay() === 1; // every monday
-        // binObject.weekend = this.dateStrToUTCDate(dateStr).getUTCDay() === 6 || this.dateStrToUTCDate(dateStr).getUTCDay() === 0; // every monday
-        break;
+    // scope specific bin data
+    if (scope === "10Y") {
+      binObject.tooltip = `${category} - ${Number(category) + 9}`; // 1900 - 1999
+      binObject.selectionStart = `${category}`;
+      binObject.selectionEnd = `${Number(category) + 9}`;
+      // seperator every 100 years (10 bins)
+      if (Number(category) % 100 === 0) {
+        binObject.title = `${category} - ${Number(category) + 99}`;
+        binObject.binTitle = category;
+        binObject.seperator = true;
+      };
+    } else if (scope === "5Y") {
+      binObject.tooltip = `${category} - ${Number(category) + 4}`; // 1995 - 1999
+      binObject.selectionStart = `${category}`;
+      binObject.selectionEnd = `${Number(category) + 4}`;
+      // seperator every 50 years (10 bins)
+      if (Number(category) % 50 === 0) {
+        binObject.title = `${category} - ${Number(category) + 49}`;
+        binObject.binTitle = category;
+        binObject.seperator = true;
+      }
+    } else if (scope === "Y") {
+      binObject.tooltip = category;
+      binObject.selectionStart = category;
+      binObject.selectionEnd = category;
+      // seperator every 10 years (10 bins)
+      if (Number(category) % 10 === 0) {
+        binObject.title = `${category} - ${Number(category) + 9}`;
+        binObject.binTitle = `${category}`;
+        binObject.seperator = true;
+      }
+    } else if (scope === "M") {
+      const monthNum = Number(monthStr);
+      const month = this._monthLookup(monthNum); // Jan,Feb,Mar,...,Nov,Dez
+      binObject.binTitle = month[0]; // J,F,M,A,M,J,J,..N,D
+      binObject.tooltip = `${month} ${yearStr}`; // May 1996
+      binObject.selectionStart = `${month} ${yearStr}`;
+      binObject.selectionEnd = `${month} ${yearStr}`;
+      // every first of the month
+      if (monthNum === 1) {
+        binObject.title = yearStr; // YYYY
+        binObject.seperator = true;
+      }
+    } else if (scope === "W") {
+      const week = category.split("-")[1];; // => W52
+      binObject.tooltip = `${yearStr} ${week}`; // 1996 W52
+      binObject.selectionStart = `${yearStr} ${week}`; // 1996 W52
+      binObject.selectionEnd = `${yearStr} ${week}`; // 1996 W52
+      let currentDate = this._dateStrToUTCDate(dateStr);
+      let lastWeek = this._addDays(currentDate, -7);
+      // title and binTitle every first monday of the month
+      if (currentDate.getUTCMonth() !== lastWeek.getUTCMonth()) {
+        binObject.binTitle = week;
+        binObject.title = this._monthLookup(currentDate.getUTCMonth() + 1);
+      }
+      // seperator every start of the year
+      binObject.seperator = week === "W1";
+    } else if (scope === "D") {
+      binObject.tooltip = dateStr;
+      binObject.selectionStart = dateStr;
+      binObject.selectionEnd = dateStr;
+      // every monday
+      if (this._dateStrToUTCDate(dateStr).getUTCDay() === 1) {
+        binObject.binTitle = `${Number(dayStr)}.${Number(monthStr)}`;
+        binObject.title = `${this._classify(dateStr, "W").replace("-", " ")}`;
+        binObject.seperator = true;
+      }
+    } else {
+      throw new Error(`invalid scope provided, expected: ["10Y", "5Y", "Y", "M", "W", "D"]. Got: "${scope}"`);
     }
     return binObject;
   }
@@ -176,14 +217,14 @@ export class SearchResultService {
   /*
    * ...classifies dateStr into category (based on scope)
    * EXAMPLES:
-   * classify("2016-01-12", "10Y") // => "2010"
-   * classify("2016-01-12", "5Y") // => "2015"
-   * classify("2016-01-12", "Y") // => "2016"
-   * classify("2016-01-12", "M") // => "2010-01"
-   * classify("2016-01-12", "W") // => "2016-W2"
-   * classify("2016-01-12", "D") // => "2016-01-12"
+   * _classify("2016-01-12", "10Y") // => "2010"
+   * _classify("2016-01-12", "5Y") // => "2015"
+   * _classify("2016-01-12", "Y") // => "2016"
+   * _classify("2016-01-12", "M") // => "2010-01"
+   * _classify("2016-01-12", "W") // => "2016-W2"
+   * _classify("2016-01-12", "D") // => "2016-01-12"
    */
-  classify(dateStr, scope) { // returns category (as string)
+  _classify(dateStr, scope) { // returns category (as string)
     if (!dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) { // quick validate dateStr
       throw new Error(`invalid dateStr format, expected "YYYY-MM-DD", got: "${dateStr}".`);
     }
@@ -200,8 +241,8 @@ export class SearchResultService {
       case "M":
         return dateStr.substr(0, 7);
       case "W":
-        const UTCDate = this.dateStrToUTCDate(dateStr);
-        return this.UTCDateToWeekFormat(UTCDate);
+        const UTCDate = this._dateStrToUTCDate(dateStr);
+        return this._UTCDateToWeekFormat(UTCDate);
       case "D":
         return dateStr;
     }
@@ -210,9 +251,11 @@ export class SearchResultService {
   /*
    * ...gets first day as UTC Date, based on the category
    * EXAMPLES:
-   * getFirstDay("2010") // =>
+   * _getFirstDay("2010")     // => 2010-01-01
+   * _getFirstDay("2010-12")  // => 2010-12-01
+   * _getFirstDay("2010-W10") // => 2010-03-08
    */
-  getFirstDay(categoryStr) {
+  _getFirstDay(categoryStr) {
     if (categoryStr.match(/^\d{4}-\d{2}-\d{2}$/)) { // YYYY-MM-DD => return same value
       return categoryStr;
     }
@@ -226,14 +269,17 @@ export class SearchResultService {
       //                    |YYYY-W |1-9 | 10-49    | 50-53 |
       const split = categoryStr.split("-");
       const year = Number(split[0]);
-      const weekNummber = Number(split[1].replace("W", ""));
-      return this.getDateStrOfISOWeek(year, weekNummber);
+      const weekNumber = Number(split[1].replace("W", ""));
+      return this._getDateStrOfISOWeek(year, weekNumber);
     }
     throw new Error("invalid categoryStr");
   }
 
-  dateStrToUTCDate(dateStr) {
-    if (!this.isValidDateStr(dateStr)) {
+  /*
+   * converts dateStr (YYYY-MM-DD) to a date object in UTC time
+   */
+  _dateStrToUTCDate(dateStr) {
+    if (!this._isValidDateStr(dateStr)) {
       throw new Error(`invalid dateStr, expected "YYYY-MM-DD" with month[1-12] and day[1-31], got: "${dateStr}".`);
     }
     const split = dateStr.split("-");
@@ -243,17 +289,27 @@ export class SearchResultService {
     return new Date(Date.UTC(year, month - 1, day));
   }
 
-  UTCDateToDateStr(UTCDate) {
+  /*
+   * converts a UTC date object to a dateStr (YYYY-MM-DD)
+   */
+  _UTCDateToDateStr(UTCDate) {
     return UTCDate.toISOString().split("T")[0];
   }
 
-  UTCDateToWeekFormat(UTCDate) {
-    const year = this.getISOWeekYear(UTCDate);
-    const weekNbr = this.getISOWeek(UTCDate);
+  /*
+   * examples:
+   * 1 Jan 2020 =>  2020-W1
+   */
+  _UTCDateToWeekFormat(UTCDate) {
+    const year = this._getISOWeekYear(UTCDate);
+    const weekNbr = this._getISOWeek(UTCDate);
     return `${year}-W${weekNbr}`;
   }
 
-  getISOWeek(UTCDate) { // https://weeknumber.net/how-to/javascript
+  /*
+   * returns the ISO week as number based on a UTC date
+   */
+  _getISOWeek(UTCDate) { // https://weeknumber.net/how-to/javascript
     let date = new Date(UTCDate.getTime());
     date.setHours(0, 0, 0, 0);
     // Thursday in current week decides the year.
@@ -264,14 +320,21 @@ export class SearchResultService {
     return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000
       - 3 + (week1.getDay() + 6) % 7) / 7);
   }
-
-  getISOWeekYear(UTCDate) { // https://weeknumber.net/how-to/javascript
+  /*
+  * returns the ISO week year as number based on a UTC date
+  * this is only needed for rollovers, sometimes for example W1
+  * can start in the year before or W53 start in the following year
+  */
+  _getISOWeekYear(UTCDate) { // https://weeknumber.net/how-to/javascript
     var date = new Date(UTCDate.getTime());
     date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
     return date.getFullYear();
   }
 
-  getDateStrOfISOWeek(year, weekNumber) { // https://stackoverflow.com/a/16591175/6272061
+  /*
+   * given the year and weeknumber -> return dateStr (YYYY-MM-DD)
+   */
+  _getDateStrOfISOWeek(year, weekNumber) { // https://stackoverflow.com/a/16591175/6272061
     let simple = new Date(Date.UTC(year, 0, 1 + (weekNumber - 1) * 7));
     let dow = simple.getUTCDay();
     let ISOweekStart = simple;
@@ -282,56 +345,57 @@ export class SearchResultService {
     return ISOweekStart.toISOString().split("T")[0];
   }
 
+  /*
+   * compute the interval sizes based on the scope
+   * prediction only, not the actuall export of the data
+   */
   getIntervalSizes() {
     return {
-      "D": this.computeIntervalSize("D"),
-      "W": this.computeIntervalSize("W"),
-      "M": this.computeIntervalSize("M"),
-      "Y": this.computeIntervalSize("Y"),
-      "5Y": this.computeIntervalSize("5Y"),
-      "10Y": this.computeIntervalSize("10Y"),
+      "D": this._computeIntervalSize("D"),
+      "W": this._computeIntervalSize("W"),
+      "M": this._computeIntervalSize("M"),
+      "Y": this._computeIntervalSize("Y"),
+      "5Y": this._computeIntervalSize("5Y"),
+      "10Y": this._computeIntervalSize("10Y"),
     }
   }
 
-  computeIntervalSize(scope) {
-    const startDateStr = this.getMinDateStr();
-    const endDateStr = this.getMaxDateStr();
-    const startCategory = this.classify(startDateStr, scope);
-    const firstDayDateStr = this.getFirstDay(startCategory);
-    const endDate = this.dateStrToUTCDate(endDateStr);
-    let currentDate = this.dateStrToUTCDate(firstDayDateStr);
+  _computeIntervalSize(scope) {
+    const endDate = this._dateStrToUTCDate(this.getMaxDateStr());
+    const firstDayDateStr = this._getFirstDay(this._classify(this.getMinDateStr(), scope));
+    let currentDate = this._dateStrToUTCDate(firstDayDateStr);
     let count = 0;
     while (currentDate <= endDate) {
       count++;
-      currentDate = this.increaseDateBy(scope, currentDate);
+      currentDate = this._increaseDateBy(scope, currentDate);
     }
     return count;
   }
 
-  increaseDateBy(scope, date) {
+  _increaseDateBy(scope, date) {
     switch (scope) {
       case "D":
-        return this.addDays(date, 1);
+        return this._addDays(date, 1);
       case "W":
-        return this.addDays(date, 7);
+        return this._addDays(date, 7);
       case "M":
-        return this.addMonths(date, 1);
+        return this._addMonths(date, 1);
       case "Y":
-        return this.addYears(date, 1);
+        return this._addYears(date, 1);
       case "5Y":
-        return this.addYears(date, 5);
+        return this._addYears(date, 5);
       case "10Y":
-        return this.addYears(date, 10);
+        return this._addYears(date, 10);
     }
   }
 
-  addDays(date, days) {
+  _addDays(date, days) {
     let newDate = new Date(date.valueOf());
     newDate.setUTCDate(newDate.getUTCDate() + days);
     return newDate;
   }
 
-  addMonths(date, months) {
+  _addMonths(date, months) {
     let newDate = new Date(date.valueOf());
     let d = newDate.getUTCDate();
     newDate.setUTCMonth(newDate.getUTCMonth() + +months);
@@ -341,13 +405,13 @@ export class SearchResultService {
     return newDate;
   }
 
-  addYears(date, years) {
+  _addYears(date, years) {
     let newDate = new Date(date.valueOf());
     newDate.setUTCFullYear(newDate.getUTCFullYear() + years);
     return newDate;
   }
 
-  isValidDateStr(str) {
+  _isValidDateStr(str) {
     let split = str.split("-");
     if (split.length !== 3) return false;
     let year = split[0];
@@ -360,7 +424,7 @@ export class SearchResultService {
     return true;
   }
 
-  monthLookup(num) {
+  _monthLookup(num) {
     if (num > 12 || num < 1) {
       throw new Error(`invalid 'num' provided, expected 1-12. Got: ${num}`);
     }
@@ -379,23 +443,6 @@ export class SearchResultService {
       "12": "Dec",
     }
     return lookup[num.toString()];
-  }
-
-  week2month(weeknr) {
-    return {
-      "1": 1, //"2": 1, "3": 1, "4": 1, "5": 1,
-      "6": 2, //"7": 2, "8": 2, "9": 2,
-      "10": 3, //"11": 3, "12": 3, "13": 3, "14": 3,
-      "15": 4, //"16": 4, "17": 4, "18": 4,
-      "19": 5, //"20": 5, "21": 5, "22": 5,
-      "23": 6, //"24": 6, "25": 6, "26": 6, "27": 6,
-      "28": 7, //"29": 7, "30": 7, "31": 7,
-      "32": 8, //"33": 8, "34": 8, "35": 8,
-      "36": 9, //"37": 9, "38": 9, "39": 9, "40": 9,
-      "41": 10, //"42": 10, "43": 10, "44": 10,
-      "45": 11, //"46": 11, "47": 11, "48": 11,
-      "49": 12, //"50": 12, "51": 12, "52": 12, "53": 12
-    }[weeknr.toString()];
   }
 }
 
