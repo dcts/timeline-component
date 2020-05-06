@@ -11,7 +11,7 @@ import { jsonDataDev } from './data/dev-data.js';
 const jsonData = jsonDataDev;
 
 document.addEventListener("DOMContentLoaded", () => {
-  document.querySelector("vaadin-radio-group").setAttribute("label", "Select Sample Data");
+  document.querySelector("vaadin-radio-group").setAttribute("label", "Select View Option");
   document.querySelectorAll("vaadin-radio-button").forEach(radioButton => radioButton.removeAttribute("disabled"));
   initDevControls();
 });
