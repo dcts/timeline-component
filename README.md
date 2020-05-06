@@ -2,8 +2,8 @@
 
 Component to display a timeline (barchart) of search results. Build with lit-element. Demo is hosted here: https://dcts-todo-app.firebaseapp.com/
 
-**Preview**
-![Bildschirmfoto von 2020-05-06 05-18-00](https://user-images.githubusercontent.com/44790691/81136032-a79af380-8f5a-11ea-8191-03a0e739c45d.png)
+**Preview**<br>
+<a href="ttps://dcts-todo-app.firebaseapp.com/"><img src="https://user-images.githubusercontent.com/44790691/81136032-a79af380-8f5a-11ea-8191-03a0e739c45d.png"></a>
 
 # Requirements
 - **`nodeJS`**
