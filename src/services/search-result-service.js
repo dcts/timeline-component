@@ -49,10 +49,10 @@ export class SearchResultService {
   }
 
   /*
-   * exports data for each scope
-   * when no argument is provided, the optimal scope based
-   * on the maxInterval (default 60) will be assigned
-   */
+  * exports data for each scope
+  * when no argument is provided, the optimal scope based
+  * on the maxInterval (default 60) will be assigned
+  */
   export(scope) {
     // auto assign scope when no argument provided
     scope = scope || this._autoAssignScope();
@@ -123,8 +123,8 @@ export class SearchResultService {
   }
 
   /*
-   * lookup table which bin titles should be rotated
-   */
+  * lookup table which bin titles should be rotated
+  */
   _binTitleRotatedLookup(scope) {
     const lookup = {
       "10Y": true,
@@ -138,9 +138,9 @@ export class SearchResultService {
   }
 
   /*
-   * Helper method that builds a binObject that
-   * can be read by the pb-timeline component
-   */
+  * Helper method that builds a binObject that
+  * can be read by the pb-timeline component
+  */
   _buildBinObject(dateStr, category, scope) {
     const split = dateStr.split("-");
     const yearStr = split[0];
@@ -226,15 +226,15 @@ export class SearchResultService {
   }
 
   /*
-   * ...classifies dateStr into category (based on scope)
-   * EXAMPLES:
-   * _classify("2016-01-12", "10Y") // => "2010"
-   * _classify("2016-01-12", "5Y") // => "2015"
-   * _classify("2016-01-12", "Y") // => "2016"
-   * _classify("2016-01-12", "M") // => "2010-01"
-   * _classify("2016-01-12", "W") // => "2016-W2"
-   * _classify("2016-01-12", "D") // => "2016-01-12"
-   */
+  * ...classifies dateStr into category (based on scope)
+  * EXAMPLES:
+  * _classify("2016-01-12", "10Y") // => "2010"
+  * _classify("2016-01-12", "5Y") // => "2015"
+  * _classify("2016-01-12", "Y") // => "2016"
+  * _classify("2016-01-12", "M") // => "2010-01"
+  * _classify("2016-01-12", "W") // => "2016-W2"
+  * _classify("2016-01-12", "D") // => "2016-01-12"
+  */
   _classify(dateStr, scope) { // returns category (as string)
     if (!dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) { // quick validate dateStr
       throw new Error(`invalid dateStr format, expected "YYYY-MM-DD", got: "${dateStr}".`);
@@ -260,12 +260,12 @@ export class SearchResultService {
   }
 
   /*
-   * ...gets first day as UTC Date, based on the category
-   * EXAMPLES:
-   * _getFirstDay("2010")     // => 2010-01-01
-   * _getFirstDay("2010-12")  // => 2010-12-01
-   * _getFirstDay("2010-W10") // => 2010-03-08
-   */
+  * ...gets first day as UTC Date, based on the category
+  * EXAMPLES:
+  * _getFirstDay("2010")     // => 2010-01-01
+  * _getFirstDay("2010-12")  // => 2010-12-01
+  * _getFirstDay("2010-W10") // => 2010-03-08
+  */
   _getFirstDay(categoryStr) {
     if (categoryStr.match(/^\d{4}-\d{2}-\d{2}$/)) { // YYYY-MM-DD => return same value
       return categoryStr;
@@ -287,8 +287,8 @@ export class SearchResultService {
   }
 
   /*
-   * converts dateStr (YYYY-MM-DD) to a date object in UTC time
-   */
+  * converts dateStr (YYYY-MM-DD) to a date object in UTC time
+  */
   _dateStrToUTCDate(dateStr) {
     if (!this._isValidDateStr(dateStr)) {
       throw new Error(`invalid dateStr, expected "YYYY-MM-DD" with month[1-12] and day[1-31], got: "${dateStr}".`);
@@ -301,16 +301,16 @@ export class SearchResultService {
   }
 
   /*
-   * converts a UTC date object to a dateStr (YYYY-MM-DD)
-   */
+  * converts a UTC date object to a dateStr (YYYY-MM-DD)
+  */
   _UTCDateToDateStr(UTCDate) {
     return UTCDate.toISOString().split("T")[0];
   }
 
   /*
-   * example:
-   * 1 Jan 2020 => 2020-W1
-   */
+  * example:
+  * 1 Jan 2020 => 2020-W1
+  */
   _UTCDateToWeekFormat(UTCDate) {
     const year = this._getISOWeekYear(UTCDate);
     const weekNbr = this._getISOWeek(UTCDate);
@@ -344,8 +344,8 @@ export class SearchResultService {
   }
 
   /*
-   * given the year and weeknumber -> return dateStr (YYYY-MM-DD)
-   */
+  * given the year and weeknumber -> return dateStr (YYYY-MM-DD)
+  */
   _getDateStrOfISOWeek(year, weekNumber) { // https://stackoverflow.com/a/16591175/6272061
     let simple = new Date(Date.UTC(year, 0, 1 + (weekNumber - 1) * 7));
     let dow = simple.getUTCDay();
@@ -358,9 +358,9 @@ export class SearchResultService {
   }
 
   /*
-   * compute the interval sizes based on the scope
-   * prediction only, not the actuall export of the data
-   */
+  * compute the interval sizes based on the scope
+  * prediction only, not the actuall export of the data
+  */
   getIntervalSizes() {
     return {
       "D": this._computeIntervalSize("D"),

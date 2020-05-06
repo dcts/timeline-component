@@ -1,4 +1,3 @@
-// export
 export class ParseDateService {
   /*
    * PARSE DATE SERVICE
