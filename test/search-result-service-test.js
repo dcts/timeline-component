@@ -1,6 +1,5 @@
-const test = require('ava');
-// const ParseDateService = require('../src/services/parse-date-service.js');
 import { SearchResultService } from '../src/services/search-result-service.js';
+const test = require('ava');
 
 test('check if correct ISO week found', t => {
   t.is("2016-W23", new SearchResultService()._UTCDateToWeekFormat(new Date(Date.UTC(2016, 6-1, 11))));
