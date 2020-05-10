@@ -1,4 +1,5 @@
 export class ParseDateService {
+// class ParseDateService {
   /*
   * PARSE DATE SERVICE
   * whenever the user types a date, it should be allowed
@@ -19,7 +20,7 @@ export class ParseDateService {
   constructor() {
   }
 
-  run (input) {
+  run (input, type = "startdate") {
     this.input = input;
     this.day = "??";
     this.month = "??";
@@ -30,31 +31,50 @@ export class ParseDateService {
     const resultWeekMatch = this.input.match(this._weekMatchRegex());
     const resultYearAndMonthMatch = this.input.match(this._yearAndMonthRegex());
     if (resultIsoMatch) {
+      console.log("iso match");
       const split = resultIsoMatch[0].split(/-|\/|\s/);
       this.year  = split[0];
       this.month = this._setWithLeadingZero(split[1]);
       this.day   = this._setWithLeadingZero(split[2]);
     } else if (resultYearAndMonthMatch) {
+      console.log("year and month");
       const split = resultYearAndMonthMatch[0].split("-");
       this.year = split[0];
       this.month = this._setWithLeadingZero(split[1]);
-      this.day = "01";
+      // this.day = "01";
     } else if (resultCustomMatch) {
+      console.log("custom match");
       const split = resultCustomMatch[0].split(/\.|\s|\/|-/);
       this.day = this._setWithLeadingZero(split[0]);
       this.month = this._setWithLeadingZero(split[1]);
       this.year = split[2];
     } else if (resultWeekMatch) {
+      console.log("week match");
       const split = resultWeekMatch[0].split(/\.|\s|\/|-/);
       const year = Number(split[0]);
-      const week = Number(split[1].replace("W0", "").replace("W", ""));
-      return this._getDateStrOfISOWeek(year, week);
+      let week = Number(split[1].replace("W0", "").replace("W", ""));
+      week = Math.max(Math.min(53, week), 1);
+      const UTCDateStartOfWeek = this._getUTCDateOfISOWeek(year, week);
+      if (type === "startdate") {
+        return this._UTCDateToDateStr(UTCDateStartOfWeek);
+      } else if (type === "enddate") {
+        return this._UTCDateToDateStr(this._addDays(UTCDateStartOfWeek, 6));
+      } else {
+        throw new Error(`invalid type, expected 'startdate' or 'enddate', got: ${type}`);
+      }
     } else {
+      console.log("else");
       this._findYear();
       this._findMonth();
       this._findDay();
     }
-    return this._buildResult();
+    if (type == "startdate") {
+      console.log("startdate");
+      return this._buildResult();
+    } else if (type == "enddate") {
+      console.log("enddate");
+      return this._buildEndResult();
+    }
   }
 
   _buildResult() {
@@ -63,6 +83,24 @@ export class ParseDateService {
     }
     if (this.month != "??" && this.day === "??") {
       this.day = "01";
+    }
+    return `${this.year}-${this.month}-${this.day}`;
+  }
+
+  _buildEndResult() {
+    console.log(this.year);
+    console.log(this.month);
+    console.log(this.day);
+    if (this.year != "????" && this.month === "??") {
+      this.month = "12";
+      this.day = "31";
+    }
+    if (this.year != "????" && this.month != "??" && this.day === "??") {
+      this.day = this._daysPerMonthLookup(this.month); // get usual end day
+      // if february and leapyear add +1 (to addup to 29 days instead of 28)
+      if (this._isLeapYear(this.year) && this.month === "02") {
+        this.day = "29";
+      }
     }
     return `${this.year}-${this.month}-${this.day}`;
   }
@@ -235,32 +273,64 @@ export class ParseDateService {
     }
   }
 
-  _getDateStrOfISOWeek(y, w) {
-    let simple = new Date(y, 0, 1 + (w - 1) * 7);
-    let dow = simple.getDay();
+  _daysPerMonthLookup(monthStr) {
+    const lookup = {
+      "01": "31",
+      "02": "28",
+      "03": "31",
+      "04": "30",
+      "05": "31",
+      "06": "30",
+      "07": "31",
+      "08": "31",
+      "09": "30",
+      "10": "31",
+      "11": "30",
+      "12": "31",
+    }
+    return lookup[monthStr] || "??"; // fallback to "??" if no match
+  }
+
+  _isLeapYear(yearInput) { // https://www.w3resource.com/javascript-exercises/javascript-basic-exercise-6.php
+    const year = Number(yearInput);
+    return (year % 100 === 0) ? (year % 400 === 0) : (year % 4 === 0);
+  }
+
+  _getUTCDateOfISOWeek(y, w) {
+    let simple = new Date(Date.UTC(y, 0, 1 + (w - 1) * 7));
+    let dow = simple.getUTCDay();
     let ISOweekStart = simple;
     if (dow <= 4) {
-      ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1);
+      ISOweekStart.setUTCDate(simple.getUTCDate() - simple.getUTCDay() + 1);
     } else {
-      ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
+      ISOweekStart.setUTCDate(simple.getUTCDate() + 8 - simple.getUTCDay());
     }
     // do not rollover to next or previous year
-    if (ISOweekStart.getFullYear() > y) {
-      return `${y}-12-31`;
-    } else if (ISOweekStart.getFullYear() < y) {
-      return `${y}-01-01`;
-    }
-    return this._dateToDateStr(ISOweekStart);
+    // if (ISOweekStart.getFullYear() > y) {
+    //   return `${y}-12-31`;
+    // } else if (ISOweekStart.getFullYear() < y) {
+    //   return `${y}-01-01`;
+    // }
+    return ISOweekStart; //this._UTCDateToDateStr(ISOweekStart);
   }
 
   /*
   * formats date object to dateStr YYYY-MM-DD
   */
-  _dateToDateStr(date) {
+  _UTCDateToDateStr(date) {
     let d = new Date(date);
     let month = this._setWithLeadingZero((d.getMonth() + 1));
     let day = this._setWithLeadingZero(d.getDate());
     let year = d.getFullYear();
     return `${year}-${month}-${day}`;
   }
+
+  _addDays(UTCDate, days) {
+    let newUTCDate = new Date(UTCDate.valueOf());
+    newUTCDate.setUTCDate(newUTCDate.getUTCDate() + days);
+    return newUTCDate;
+  }
 }
+
+
+// console.log(new ParseDateService().run("1950-12", "enddate"));
