@@ -31,25 +31,21 @@ export class ParseDateService {
     const resultWeekMatch = this.input.match(this._weekMatchRegex());
     const resultYearAndMonthMatch = this.input.match(this._yearAndMonthRegex());
     if (resultIsoMatch) {
-      console.log("iso match");
       const split = resultIsoMatch[0].split(/-|\/|\s/);
       this.year  = split[0];
       this.month = this._setWithLeadingZero(split[1]);
       this.day   = this._setWithLeadingZero(split[2]);
     } else if (resultYearAndMonthMatch) {
-      console.log("year and month");
       const split = resultYearAndMonthMatch[0].split("-");
       this.year = split[0];
       this.month = this._setWithLeadingZero(split[1]);
       // this.day = "01";
     } else if (resultCustomMatch) {
-      console.log("custom match");
       const split = resultCustomMatch[0].split(/\.|\s|\/|-/);
       this.day = this._setWithLeadingZero(split[0]);
       this.month = this._setWithLeadingZero(split[1]);
       this.year = split[2];
     } else if (resultWeekMatch) {
-      console.log("week match");
       const split = resultWeekMatch[0].split(/\.|\s|\/|-/);
       const year = Number(split[0]);
       let week = Number(split[1].replace("W0", "").replace("W", ""));
@@ -63,16 +59,13 @@ export class ParseDateService {
         throw new Error(`invalid type, expected 'startdate' or 'enddate', got: ${type}`);
       }
     } else {
-      console.log("else");
       this._findYear();
       this._findMonth();
       this._findDay();
     }
     if (type == "startdate") {
-      console.log("startdate");
       return this._buildResult();
     } else if (type == "enddate") {
-      console.log("enddate");
       return this._buildEndResult();
     }
   }
@@ -88,9 +81,6 @@ export class ParseDateService {
   }
 
   _buildEndResult() {
-    console.log(this.year);
-    console.log(this.month);
-    console.log(this.day);
     if (this.year != "????" && this.month === "??") {
       this.month = "12";
       this.day = "31";
