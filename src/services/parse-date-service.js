@@ -305,12 +305,6 @@ export class ParseDateService {
     } else {
       ISOweekStart.setUTCDate(simple.getUTCDate() + 8 - simple.getUTCDay());
     }
-    // do not rollover to next or previous year
-    // if (ISOweekStart.getFullYear() > y) {
-    //   return `${y}-12-31`;
-    // } else if (ISOweekStart.getFullYear() < y) {
-    //   return `${y}-01-01`;
-    // }
     return ISOweekStart; //this._UTCDateToDateStr(ISOweekStart);
   }
 
@@ -331,6 +325,3 @@ export class ParseDateService {
     return newUTCDate;
   }
 }
-
-
-// console.log(new ParseDateService().run("1950-12", "enddate"));

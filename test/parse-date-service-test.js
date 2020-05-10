@@ -1,9 +1,5 @@
-const test = require('ava');
-// const ParseDateService = require('../src/services/parse-date-service.js');
 import { ParseDateService } from '../src/services/parse-date-service.js';
-
-// import { ParseDateService } from '../src/services/parse-date-service.js';
-// console.log(ParseDateService);
+const test = require('ava');
 
 test('should return default value for nonsense input', t => {
   t.is("????-??-??", new ParseDateService().run("asdkjh1awd sd23fs2kjh asdjkh asdw"));
