@@ -164,7 +164,7 @@ export class ParseDateService {
   _findMonth() {
     const months = this._monthDictionaryValues();
     months.forEach(month => {
-      let re = new RegExp(`(?<=\\s|^)(${month})(?=\\s|$|\\.)`, "i")
+      let re = new RegExp(`(?<=\\s|^|-)(${month})(?=\\s|$|\\.)`, "i")
       const result = this.input.match(re);
       if (result) { // yes => get dict and value + return
         this.month = this._monthDictionary()[result[0].toLowerCase()];

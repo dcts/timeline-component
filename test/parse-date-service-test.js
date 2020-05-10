@@ -225,12 +225,12 @@ test('should point to end of week for type = "enddate"', t => {
   t.is("1913-11-02", new ParseDateService().run("1913-W44", "enddate"));
 });
 
-// test('should point to end of week or month with different formats (for type = "enddate")', t => {
-//   t.is("1909-01-03", new ParseDateService().run("1908.W53", "enddate"));
-//   t.is("1909-01-03", new ParseDateService().run("1908/W53", "enddate"));
-//   t.is("1913-11-02", new ParseDateService().run("1913-W44", "enddate"));
-//   t.is("1913-03-23", new ParseDateService().run("1913 W12", "enddate"));
-//   t.is("1908-01-31", new ParseDateService().run("1908-jan", "enddate"));
-//   t.is("2020-03-31", new ParseDateService().run("2020-mar", "enddate"));
-// });
+test('should point to end of week or month with different formats (for type = "enddate")', t => {
+  t.is("1909-01-03", new ParseDateService().run("1908.W53", "enddate"));
+  t.is("1909-01-03", new ParseDateService().run("1908/W53", "enddate"));
+  t.is("1913-11-02", new ParseDateService().run("1913-W44", "enddate"));
+  t.is("1913-03-23", new ParseDateService().run("1913 W12", "enddate"));
+  t.is("1908-01-31", new ParseDateService().run("1908-jan", "enddate"));
+  t.is("2020-03-31", new ParseDateService().run("2020-mar", "enddate"));
+});
 
