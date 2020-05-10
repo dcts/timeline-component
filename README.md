@@ -47,6 +47,7 @@ to test the `ParseDateService` and `SearchResultService`. [AVA testing framework
 - [x] tooltip during selection
 - [ ] move electon around by dragging
 - [ ] distinct behavior for both inputs
+- [x] custom validations for inputs
 - [x] custom views for all 6 scopes
   - [x] decades(10Y)
   - [x] decades(5Y)
@@ -55,3 +56,5 @@ to test the `ParseDateService` and `SearchResultService`. [AVA testing framework
   - [x] weeks
   - [x] day
 - [ ] cleanup code and repo
+- [ ] API documentation / storybook 
+- [ ] publish on NPM
