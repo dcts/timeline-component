@@ -198,3 +198,43 @@ test('should detect year and month seperated by dash format yyyy-(m)m (with lead
   t.is("1999-06-01", new ParseDateService().run("1999-6"));
 });
 
+test('should point to end of month for type = "enddate"', t => {
+  t.is("2000-01-31", new ParseDateService().run("2000-1", "enddate"));
+  t.is("1867-02-28", new ParseDateService().run("1867-2", "enddate"));
+  t.is("1999-06-30", new ParseDateService().run("1999-6", "enddate"));
+  t.is("1950-12-31", new ParseDateService().run("1950-12", "enddate"));
+});
+
+test('should point to end of month for type = "enddate" and detect leap year', t => {
+  t.is("1908-02-29", new ParseDateService().run("1908-2", "enddate"));
+  t.is("1980-02-29", new ParseDateService().run("1980-2", "enddate"));
+  t.is("2000-02-29", new ParseDateService().run("2000-2", "enddate"));
+  t.is("2016-02-29", new ParseDateService().run("2016-2", "enddate"));
+  t.is("2020-02-29", new ParseDateService().run("2020 Feb", "enddate"));
+});
+
+test('should point to end of year for type = "enddate"', t => {
+  t.is("1908-12-31", new ParseDateService().run("1908", "enddate"));
+  t.is("2013-12-31", new ParseDateService().run("2013", "enddate"));
+  t.is("2000-12-31", new ParseDateService().run("2000", "enddate"));
+  t.is("1834-12-31", new ParseDateService().run("1834", "enddate"));
+});
+
+test('should point to end of week for type = "enddate"', t => {
+  t.is("1908-12-28", new ParseDateService().run("2000-W53"));
+  t.is("1909-01-03", new ParseDateService().run("1908-W53", "enddate"));
+  t.is("1908-01-12", new ParseDateService().run("1908-W2", "enddate"));
+  t.is("2020-05-10", new ParseDateService().run("2020-W22", "enddate"));
+  t.is("1913-10-27", new ParseDateService().run("1913-W44"));
+  t.is("1913-11-02", new ParseDateService().run("1913-W44", "enddate"));
+});
+
+test('should point to end of week or month with different formats (for type = "enddate")', t => {
+  t.is("1909-01-03", new ParseDateService().run("1908.W53", "enddate"));
+  t.is("1909-01-03", new ParseDateService().run("1908/W53", "enddate"));
+  t.is("1913-11-02", new ParseDateService().run("1913-W44", "enddate"));
+  t.is("1913-03-23", new ParseDateService().run("1913 W12", "enddate"));
+  t.is("1908-01-31", new ParseDateService().run("1908-jan", "enddate"));
+  t.is("2020-03-31", new ParseDateService().run("2020-mar", "enddate"));
+});
+
