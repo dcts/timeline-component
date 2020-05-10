@@ -94,6 +94,7 @@ class PbDaterangePicker extends LitElement {
 
     // this event is triggered by the component itself but can be also triggered by another component
     document.addEventListener("pb-timeline-reset-selection", () => {
+      this.resetInputErrors();
       this.selection = { start: null, end: null };
       this.setInputs(this.range.start, this.range.end);
       this.buttonDisabled = true;
@@ -115,8 +116,7 @@ class PbDaterangePicker extends LitElement {
       if (event.currentTarget === this.dateInputFrom) {
         this.dateInputTo.focus();
       }
-      this.validateSelectionRange();
-      event.stopPropagation();
+      this.validateSelectionRange(event);
 
 
       // this.dateInputTo.focus(); // this triggeres the "unfocus" event in both cases (which trigger the validateDate function):
@@ -126,6 +126,10 @@ class PbDaterangePicker extends LitElement {
     } else { // apply the date parsing algorithm and display prediction on paperinput label
       this.liveUpdateLabel(event)
     }
+  }
+
+  fullIntervalSelected() {
+    return (this.range.start === this.selection.start && this.range.end === this.selection.end)
   }
 
   liveUpdateLabel(keyboardEvent) {
@@ -141,8 +145,10 @@ class PbDaterangePicker extends LitElement {
   // is called on focuseout event of both inputs
   // if daterange is valid -> set selection
   // else => notify user and set selection to range (= allowed boundaries)
-  validateSelectionRange() {
-    console.log("validating selected daterange");
+  validateSelectionRange(event) {
+
+
+    this.resetInputErrors();
     let startDateStr = new ParseDateService().run(this.dateInputFrom.value);
     let endDateStr = new ParseDateService().run(this.dateInputTo.value);
     // check if both dates are valid dateStr's
@@ -168,7 +174,13 @@ class PbDaterangePicker extends LitElement {
       this.selection = { start: startDateStr, end: endDateStr };
       this.dispatchDaterangeChangedEvent(startDateStr, endDateStr);
     } else {
-      console.log("invalid daterange, startdate needs to be before enddate");
+      this.dateInputFrom.invalid = true;
+      this.dateInputTo.invalid = true;
+      if (event.currentTarget === this.dateInputFrom) {
+        this.dateInputFrom.errorMessage = "must start before 'To Date'";
+      } else {
+        this.dateInputTo.errorMessage = "must end after 'From Date'";
+      }
       this.buttonDisabled = false;
     }
   }
@@ -195,6 +207,13 @@ class PbDaterangePicker extends LitElement {
     this.setInputFrom(startDateStr);
     this.setInputTo(endDateStr);
     this.inputsDisabled = false;
+  }
+
+  resetInputErrors() {
+    this.dateInputFrom.errorMessage = "";
+    this.dateInputTo.errorMessage = "";
+    this.dateInputFrom.invalid = false;
+    this.dateInputTo.invalid = false;
   }
 
   setInputFrom(dateStr) {
