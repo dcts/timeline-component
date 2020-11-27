@@ -45,7 +45,7 @@ to test the `ParseDateService` and `SearchResultService`. [AVA testing framework
 - [x] reset range button (in the datepicker)
 - [x] tooltip on hover
 - [x] tooltip during selection
-- [ ] move electon around by dragging
+- [ ] move selection around by dragging
 - [ ] distinct behavior for both inputs
 - [x] custom validations for inputs
 - [x] custom views for all 6 scopes
